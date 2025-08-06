@@ -1,13 +1,15 @@
 from collections.abc import Callable
 
+import numpy as np
+
 
 class FocusFunction:
     """Class to encapsulate the focus function and its gradient."""
 
     def __init__(
         self,
-        focus_function: Callable,
-        gradient: Callable,
+        focus_function: Callable[[np.ndarray], float | int],
+        gradient: Callable[[np.ndarray], np.ndarray],
     ):
         """
         Initialize the FocusFunction with a focus function and its gradient.
