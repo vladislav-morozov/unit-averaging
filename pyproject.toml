@@ -4,17 +4,20 @@ build-backend = "setuptools.build_meta"
 
 [project]
 requires-python = ">= 3.12"
-name = "unit-averaging"
+name = "unit_averaging"
 version = "0.0.1"
+dependencies = [
+    "numpy",
+]
 authors = [ 
-  {name = "Another person"}, 
+  {name = "Vladislav Morozov"}, 
 ] 
 description = "Unit averaging"
 license = "MIT"
 readme = "README.md"
 keywords = ["ensemble"]
 classifiers = [
-  # How mature is this project? Common values are
+  # How mature is this project? 
   #   3 - Alpha
   #   4 - Beta
   #   5 - Production/Stable
@@ -22,6 +25,7 @@ classifiers = [
 
   # Indicate who your project is intended for
   "Intended Audience :: Science/Research",
+  "Intended Audience :: Education",
   "Topic :: Scientific/Engineering", 
 
   # Specify the Python versions you support here.
@@ -74,3 +78,19 @@ select = [
     "UP", # pyupgrade
 ]
  
+
+###########
+### TOX ### 
+###########
+
+[tool.tox]
+envlist = ["py313", "py312"]
+
+# Base environments: testing
+[tool.tox.env_run_base]
+description = "Run test under {base_python}" 
+deps = [
+  "pytest",
+  "pytest-cov"
+]
+commands = [["pytest"]]
