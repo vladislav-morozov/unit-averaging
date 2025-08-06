@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 
@@ -8,8 +9,8 @@ class FocusFunction:
 
     def __init__(
         self,
-        focus_function: Callable[[np.ndarray], float | int],
-        gradient: Callable[[np.ndarray], np.ndarray],
+        focus_function: Callable[..., float | np.floating[Any]],
+        gradient: Callable[..., float | np.ndarray],
     ):
         """
         Initialize the FocusFunction with a focus function and its gradient.
