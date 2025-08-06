@@ -66,7 +66,7 @@ class UnitAverager:
             self.focus_function,
         )
 
-    def average(self, focus_function: FocusFunction | None) -> float:
+    def average(self, focus_function: FocusFunction | None = None) -> float:
         """Perform unit averaging with the fitted weights
 
         Args:
