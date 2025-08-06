@@ -88,7 +88,7 @@ class UnitAverager:
         ]
         return sum(weighted_ind_estimates)
 
-    def _init_weight_scheme(self, scheme_name: str):
+    def _init_weight_scheme(self, scheme_name: Literal["individual"]):
         """
         Initialize an appropriate implemented weight scheme based on string input
 
