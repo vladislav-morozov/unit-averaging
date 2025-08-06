@@ -1,7 +1,9 @@
+from typing import Literal
+
 import numpy as np
 
-from .focus_function import FocusFunction
-from .weights import IndividualWeights, UnitAveragingWeights
+from unit_averaging.focus_function import FocusFunction
+from unit_averaging.weights import IndividualWeights, UnitAveragingWeights
 
 
 class UnitAverager:
@@ -10,7 +12,7 @@ class UnitAverager:
     def __init__(
         self,
         focus_function: FocusFunction,
-        weight_scheme: str | UnitAveragingWeights,
+        weight_scheme: Literal["individual"] | UnitAveragingWeights,
         ind_estimates: list | np.ndarray,
         ind_covar_ests: list | np.ndarray | None = None,
     ):
@@ -88,7 +90,7 @@ class UnitAverager:
         ]
         return sum(weighted_ind_estimates)
 
-    def _init_weight_scheme(self, scheme_name: Literal["individual"]):
+    def _init_weight_scheme(self, scheme_name: str):
         """
         Initialize an appropriate implemented weight scheme based on string input
 

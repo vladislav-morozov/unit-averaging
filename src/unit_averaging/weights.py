@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from .focus_function import FocusFunction
+from unit_averaging.focus_function import FocusFunction
 
 
 class UnitAveragingWeights(ABC):
