@@ -81,6 +81,12 @@ class UnitAverager:
         Returns:
             float: unit averaging estimate
         """
+        # Check if weights have been fitted
+        if self.weights_ is None:
+            raise ValueError(
+                "Weights have not been fitted. Call the 'fit' method first."
+            )
+
         # If no new focus function is supplied, use the base one
         if focus_function is None:
             focus_function = self.focus_function
