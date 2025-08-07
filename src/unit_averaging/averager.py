@@ -35,6 +35,8 @@ class UnitAverager:
         self.focus_function = focus_function
         self.ind_estimates = ind_estimates
         self.ind_covar_ests = ind_covar_ests
+        self.weights = None
+        self.estimates_ = None
 
         if isinstance(weight_scheme, str):
             self.weight_scheme = self._init_weight_scheme(weight_scheme)
