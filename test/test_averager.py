@@ -1,12 +1,12 @@
 import numpy as np
 
-from unit_averaging import FocusFunction, UnitAverager
+from unit_averaging import InlineFocusFunction, UnitAverager
 
 
 def test_weight_list_scalars():
     """Test correct weight computation from lists of scalars"""
     # Create focus function
-    identity = FocusFunction(
+    identity = InlineFocusFunction(
         lambda x: x,
         lambda x: 1,
     )
@@ -19,7 +19,7 @@ def test_weight_list_scalars():
 def test_average_list_scalars():
     """Test correct averaging from lists of scalars"""
     # Create focus function
-    identity = FocusFunction(
+    identity = InlineFocusFunction(
         lambda x: x,
         lambda x: 1,
     )
@@ -32,7 +32,7 @@ def test_average_list_scalars():
 def test_average_list_arrays():
     """Test correct averaging from lists of NumPy arrays"""
     # Create focus function
-    first_coord = FocusFunction(
+    first_coord = InlineFocusFunction(
         lambda x: x[0],
         lambda x: np.array([1, 0]),
     )
@@ -50,7 +50,7 @@ def test_average_list_arrays():
 def test_average_array_arrays():
     """Test averaging with array of arrays as input"""
     # Create focus function
-    first_coord = FocusFunction(
+    first_coord = InlineFocusFunction(
         lambda x: x[0],
         lambda x: np.array([1, 0]),
     )
