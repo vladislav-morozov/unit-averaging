@@ -33,8 +33,8 @@ class UnitAverager:
                 when not using "optimal" weights.
         """
         self.focus_function = focus_function
-        self.ind_estimates = ind_estimates
-        self.ind_covar_ests = ind_covar_ests
+        self.ind_estimates = np.array(ind_estimates)
+        self.ind_covar_ests = np.array(ind_covar_ests)
         self.weights = None
         self.estimates_ = None
 
