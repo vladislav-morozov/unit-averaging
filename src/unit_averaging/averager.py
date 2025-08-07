@@ -1,9 +1,18 @@
+from collections.abc import Callable
 from typing import Literal
 
 import numpy as np
 
 from unit_averaging.focus_function import FocusFunction
-from unit_averaging.weights import IndividualWeights, UnitAveragingWeights
+from unit_averaging.weights import individual_weights
+
+# Type alias for weight functions used in unit averaging.
+# A weight function should accept a focus function, target ID,
+# individual estimates, and optional covariances.
+# It would return an array of weights
+WeightFunction = Callable[
+    [FocusFunction, int, np.ndarray, np.ndarray | None], np.ndarray
+]
 
 
 class UnitAverager:
@@ -12,7 +21,7 @@ class UnitAverager:
     def __init__(
         self,
         focus_function: FocusFunction,
-        weight_scheme: Literal["individual"] | UnitAveragingWeights,
+        weight_scheme: Literal["individual"] | WeightFunction,
         ind_estimates: list | np.ndarray,
         ind_covar_ests: list | np.ndarray | None = None,
     ):
@@ -22,9 +31,8 @@ class UnitAverager:
         Args:
             focus_function (FocusFunction): An instance of a class encapsulating
                 the focus function and its gradient.
-            weight_scheme (str): Specifies the weighting scheme to be used.
-                It can be a string indicating an implemented scheme (e.g.,
-                "individual") or an instance of custom UnitAveragingWeights.
+            weight_scheme (str | WeightFunction):  A predefined weight scheme
+                identifier or a custom weight function.
             ind_estimates (list | np.ndarray): sequence of individual parameter
                 estimates (thetas in docs and paper). These will be used as
                 arguments to focus_function
@@ -39,13 +47,12 @@ class UnitAverager:
         self.estimates_ = None
 
         if isinstance(weight_scheme, str):
-            self.weight_scheme = self._init_weight_scheme(weight_scheme)
-        elif isinstance(weight_scheme, UnitAveragingWeights):
-            self.weight_scheme = weight_scheme
+            self.weight_function = self._init_weight_scheme(weight_scheme)
+        elif isinstance(weight_scheme, Callable):
+            self.weight_function = weight_scheme
         else:
             raise TypeError(
-                "weight_scheme must be an allowed string "
-                "or instance of UnitAveragingWeights"
+                "weight_scheme must be an allowed string or a suitable weight function"
             )
 
     def fit(
@@ -58,11 +65,11 @@ class UnitAverager:
             target_id (int): ID of target unit
         """
         # Compute and store weights
-        self.weights_ = self.weight_scheme.compute_weights(
+        self.weights_ = self.weight_function(
             self.focus_function,
+            target_id,
             self.ind_estimates,
             self.ind_covar_ests,
-            target_id=target_id,
         )
 
         # Compute appropriate unit averaging estimate
@@ -107,6 +114,6 @@ class UnitAverager:
         """
         match scheme_name:
             case "individual":
-                return IndividualWeights()
+                return individual_weights
             case _:
                 raise KeyError(f"Weight scheme '{scheme_name}' not found")
