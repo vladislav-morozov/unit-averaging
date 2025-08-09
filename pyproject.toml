@@ -1,0 +1,96 @@
+[build-system]
+requires = ["setuptools", "wheel", "cython"]
+build-backend = "setuptools.build_meta"
+
+[project]
+requires-python = ">= 3.12"
+name = "unit_averaging"
+version = "0.0.1"
+dependencies = [
+    "numpy",
+]
+authors = [ 
+  {name = "Vladislav Morozov"}, 
+] 
+description = "Unit averaging"
+license = "MIT"
+readme = "README.md"
+keywords = ["ensemble"]
+classifiers = [
+  # How mature is this project? 
+  #   3 - Alpha
+  #   4 - Beta
+  #   5 - Production/Stable
+  "Development Status :: 3 - Alpha",
+
+  # Indicate who your project is intended for
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Education",
+  "Topic :: Scientific/Engineering", 
+
+  # Specify the Python versions you support here.
+  "Programming Language :: Python :: 3", 
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+[project.urls]
+Homepage = "https://github.com/vladislav-morozov/unit-averaging/"
+Documentation = "https://vladislav-morozov.github.io/unit-averaging/"
+
+[tool.pytest.ini_options]
+testpaths = [
+  "test", 
+]
+
+
+###############
+### pyright ### 
+###############
+
+[tool.pyright] 
+include = ["src"] 
+exclude = ["**/__pycache__"] 
+
+reportMissingImports = "error" 
+reportMissingTypeStubs = false
+
+pythonVersion = "3.12" 
+pythonPlatform = "Linux"  
+
+#############
+### Ruff ### 
+#############
+
+[tool.ruff]
+line-length = 88
+target-version = 'py312' 
+
+[tool.ruff.lint]
+# Enable the selection of rules to use.
+select = [
+    "E",  # Pycodestyle errors
+    "W",  # Pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ 
+
+###########
+### TOX ### 
+###########
+
+[tool.tox]
+envlist = ["py313", "py312"]
+
+# Base environments: testing
+[tool.tox.env_run_base]
+description = "Run test under {base_python}" 
+deps = [
+  "pytest",
+  "pytest-cov"
+]
+commands = [["pytest"]]
