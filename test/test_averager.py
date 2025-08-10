@@ -39,6 +39,31 @@ test_data = [
         np.array([0.5, 0.5]),
         3.5,
     ),
+    # Inputs: arrays of numpy arrays
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        "individual",
+        np.array([np.array([3, 2]), np.array([4, 5])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        np.array([1, 0]),
+        3,
+    ),
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        "mean_group",
+        np.array([np.array([3, 2]), np.array([4, 5])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        np.array([0.5, 0.5]),
+        3.5,
+    ),
+]
+test_ids = [
+    "scalar_list_individual",
+    "scalar_list_mean_group",
+    "array_list_individual",
+    "array_list_mean_group",
+    "array_of_arrays_individual",
+    "array_of_arrays_mean_group",
 ]
 
 
@@ -46,6 +71,7 @@ test_data = [
     "focus_function, weight_scheme, ind_estimates, "
     "ind_covar_ests, expected_weights, expected_estimate",
     test_data,
+    ids=test_ids,
 )
 def test_unit_averager_various_inputs(
     focus_function,
@@ -65,7 +91,6 @@ def test_unit_averager_various_inputs(
     ua.fit(target_id=0)
 
     # Compound assertion to check both weights and estimate
-    assert (
-        np.allclose(ua.weights_, expected_weights, rtol=1e-03)
-        and np.allclose(ua.estimate_, expected_estimate, rtol=1e-03)
+    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate_, expected_estimate, rtol=1e-03
     ), "Weights or estimate do not match expected values."
