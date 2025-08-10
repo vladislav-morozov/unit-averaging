@@ -81,7 +81,7 @@ def test_unit_averager_various_inputs(
     expected_weights,
     expected_estimate,
 ):
-    """Test the UnitAverager with various inputs and weight schemes."""
+    """Test the ability of UnitAverager to take various inputs."""
     ua = UnitAverager(
         focus_function,
         weight_scheme,
@@ -90,7 +90,108 @@ def test_unit_averager_various_inputs(
     )
     ua.fit(target_id=0)
 
-    # Compound assertion to check both weights and estimate
+    # Check weights and estimates
+    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate_, expected_estimate, rtol=1e-03
+    ), "Weights or estimate do not match expected values."
+
+
+# Test data for testing various inputs
+test_data = [
+    # Same unit data (expect equal weights)
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([1.0, 1]), np.array([1, 1])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        np.array([0.5, 0.5]),
+        1,
+    ),
+    # Other unit has crazy variance (expect individual weights)
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([1.0, 1]), np.array([1, 1])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[10e10, 0], [0, 10e10]])]),
+        np.array([1, 0]),
+        1,
+    ),
+    # Other unit has crazy bias
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([1.0, 1]), np.array([10e10, 1])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        np.array([1, 0]),
+        1,
+    ),
+    # Target has crazy variance, other is biased
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([1.0, 1]), np.array([2, 1])]),
+        np.array([np.array([[10e10, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        np.array([0, 1]),
+        2,
+    ),
+    # Meaningful averaging with two units
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([1.0, 1]), np.array([1, 1])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[2, 0], [0, 1]])]),
+        np.array([2 / 3, 1 / 3]),
+        1,
+    ),
+    # Meaningful averaging with three units
+    # Two useful units, one crazy one
+    # Ten identical units
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0, 0, 0, 0])),
+        np.ones((10, 5)),
+        np.array([np.eye(5)] * 10),
+        np.ones((10, 1)) / 10,
+        1,
+    ),
+    # Other nine units are crazy
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0, 0, 0, 0])),
+        np.ones((10, 5)),
+        np.stack([np.eye(5), *np.array([np.eye(5) * 10e10] * 9)]),
+        np.stack([np.array(1), *np.zeros(9)]),
+        1,
+    ),
+    # Nonlinear focus function
+]
+test_ids = [
+    "2 units: identical",
+    "2 units: non-target with crazy variance",
+    "2 units: non-target with crazy bias",
+    "2 units: target has crazy variance, other is biased",
+    "2 units: reasonable",
+    "10 units: identical",
+    "10 units: non-targets have crazy variance",
+]
+
+
+@pytest.mark.parametrize(
+    "focus_function, ind_estimates, "
+    "ind_covar_ests, expected_weights, expected_estimate",
+    test_data,
+    ids=test_ids,
+)
+def test_unit_averager_optional_fixed_n(
+    focus_function,
+    ind_estimates,
+    ind_covar_ests,
+    expected_weights,
+    expected_estimate,
+):
+    """Test fixed-N (agnostic) optimal weights in UnitAverager."""
+    ua = UnitAverager(
+        focus_function,
+        "optimal",
+        ind_estimates,
+        ind_covar_ests,
+    )
+    ua.fit(target_id=0)
+
+    # Check weights and estimates
     assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
         ua.estimate_, expected_estimate, rtol=1e-03
     ), "Weights or estimate do not match expected values."
