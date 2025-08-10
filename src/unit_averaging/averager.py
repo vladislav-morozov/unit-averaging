@@ -4,7 +4,11 @@ from typing import Literal
 import numpy as np
 
 from unit_averaging.focus_function import FocusFunction
-from unit_averaging.weights import individual_weights, mean_group_weights
+from unit_averaging.weights import (
+    individual_weights,
+    mean_group_weights,
+    optimal_weights,
+)
 
 # Type alias for weight functions used in unit averaging.
 # A weight function should accept a focus function, target ID,
@@ -117,5 +121,7 @@ class UnitAverager:
                 return individual_weights
             case "mean_group":
                 return mean_group_weights
+            case "optimal":
+                return optimal_weights
             case _:
                 raise KeyError(f"Weight scheme '{scheme_name}' not found")
