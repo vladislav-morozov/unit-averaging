@@ -7,6 +7,7 @@ requires-python = ">= 3.12"
 name = "unit_averaging"
 version = "0.0.1"
 dependencies = [
+    "cvxpy",
     "numpy",
 ]
 authors = [ 
