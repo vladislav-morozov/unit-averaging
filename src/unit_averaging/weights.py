@@ -203,7 +203,8 @@ def optimal_weights(
             eq_lhs @ weights == eq_rhs,
         ],
     )
-    prob.solve(raise_error=True)
+    # TODO: Resolve raise_error warning after https://github.com/cvxpy/cvxpy/issues/2851
+    prob.solve()
     if weights.value is None:
         raise ValueError("Optimizer could not find a feasible solution.")
 
