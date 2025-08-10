@@ -203,7 +203,7 @@ def optimal_weights(
             eq_lhs @ weights == eq_rhs,
         ],
     )
-    prob.solve()
+    prob.solve(raise_error=True)
     if weights.value is None:
         raise ValueError("Optimizer could not find a feasible solution.")
 
