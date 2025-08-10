@@ -25,7 +25,7 @@ class UnitAverager:
     def __init__(
         self,
         focus_function: FocusFunction,
-        weight_scheme: Literal["individual", "mean_group"] | WeightFunction,
+        weight_scheme: Literal["individual", "mean_group", "optimal"] | WeightFunction,
         ind_estimates: list | np.ndarray,
         ind_covar_ests: list | np.ndarray | None = None,
     ):
