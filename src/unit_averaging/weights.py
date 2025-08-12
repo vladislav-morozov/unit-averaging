@@ -79,7 +79,7 @@ def _build_mse_matrix(
             If None, all units are unrestricted.
 
     Returns:
-        np.ndarray: the estimated MSE matrix (Psi or Q in notation of paper)
+        np.ndarray: the estimated MSE matrix (psi or Q in notation of paper)
     """
 
     # Detect fixed-N vs. large-N mode. Unrestrict all units with fixed-N
@@ -91,7 +91,7 @@ def _build_mse_matrix(
     unrstrct_covar = ind_covar_ests[unrestr_units_bool]
 
     # Fill MSE matrix element-by-element
-    Psi = np.empty((len(unrstrct_coefs), len(unrstrct_coefs)), dtype="float64")
+    psi = np.empty((len(unrstrct_coefs), len(unrstrct_coefs)), dtype="float64")
     for i in range(len(unrstrct_coefs)):
         for j in range(len(unrstrct_coefs)):
             # Difference between estimates
@@ -104,15 +104,15 @@ def _build_mse_matrix(
             # Multiply by gradient
             psi_ij = gradient_estimate_target @ psi_ij @ gradient_estimate_target
             # Set the corresponding element
-            Psi[i, j] = psi_ij
+            psi[i, j] = psi_ij
 
     # If in large-N regime, add an outer row and column of restricted units
     if sum(unrestr_units_bool) < len(ind_estimates):
-        Q = np.empty(
+        q = np.empty(
             (len(unrstrct_coefs) + 1, len(unrstrct_coefs) + 1),
             dtype="float64",
         )
-        Q[:-1, :-1] = Psi
+        q[:-1, :-1] = psi
         b = np.empty(len(unrstrct_coefs), dtype="float64")
 
         # Fill out the elements of the b vector
@@ -122,18 +122,18 @@ def _build_mse_matrix(
                 unrstrct_coefs[i] - ind_estimates[target_id],
                 ind_estimates[target_id] - mg,
             )
-            Q[i, -1] = -gradient_estimate_target @ b_i @ gradient_estimate_target
-            Q[-1, i] = Q[i, -1]
+            q[i, -1] = -gradient_estimate_target @ b_i @ gradient_estimate_target
+            q[-1, i] = q[i, -1]
 
         # Insert the last element
-        Q[-1, -1] = np.power(
+        q[-1, -1] = np.power(
             gradient_estimate_target @ (ind_estimates[target_id] - mg),
             2,
         )
     else:
-        Q = Psi
+        q = psi
 
-    return Q
+    return q
 
 
 def _clean_gradient(gradient: np.ndarray) -> np.ndarray:
