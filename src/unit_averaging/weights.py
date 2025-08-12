@@ -165,13 +165,13 @@ def optimal_weights(
         np.ndarray: optiomal unit weights
 
     Raises:
-        ValueError: If covariances are None or if the optimizer could not find a
+        TypeError: If covariances are None or if the optimizer could not find a
             feasible solution.
     """
 
     # Optimal weights need covariances
     if ind_covar_ests is None:
-        raise ValueError("Covariances cannot be None for optimal weights.")
+        raise TypeError("Covariances cannot be None for optimal weights.")
 
     # Estimate gradient and ensure it is a 1D numpy array
     gradient_estimate_target = _clean_gradient(
@@ -206,6 +206,8 @@ def optimal_weights(
     # TODO: Resolve raise_error warning after https://github.com/cvxpy/cvxpy/issues/2851
     prob.solve()
     if weights.value is None:
-        raise ValueError("Optimizer could not find a feasible solution.")
+        raise TypeError(
+            "Optimizer could not find a feasible solution, returned None."
+        )
 
     return weights.value
