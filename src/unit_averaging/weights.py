@@ -82,7 +82,7 @@ def _build_mse_matrix(
     ind_estimates: np.ndarray,
     ind_covar_ests: np.ndarray,
     gradient_estimate_target: np.ndarray,
-    unrestr_units_bool: np.ndarray | None = None,
+    unrestr_units_bool: np.ndarray,
 ) -> np.ndarray:
     """Build the objective matrix for optimal-weight unit averaging.
 
@@ -96,17 +96,12 @@ def _build_mse_matrix(
             individual parameter estimates.
         gradient_estimate_target (np.ndarray): 1D NumPy array with the estimated
             gradient of the focus function for the target unit
-        unrestr_units_bool (np.ndarray | None, optional): Boolean array indicating
+        unrestr_units_bool (np.ndarray): Boolean array indicating
             unrestricted units. True means the corresponding unit is unrestricted.
-            If None, all units are unrestricted.
 
     Returns:
         np.ndarray: the estimated MSE matrix (psi or Q in notation of paper)
     """
-
-    # Detect fixed-N vs. large-N mode. Unrestrict all units with fixed-N
-    if unrestr_units_bool is None:
-        unrestr_units_bool = np.full(len(ind_estimates), True)
 
     # Compute the MSE matrix of unrestricted units
     unrstrct_coefs = ind_estimates[unrestr_units_bool]
@@ -196,6 +191,11 @@ def optimal_weights(
             feasible solution.
     """
 
+    # Checking for fixed-N/large-N regime
+    # If no value is supplied, fixed-N regime is the default
+    if unrestricted_units_bool is None:
+        unrestricted_units_bool = np.full(len(ind_estimates), True)
+
     # Optimal weights need covariances
     if ind_covar_ests is None:
         raise TypeError("Covariances cannot be None for optimal weights.")
@@ -211,6 +211,7 @@ def optimal_weights(
         ind_estimates,
         ind_covar_ests,
         gradient_estimate_target,
+        unrestricted_units_bool,
     )
     num_coords = quad_term.shape[0]
     lin_term = np.zeros((num_coords, 1))
