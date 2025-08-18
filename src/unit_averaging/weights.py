@@ -1,7 +1,29 @@
+from typing import Protocol, runtime_checkable
+
 import cvxpy as cp
 import numpy as np
 
 from unit_averaging.focus_function import FocusFunction
+
+
+# Protocol for weight functions used in unit averaging.
+# A weight function must behave like a callable that accepts:
+# - a focus function (used to extract relevant features),
+# - a target ID (typically an integer),
+# - an array of individual estimates,
+# - an optional array of covariances,
+# - and any number of additional keyword arguments.
+# It must return an array of weights (np.ndarray).
+@runtime_checkable
+class WeightFunction(Protocol):
+    def __call__(
+        self,
+        focus_fn: FocusFunction,
+        some_int: int,
+        arr1: np.ndarray,
+        arr2: np.ndarray | None,
+        **kwargs: object,
+    ) -> np.ndarray: ...
 
 
 def individual_weights(
@@ -207,8 +229,6 @@ def optimal_weights(
     # https://github.com/cvxpy/cvxpy/issues/2851
     prob.solve()
     if weights.value is None:
-        raise TypeError(
-            "Optimizer could not find a feasible solution, returned None."
-        )
+        raise TypeError("Optimizer could not find a feasible solution, returned None.")
 
     return weights.value

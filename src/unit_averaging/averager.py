@@ -5,18 +5,11 @@ import numpy as np
 
 from unit_averaging.focus_function import FocusFunction
 from unit_averaging.weights import (
+    WeightFunction,
     individual_weights,
     mean_group_weights,
     optimal_weights,
 )
-
-# Type alias for weight functions used in unit averaging.
-# A weight function should accept a focus function, target ID,
-# individual estimates, and optional covariances.
-# It would return an array of weights
-WeightFunction = Callable[
-    [FocusFunction, int, np.ndarray, np.ndarray | None], np.ndarray
-]
 
 
 class UnitAverager:
@@ -62,6 +55,7 @@ class UnitAverager:
     def fit(
         self,
         target_id: int,
+        **kwargs,
     ):
         """Compute the unit averaging weights and estimate
 
@@ -74,6 +68,7 @@ class UnitAverager:
             target_id,
             self.ind_estimates,
             self.ind_covar_ests,
+            **kwargs,
         )
 
         # Compute appropriate unit averaging estimate
