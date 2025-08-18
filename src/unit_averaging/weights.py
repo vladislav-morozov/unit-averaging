@@ -170,7 +170,8 @@ def optimal_weights(
     focus_function: FocusFunction,
     target_id: int,
     ind_estimates: np.ndarray,
-    ind_covar_ests: np.ndarray | None = None,
+    ind_covar_ests: np.ndarray,
+    unrestricted_units_bool: np.ndarray | None = None,
 ) -> np.ndarray:
     """Optimal unit averaging weight scheme that minimizes the plug-in MSE.
 
@@ -180,8 +181,12 @@ def optimal_weights(
         ind_estimates (np.ndarray): An array of individual parameter estimates
             (thetas in notation of docs and paper).
         ind_covar_ests (np.ndarray | None, optional): An array of covariance
-            matrices for individual parameter estimates. This argument is
-            optional for this weight scheme and not used. Defaults to None.
+            matrices for individual parameter estimates. This argument is not
+            optional for this weight scheme.
+        unrestricted_units_bool: (np.ndarray | None, optional): A Boolean array
+            indicated which of the units have free weights (True) and which
+            belong to the restricted group (False). Specifying this array
+            triggers the large-N regime.
 
     Returns:
         np.ndarray: optiomal unit weights
