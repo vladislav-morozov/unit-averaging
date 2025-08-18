@@ -195,3 +195,49 @@ def test_unit_averager_optional_fixed_n(
     assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
         ua.estimate_, expected_estimate, rtol=1e-03
     ), "Weights or estimate do not match expected values."
+
+
+# Test data for testing large-n regime
+test_data = [
+    # Same unit data (expect equal weights)
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([1.0, 1]), np.array([1, 1])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        np.array([True, True]),
+        np.array([0.5, 0.5]),
+        1,
+    ),
+]
+test_ids = [
+    "Large-N with all units unrestricted", 
+]
+
+@pytest.mark.parametrize(
+    "focus_function, ind_estimates, "
+    "ind_covar_ests, unrestricted_units_bool, "
+    "expected_weights, expected_estimate",
+    test_data,
+    ids=test_ids,
+)
+def test_unit_averager_large_N(
+    focus_function,
+    ind_estimates,
+    ind_covar_ests,
+    unrestricted_units_bool,
+    expected_weights,
+    expected_estimate,
+):
+    """Test fixed-N (agnostic) optimal weights in UnitAverager."""
+    ua = UnitAverager(
+        focus_function,
+        "optimal",
+        ind_estimates,
+        ind_covar_ests,
+    )
+    ua.fit(target_id=0, unrestricted_units_bool=unrestricted_units_bool)
+
+    # Check weights and estimates
+    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate_, expected_estimate, rtol=1e-03
+    ), "Weights or estimate do not match expected values."
