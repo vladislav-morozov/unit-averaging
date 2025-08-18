@@ -161,6 +161,26 @@ def _clean_gradient(gradient: np.ndarray) -> np.ndarray:
     return gradient
 
 
+def _allocate_optimal_weights(
+    solution: np.ndarray,
+    unrestricted_units_bool: np.ndarray,
+    ind_estimates: np.ndarray,
+) -> np.ndarray:
+    """Allocate fixed-N and large-N weights across units."""
+    num_restr_units = len(ind_estimates) - sum(unrestricted_units_bool)
+    opt_weights = np.zeros(ind_estimates.shape[0])
+
+    if num_restr_units == 0:
+        opt_weights = solution
+    else:
+        unrestr_weights = solution[:-1]
+        opt_weights[unrestricted_units_bool] = unrestr_weights
+        weight_per_restr_unit = solution[-1] / num_restr_units
+        np.putmask(opt_weights, ~unrestricted_units_bool, weight_per_restr_unit)
+
+    return opt_weights
+
+
 def optimal_weights(
     focus_function: FocusFunction,
     target_id: int,
@@ -237,4 +257,11 @@ def optimal_weights(
     if weights.value is None:
         raise TypeError("Optimizer could not find a feasible solution, returned None.")
 
-    return weights.value
+    # Allocate the weights
+    opt_weights = _allocate_optimal_weights(
+        weights.value,
+        unrestricted_units_bool,
+        ind_estimates,
+    )
+
+    return opt_weights
