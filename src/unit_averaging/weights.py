@@ -203,7 +203,8 @@ def optimal_weights(
             eq_lhs @ weights == eq_rhs,
         ],
     )
-    # TODO: Resolve raise_error warning after https://github.com/cvxpy/cvxpy/issues/2851
+    # TODO: Increase cvxpy to at least 1.7.2 when it's released
+    # https://github.com/cvxpy/cvxpy/issues/2851
     prob.solve()
     if weights.value is None:
         raise TypeError(
