@@ -208,9 +208,19 @@ test_data = [
         np.array([0.5, 0.5]),
         1,
     ),
+    # All units restricted (expect equal weights)
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([-1000, 1]), np.array([1000, 1])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        np.array([False, False]),
+        np.array([0.5, 0.5]),
+        0,
+    ),
 ]
 test_ids = [
-    "Large-N with all units unrestricted", 
+    "Large-N with all units unrestricted",
+    "Large-N with all units restricted"
 ]
 
 @pytest.mark.parametrize(
