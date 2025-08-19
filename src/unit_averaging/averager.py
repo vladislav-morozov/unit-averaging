@@ -1,31 +1,38 @@
-from abc import ABC, abstractmethod
-from collections.abc import Callable 
+from abc import ABC, abstractmethod 
 
 import numpy as np
 
-from unit_averaging.focus_function import FocusFunction 
+from unit_averaging.focus_function import FocusFunction
+
 
 class BaseUnitAverager(ABC):
     """Class to encapsulate fit and averaging behavior"""
 
     def __init__(
-            self,
-            focus_function: FocusFunction,
-            ind_estimates: np.array | list,
-            ):
+        self,
+        focus_function: FocusFunction,
+        ind_estimates: np.ndarray | list,
+    ):
         self.focus_function = focus_function
-        self.ind_estimates = np.array(ind_estimates) 
+        self.ind_estimates = np.array(ind_estimates)
         self.weights = None
-        self.estimates_ = None
+        self.estimate_ = None
 
-    @abstractmethod
     def fit(self, target_id: int):
-        """Compute the unit averaging weights.
+        """Compute the unit averaging weights and the averaging estimator
 
         Args:
             target_id (int): ID of target unit
         """
-        pass
+        self.target_id_ = target_id
+
+        # Compute weights
+        self._compute_weights()
+
+        # Compute appropriate unit averaging estimate
+        self.estimate_ = self.average(
+            self.focus_function,
+        )
 
     def average(self, focus_function: FocusFunction | None = None) -> float:
         """Perform unit averaging with the fitted weights
@@ -55,24 +62,25 @@ class BaseUnitAverager(ABC):
         ]
         return sum(weighted_ind_estimates)
 
+    @abstractmethod
+    def _compute_weights(self):
+        """Compute unit averaging weights"""
+
 
 class IndividualUnitAverager(BaseUnitAverager):
     """Unit averaging scheme that assigns all weight to the target unit."""
 
-    def fit(self, target_id: int): 
+    def _compute_weights(self):
         num_units = len(self.ind_estimates)
         weights = np.zeros(num_units)
-        weights[target_id] = 1.0
+        weights[self.target_id_] = 1.0
         self.weights_ = weights
 
 
 class MeanGroupUnitAverager(BaseUnitAverager):
     """Unit averaging scheme that assigns equal weights to all units"""
 
-    def fit(self, target_id: int): 
+    def _compute_weights(self):
         num_units = len(self.ind_estimates)
         weights = np.ones(num_units) / num_units
         self.weights_ = weights
-
- 
- 
