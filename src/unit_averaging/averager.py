@@ -1,85 +1,31 @@
-from collections.abc import Callable
-from typing import Literal
+from abc import ABC, abstractmethod
+from collections.abc import Callable 
 
 import numpy as np
 
-from unit_averaging.focus_function import FocusFunction
-from unit_averaging.weights import (
-    individual_weights,
-    mean_group_weights,
-    optimal_weights,
-)
+from unit_averaging.focus_function import FocusFunction 
 
-# Type alias for weight functions used in unit averaging.
-# A weight function should accept a focus function, target ID,
-# individual estimates, and optional covariances.
-# It would return an array of weights
-WeightFunction = Callable[
-    [FocusFunction, int, np.ndarray, np.ndarray | None], np.ndarray
-]
-
-
-class UnitAverager:
-    """A class for performing unit averaging"""
+class BaseUnitAverager(ABC):
+    """Class to encapsulate fit and averaging behavior"""
 
     def __init__(
-        self,
-        focus_function: FocusFunction,
-        weight_scheme: Literal["individual", "mean_group", "optimal"] | WeightFunction,
-        ind_estimates: list | np.ndarray,
-        ind_covar_ests: list | np.ndarray | None = None,
-    ):
-        """
-        Initialize a UnitAverager with given focus, weight scheme, and data.
-
-        Args:
-            focus_function (FocusFunction): An instance of a class encapsulating
-                the focus function and its gradient.
-            weight_scheme (str | WeightFunction):  A predefined weight scheme
-                identifier or a custom weight function.
-            ind_estimates (list | np.ndarray): sequence of individual parameter
-                estimates (thetas in docs and paper). These will be used as
-                arguments to focus_function
-            ind_covar_ests (list | np.ndarray | None): sequence of covariances
-                of individual parameter estimates (V in docs and paper). Optional
-                when not using "optimal" weights.
-        """
+            self,
+            focus_function: FocusFunction,
+            ind_estimates: np.array | list,
+            ):
         self.focus_function = focus_function
-        self.ind_estimates = np.array(ind_estimates)
-        self.ind_covar_ests = np.array(ind_covar_ests)
+        self.ind_estimates = np.array(ind_estimates) 
         self.weights = None
         self.estimates_ = None
 
-        if isinstance(weight_scheme, str):
-            self.weight_function = self._init_weight_scheme(weight_scheme)
-        elif isinstance(weight_scheme, Callable):
-            self.weight_function = weight_scheme
-        else:
-            raise TypeError(
-                "weight_scheme must be an allowed string or a suitable weight function"
-            )
-
-    def fit(
-        self,
-        target_id: int,
-    ):
-        """Compute the unit averaging weights and estimate
+    @abstractmethod
+    def fit(self, target_id: int):
+        """Compute the unit averaging weights.
 
         Args:
             target_id (int): ID of target unit
         """
-        # Compute and store weights
-        self.weights_ = self.weight_function(
-            self.focus_function,
-            target_id,
-            self.ind_estimates,
-            self.ind_covar_ests,
-        )
-
-        # Compute appropriate unit averaging estimate
-        self.estimate_ = self.average(
-            self.focus_function,
-        )
+        pass
 
     def average(self, focus_function: FocusFunction | None = None) -> float:
         """Perform unit averaging with the fitted weights
@@ -94,7 +40,7 @@ class UnitAverager:
         """
         # Check if weights have been fitted
         if self.weights_ is None:
-            raise ValueError(
+            raise TypeError(
                 "Weights have not been fitted. Call the 'fit' method first."
             )
 
@@ -109,19 +55,24 @@ class UnitAverager:
         ]
         return sum(weighted_ind_estimates)
 
-    def _init_weight_scheme(self, scheme_name: str):
-        """
-        Initialize an appropriate implemented weight scheme based on string input
 
-        Args:
-            scheme_name (str): string name of an implemented weigth class
-        """
-        match scheme_name:
-            case "individual":
-                return individual_weights
-            case "mean_group":
-                return mean_group_weights
-            case "optimal":
-                return optimal_weights
-            case _:
-                raise KeyError(f"Weight scheme '{scheme_name}' not found")
+class IndividualUnitAverager(BaseUnitAverager):
+    """Unit averaging scheme that assigns all weight to the target unit."""
+
+    def fit(self, target_id: int): 
+        num_units = len(self.ind_estimates)
+        weights = np.zeros(num_units)
+        weights[target_id] = 1.0
+        self.weights_ = weights
+
+
+class MeanGroupUnitAverager(BaseUnitAverager):
+    """Unit averaging scheme that assigns equal weights to all units"""
+
+    def fit(self, target_id: int): 
+        num_units = len(self.ind_estimates)
+        weights = np.ones(num_units) / num_units
+        self.weights_ = weights
+
+ 
+ 
