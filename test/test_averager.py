@@ -31,12 +31,20 @@ individual_test_data = [
         np.array([1, 0]),
         3,
     ),
+    # Inputs: dicts of numpy arrays
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        {"a": np.array([3, 2]), "b": np.array([4, 5])},
+        np.array([1, 0]),
+        3,
+    ),
 ]
 
 individual_test_ids = [
     "scalar_list_individual",
     "array_list_individual",
     "array_of_arrays_individual",
+    "dict_of_arrays_individual",
 ]
 
 
