@@ -99,7 +99,11 @@ class OptimalUnitAverager(BaseUnitAverager):
     ):
         super().__init__(focus_function, ind_estimates)
         self.ind_covar_ests = np.array(ind_covar_ests)
-        self.unrestricted_units_bool = np.array(unrestricted_units_bool)
+        # Detect fixed-N vs. large-N
+        if unrestricted_units_bool is not None:
+            self.unrestricted_units_bool = np.array(unrestricted_units_bool)
+        else:
+            self.unrestricted_units_bool = np.full(len(ind_estimates), True)
 
     def _compute_weights(self):
         # Estimate gradient and ensure it is a 1D numpy array
@@ -113,6 +117,7 @@ class OptimalUnitAverager(BaseUnitAverager):
             self.ind_estimates,
             self.ind_covar_ests,
             gradient_estimate_target,
+            self.unrestricted_units_bool,
         )
         num_coords = quad_term.shape[0]
         lin_term = np.zeros((num_coords, 1))
@@ -141,7 +146,14 @@ class OptimalUnitAverager(BaseUnitAverager):
                 "Optimizer could not find a feasible solution, returned None."
             )
 
-        self.weights_ = weights.value
+        # Allocate the weights
+        opt_weights = self._allocate_optimal_weights(
+            weights.value,
+            self.unrestricted_units_bool,
+            self.ind_estimates,
+        )
+
+        self.weights_ = opt_weights
 
     def _clean_gradient(self, gradient) -> np.ndarray:
         """Ensure the gradient is a 1D numpy array."""
@@ -156,7 +168,7 @@ class OptimalUnitAverager(BaseUnitAverager):
         ind_estimates: np.ndarray,
         ind_covar_ests: np.ndarray,
         gradient_estimate_target: np.ndarray,
-        unrestr_units_bool: np.ndarray | None = None,
+        unrestr_units_bool: np.ndarray,
     ) -> np.ndarray:
         """Build the objective matrix for optimal-weight unit averaging.
 
@@ -177,10 +189,6 @@ class OptimalUnitAverager(BaseUnitAverager):
         Returns:
             np.ndarray: the estimated MSE matrix (psi or Q in notation of paper)
         """
-
-        # Detect fixed-N vs. large-N mode. Unrestrict all units with fixed-N
-        if unrestr_units_bool is None:
-            unrestr_units_bool = np.full(len(ind_estimates), True)
 
         # Compute the MSE matrix of unrestricted units
         unrstrct_coefs = ind_estimates[unrestr_units_bool]
@@ -230,3 +238,23 @@ class OptimalUnitAverager(BaseUnitAverager):
             q = psi
 
         return q
+
+    def _allocate_optimal_weights(
+        self,
+        solution: np.ndarray,
+        unrestricted_units_bool: np.ndarray,
+        ind_estimates: np.ndarray,
+    ) -> np.ndarray:
+        """Allocate fixed-N and large-N weights across units."""
+        num_restr_units = len(ind_estimates) - sum(unrestricted_units_bool)
+        opt_weights = np.zeros(ind_estimates.shape[0])
+
+        if num_restr_units == 0:
+            opt_weights = solution
+        else:
+            unrestr_weights = solution[:-1]
+            opt_weights[unrestricted_units_bool] = unrestr_weights
+            weight_per_restr_unit = solution[-1] / num_restr_units
+            np.putmask(opt_weights, ~unrestricted_units_bool, weight_per_restr_unit)
+
+        return opt_weights
