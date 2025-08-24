@@ -2,11 +2,11 @@ import numpy as np
 import pytest
 
 from unit_averaging import (
-    InlineFocusFunction,
     IndividualUnitAverager,
+    InlineFocusFunction,
     MeanGroupUnitAverager,
+    OptimalUnitAverager,
 )
-
 
 # Test data for IndividualUnitAverager
 individual_test_data = [
@@ -38,6 +38,27 @@ individual_test_ids = [
     "array_list_individual",
     "array_of_arrays_individual",
 ]
+
+
+@pytest.mark.parametrize(
+    "focus_function, ind_estimates, expected_weights, expected_estimate",
+    individual_test_data,
+    ids=individual_test_ids,
+)
+def test_individual_unit_averager(
+    focus_function,
+    ind_estimates,
+    expected_weights,
+    expected_estimate,
+):
+    """Test the IndividualUnitAverager with various inputs."""
+    ua = IndividualUnitAverager(focus_function, ind_estimates)
+    ua.fit(target_id=0)
+    # Check weights and estimates
+    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate_, expected_estimate, rtol=1e-03
+    ), "Weights or estimate do not match expected values."
+
 
 # Test data for MeanGroupUnitAverager
 mean_group_test_data = [
@@ -73,26 +94,6 @@ mean_group_test_ids = [
 
 @pytest.mark.parametrize(
     "focus_function, ind_estimates, expected_weights, expected_estimate",
-    individual_test_data,
-    ids=individual_test_ids,
-)
-def test_individual_unit_averager(
-    focus_function,
-    ind_estimates,
-    expected_weights,
-    expected_estimate,
-):
-    """Test the IndividualUnitAverager with various inputs."""
-    ua = IndividualUnitAverager(focus_function, ind_estimates)
-    ua.fit(target_id=0)
-    # Check weights and estimates
-    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
-        ua.estimate_, expected_estimate, rtol=1e-03
-    ), "Weights or estimate do not match expected values."
-
-
-@pytest.mark.parametrize(
-    "focus_function, ind_estimates, expected_weights, expected_estimate",
     mean_group_test_data,
     ids=mean_group_test_ids,
 )
@@ -104,6 +105,156 @@ def test_mean_group_unit_averager(
 ):
     """Test the MeanGroupUnitAverager with various inputs."""
     ua = MeanGroupUnitAverager(focus_function, ind_estimates)
+    ua.fit(target_id=0)
+    # Check weights and estimates
+    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate_, expected_estimate, rtol=1e-03
+    ), "Weights or estimate do not match expected values."
+
+
+# Test data for fixed-N optimal averaging
+fixed_n_test_data = [
+    # Same unit data (expect equal weights)
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([1.0, 1]), np.array([1, 1])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        np.array([0.5, 0.5]),
+        1,
+    ),
+    # Other unit has crazy variance (expect individual weights)
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([1.0, 1]), np.array([1, 1])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[10e10, 0], [0, 10e10]])]),
+        np.array([1, 0]),
+        1,
+    ),
+    # Other unit has crazy bias
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([1.0, 1]), np.array([10e10, 1])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        np.array([1, 0]),
+        1,
+    ),
+    # Target has crazy variance, other is biased
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([1.0, 1]), np.array([2, 1])]),
+        np.array([np.array([[10e10, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        np.array([0, 1]),
+        2,
+    ),
+    # Meaningful averaging with two units
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([1.0, 1]), np.array([1, 1])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[2, 0], [0, 1]])]),
+        np.array([2 / 3, 1 / 3]),
+        1,
+    ),
+    # Meaningful averaging with three units
+    # Two useful units, one crazy one
+    # Ten identical units
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0, 0, 0, 0])),
+        np.ones((10, 5)),
+        np.array([np.eye(5)] * 10),
+        np.ones((10, 1)) / 10,
+        1,
+    ),
+    # Other nine units are crazy
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0, 0, 0, 0])),
+        np.ones((10, 5)),
+        np.stack([np.eye(5), *np.array([np.eye(5) * 10e10] * 9)]),
+        np.stack([np.array(1), *np.zeros(9)]),
+        1,
+    ),
+    # Nonlinear focus function
+]
+fixed_n_test_ids = [
+    "2 units: identical",
+    "2 units: non-target with crazy variance",
+    "2 units: non-target with crazy bias",
+    "2 units: target has crazy variance, other is biased",
+    "2 units: reasonable",
+    "10 units: identical",
+    "10 units: non-targets have crazy variance",
+]
+
+
+@pytest.mark.parametrize(
+    "focus_function, ind_estimates, ind_covar_ests, expected_weights, expected_estimate",
+    fixed_n_test_data,
+    ids=fixed_n_test_ids,
+)
+def test_fixed_n_averaging(
+    focus_function,
+    ind_estimates,
+    ind_covar_ests,
+    expected_weights,
+    expected_estimate,
+):
+    """Test the fixed-N regime of OptimalUnitAverager"""
+    ua = OptimalUnitAverager(focus_function, ind_estimates, ind_covar_ests)
+    ua.fit(target_id=0)
+    # Check weights and estimates
+    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate_, expected_estimate, rtol=1e-03
+    ), "Weights or estimate do not match expected values."
+
+
+# Test data for testing large-n regime
+large_n_test_data = [
+    # Same unit data (expect equal weights)
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([1.0, 1]), np.array([1, 1])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        np.array([True, True]),
+        np.array([0.5, 0.5]),
+        1,
+    ),
+    # All units restricted (expect equal weights)
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        np.array([np.array([-1000, 1]), np.array([1000, 1])]),
+        np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        np.array([False, False]),
+        np.array([0.5, 0.5]),
+        0,
+    ),
+]
+large_n_test_ids = [
+    "Large-N with all units unrestricted",
+    "Large-N with all units restricted",
+]
+
+
+@pytest.mark.parametrize(
+    "focus_function, ind_estimates, "
+    "ind_covar_ests, unrestricted_units_bool, "
+    "expected_weights, expected_estimate",
+    large_n_test_data,
+    ids=large_n_test_ids,
+)
+def test_large_n_averaging(
+    focus_function,
+    ind_estimates,
+    ind_covar_ests,
+    unrestricted_units_bool,
+    expected_weights,
+    expected_estimate,
+):
+    """Test the large-N regime of OptimalUnitAverager"""
+    ua = OptimalUnitAverager(
+        focus_function,
+        ind_estimates,
+        ind_covar_ests,
+        unrestricted_units_bool,
+    )
     ua.fit(target_id=0)
     # Check weights and estimates
     assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
