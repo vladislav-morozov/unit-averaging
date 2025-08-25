@@ -12,27 +12,31 @@ class BaseUnitAverager(ABC):
     def __init__(
         self,
         focus_function: FocusFunction,
-        ind_estimates: np.ndarray | list,
+        ind_estimates: np.ndarray | list | dict,
     ):
-        self.focus_function = focus_function 
+        self.focus_function = focus_function
         self.weights_ = None
         self.estimate_ = None
 
-        if isinstance(ind_estimates, dict):
-            self.keys = np.fromiter(ind_estimates.keys(), dtype=object)
-            self.ind_estimates = np.fromiter(ind_estimates.values(), dtype=object)
-        else:
-            # Handle list or array input
-            self.keys = np.arange(len(ind_estimates))
-            self.ind_estimates = np.array(ind_estimates)
+        self.keys, self.ind_estimates = self._convert_inputs_to_array(ind_estimates)
 
-    def fit(self, target_id: int):
+    def fit(self, target_id: int | str):
         """Compute the unit averaging weights and the averaging estimator
 
         Args:
             target_id (int): ID of target unit
         """
+
         self.target_id_ = target_id
+
+        # Look up target ID in the keys attribute
+        target_coords = np.argwhere(self.keys == target_id)
+        if len(target_coords) >= 2:
+            raise ValueError("More than unit with supplied target ID.")
+        elif len(target_coords) == 0:
+            raise ValueError("Target unit not in the keys")
+        else:
+            self._target_coord_ = target_coords[0, 0]
 
         # Compute weights
         self._compute_weights()
@@ -74,6 +78,19 @@ class BaseUnitAverager(ABC):
     def _compute_weights(self):
         """Compute unit averaging weights"""
 
+    def _convert_inputs_to_array(self, input_data: list | np.ndarray | dict):
+        """Convert input data (dict, list, or array) into keys and values arrays."""
+        if isinstance(input_data, dict):
+            # Handle dict inputs
+            keys = np.fromiter(input_data.keys(), dtype=object)
+            vals = np.fromiter(input_data.values(), dtype=object)
+        else:
+            # Handle list or array input
+            keys = np.arange(len(input_data))
+            vals = np.array(input_data)
+
+        return keys, vals
+
 
 class IndividualUnitAverager(BaseUnitAverager):
     """Unit averaging scheme that assigns all weight to the target unit."""
@@ -81,7 +98,7 @@ class IndividualUnitAverager(BaseUnitAverager):
     def _compute_weights(self):
         num_units = len(self.ind_estimates)
         weights = np.zeros(num_units)
-        weights[self.target_id_] = 1.0
+        weights[self._target_coord_] = 1.0
         self.weights_ = weights
 
 
@@ -100,27 +117,31 @@ class OptimalUnitAverager(BaseUnitAverager):
     def __init__(
         self,
         focus_function: FocusFunction,
-        ind_estimates: list | np.ndarray,
-        ind_covar_ests: list | np.ndarray,
-        unrestricted_units_bool: np.ndarray | list | None = None,
+        ind_estimates: list | np.ndarray | dict,
+        ind_covar_ests: list | np.ndarray | dict,
+        unrestricted_units_bool: np.ndarray | list | dict | None = None,
     ):
         super().__init__(focus_function, ind_estimates)
-        self.ind_covar_ests = np.array(ind_covar_ests)
+
+        _, self.ind_covar_ests = self._convert_inputs_to_array(ind_covar_ests)
         # Detect fixed-N vs. large-N
         if unrestricted_units_bool is not None:
-            self.unrestricted_units_bool = np.array(unrestricted_units_bool)
+            _, self.unrestricted_units_bool = self._convert_inputs_to_array(
+                unrestricted_units_bool
+            )
+            self.unrestricted_units_bool = self.unrestricted_units_bool.astype(bool)
         else:
             self.unrestricted_units_bool = np.full(len(ind_estimates), True)
-
+ 
     def _compute_weights(self):
         # Estimate gradient and ensure it is a 1D numpy array
         gradient_estimate_target = self._clean_gradient(
-            self.focus_function.gradient(self.ind_estimates[self.target_id_])
+            self.focus_function.gradient(self.ind_estimates[self._target_coord_])
         )
 
         # Construct the objective function
         quad_term = self._build_mse_matrix(
-            self.target_id_,
+            self._target_coord_,
             self.ind_estimates,
             self.ind_covar_ests,
             gradient_estimate_target,

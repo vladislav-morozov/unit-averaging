@@ -47,8 +47,8 @@ individual_test_data = [
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
         {1: np.array([3, 2]), 3: np.array([4, 5])},
         3,
-        np.array([1, 0]),
-        3,
+        np.array([0, 1]),
+        4,
     ),
 ]
 
@@ -88,6 +88,7 @@ mean_group_test_data = [
     (
         InlineFocusFunction(lambda x: x, lambda x: 1),
         [0, 1],
+        0,
         np.array([0.5, 0.5]),
         0.5,
     ),
@@ -95,6 +96,7 @@ mean_group_test_data = [
     (
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
         [np.array([3, 2]), np.array([4, 5])],
+        0,
         np.array([0.5, 0.5]),
         3.5,
     ),
@@ -102,6 +104,23 @@ mean_group_test_data = [
     (
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
         np.array([np.array([3, 2]), np.array([4, 5])]),
+        0,
+        np.array([0.5, 0.5]),
+        3.5,
+    ),
+    # Inputs: dicts of numpy arrays, string keys
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        {"a": np.array([3, 2]), "b": np.array([4, 5])},
+        "a",
+        np.array([0.5, 0.5]),
+        3.5,
+    ),
+    # Inputs: dicts of numpy arrays, int keys
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        {1: np.array([3, 2]), 3: np.array([4, 5])},
+        3,
         np.array([0.5, 0.5]),
         3.5,
     ),
@@ -111,23 +130,26 @@ mean_group_test_ids = [
     "scalar_list_mean_group",
     "array_list_mean_group",
     "array_of_arrays_mean_group",
+    "dict_of_arrays_str_keys_mean_group",
+    "dict_of_arrays_int_keys_mean_group",
 ]
 
 
 @pytest.mark.parametrize(
-    "focus_function, ind_estimates, expected_weights, expected_estimate",
+    "focus_function, ind_estimates, target_id, expected_weights, expected_estimate",
     mean_group_test_data,
     ids=mean_group_test_ids,
 )
 def test_mean_group_unit_averager(
     focus_function,
     ind_estimates,
+    target_id,
     expected_weights,
     expected_estimate,
 ):
     """Test the MeanGroupUnitAverager with various inputs."""
     ua = MeanGroupUnitAverager(focus_function, ind_estimates)
-    ua.fit(target_id=0)
+    ua.fit(target_id=target_id)
     # Check weights and estimates
     assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
         ua.estimate_, expected_estimate, rtol=1e-03
@@ -141,6 +163,7 @@ fixed_n_test_data = [
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
         np.array([np.array([1.0, 1]), np.array([1, 1])]),
         np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        0,
         np.array([0.5, 0.5]),
         1,
     ),
@@ -149,6 +172,7 @@ fixed_n_test_data = [
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
         np.array([np.array([1.0, 1]), np.array([1, 1])]),
         np.array([np.array([[1, 0], [0, 1]]), np.array([[10e10, 0], [0, 10e10]])]),
+        0,
         np.array([1, 0]),
         1,
     ),
@@ -157,6 +181,7 @@ fixed_n_test_data = [
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
         np.array([np.array([1.0, 1]), np.array([10e10, 1])]),
         np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        0,
         np.array([1, 0]),
         1,
     ),
@@ -165,6 +190,7 @@ fixed_n_test_data = [
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
         np.array([np.array([1.0, 1]), np.array([2, 1])]),
         np.array([np.array([[10e10, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+        0,
         np.array([0, 1]),
         2,
     ),
@@ -173,6 +199,7 @@ fixed_n_test_data = [
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
         np.array([np.array([1.0, 1]), np.array([1, 1])]),
         np.array([np.array([[1, 0], [0, 1]]), np.array([[2, 0], [0, 1]])]),
+        0,
         np.array([2 / 3, 1 / 3]),
         1,
     ),
@@ -183,6 +210,7 @@ fixed_n_test_data = [
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0, 0, 0, 0])),
         np.ones((10, 5)),
         np.array([np.eye(5)] * 10),
+        0,
         np.ones((10, 1)) / 10,
         1,
     ),
@@ -191,10 +219,29 @@ fixed_n_test_data = [
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0, 0, 0, 0])),
         np.ones((10, 5)),
         np.stack([np.eye(5), *np.array([np.eye(5) * 10e10] * 9)]),
+        0,
         np.stack([np.array(1), *np.zeros(9)]),
         1,
     ),
     # Nonlinear focus function
+    # Dictionary inputs with string keys
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        {"a": np.array([1, 1]), "b": np.array([1, 1])},
+        {"a": np.array([[1, 0], [0, 1]]), "b": np.array([[1, 0], [0, 1]])},
+        "a",
+        np.array([0.5, 0.5]),
+        1,
+    ),
+    # Dictionary inputs with int keys
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        {1: np.array([1, 1]), 3: np.array([1, 1])},
+        {1: np.array([[1, 0], [0, 1]]), 3: np.array([[1, 0], [0, 1]])},
+        3,
+        np.array([0.5, 0.5]),
+        1,
+    )
 ]
 fixed_n_test_ids = [
     "2 units: identical",
@@ -204,11 +251,14 @@ fixed_n_test_ids = [
     "2 units: reasonable",
     "10 units: identical",
     "10 units: non-targets have crazy variance",
+    "2 units: dict inputs with str keys",
+    "2 units: dict inputs with int keys",
 ]
 
 
 @pytest.mark.parametrize(
-    "focus_function, ind_estimates, ind_covar_ests, expected_weights, expected_estimate",
+    "focus_function, ind_estimates, ind_covar_ests, "
+    "target_id, expected_weights, expected_estimate",
     fixed_n_test_data,
     ids=fixed_n_test_ids,
 )
@@ -216,12 +266,13 @@ def test_fixed_n_averaging(
     focus_function,
     ind_estimates,
     ind_covar_ests,
+    target_id,
     expected_weights,
     expected_estimate,
 ):
     """Test the fixed-N regime of OptimalUnitAverager"""
     ua = OptimalUnitAverager(focus_function, ind_estimates, ind_covar_ests)
-    ua.fit(target_id=0)
+    ua.fit(target_id=target_id)
     # Check weights and estimates
     assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
         ua.estimate_, expected_estimate, rtol=1e-03
