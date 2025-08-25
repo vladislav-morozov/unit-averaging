@@ -123,16 +123,25 @@ class OptimalUnitAverager(BaseUnitAverager):
     ):
         super().__init__(focus_function, ind_estimates)
 
-        _, self.ind_covar_ests = self._convert_inputs_to_array(ind_covar_ests)
+        # Process covariances
+        covar_keys, self.ind_covar_ests = self._convert_inputs_to_array(ind_covar_ests)
+        if not np.array_equal(self.keys, covar_keys):
+            raise ValueError("Keys of estimates and covariances do not match.")
+
         # Detect fixed-N vs. large-N
         if unrestricted_units_bool is not None:
-            _, self.unrestricted_units_bool = self._convert_inputs_to_array(
+            unrestr_keys, self.unrestricted_units_bool = self._convert_inputs_to_array(
                 unrestricted_units_bool
             )
             self.unrestricted_units_bool = self.unrestricted_units_bool.astype(bool)
+            if not np.array_equal(self.keys, unrestr_keys):
+                raise ValueError(
+                    "Keys of estimates and unrestricted units do not match."
+                )
+
         else:
             self.unrestricted_units_bool = np.full(len(ind_estimates), True)
- 
+
     def _compute_weights(self):
         # Estimate gradient and ensure it is a 1D numpy array
         gradient_estimate_target = self._clean_gradient(
