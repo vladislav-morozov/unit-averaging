@@ -241,7 +241,7 @@ fixed_n_test_data = [
         3,
         np.array([0.5, 0.5]),
         1,
-    )
+    ),
 ]
 fixed_n_test_ids = [
     "2 units: identical",
@@ -287,6 +287,7 @@ large_n_test_data = [
         np.array([np.array([1.0, 1]), np.array([1, 1])]),
         np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
         np.array([True, True]),
+        0,
         np.array([0.5, 0.5]),
         1,
     ),
@@ -296,19 +297,43 @@ large_n_test_data = [
         np.array([np.array([-1000, 1]), np.array([1000, 1])]),
         np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
         np.array([False, False]),
+        0,
         np.array([0.5, 0.5]),
         0,
+    ),
+    # Dictionary inputs with string keys
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        {"a": np.array([1, 1]), "b": np.array([1, 1])},
+        {"a": np.array([[1, 0], [0, 1]]), "b": np.array([[1, 0], [0, 1]])},
+        np.array([False, False]),
+        "a",
+        np.array([0.5, 0.5]),
+        1,
+    ),
+    # Dictionary inputs with int keys
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        {1: np.array([1, 1]), 3: np.array([1, 1])},
+        {1: np.array([[1, 0], [0, 1]]), 3: np.array([[1, 0], [0, 1]])},
+        np.array([False, False]),
+        3,
+        np.array([0.5, 0.5]),
+        1,
     ),
 ]
 large_n_test_ids = [
     "Large-N with all units unrestricted",
     "Large-N with all units restricted",
+    "Large-N with all units restricted and dict inputs (str keys)",
+    "Large-N with all units restricted and dict inputs (int keys)",
 ]
 
 
 @pytest.mark.parametrize(
     "focus_function, ind_estimates, "
     "ind_covar_ests, unrestricted_units_bool, "
+    "target_id, "
     "expected_weights, expected_estimate",
     large_n_test_data,
     ids=large_n_test_ids,
@@ -318,6 +343,7 @@ def test_large_n_averaging(
     ind_estimates,
     ind_covar_ests,
     unrestricted_units_bool,
+    target_id,
     expected_weights,
     expected_estimate,
 ):
@@ -328,7 +354,7 @@ def test_large_n_averaging(
         ind_covar_ests,
         unrestricted_units_bool,
     )
-    ua.fit(target_id=0)
+    ua.fit(target_id=target_id)
     # Check weights and estimates
     assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
         ua.estimate_, expected_estimate, rtol=1e-03
