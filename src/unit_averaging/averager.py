@@ -31,9 +31,7 @@ class BaseUnitAverager(ABC):
 
         # Look up position of target ID in the keys attribute
         target_coords = np.argwhere(self.keys == target_id)
-        if len(target_coords) >= 2:
-            raise ValueError("More than unit with supplied target ID.")
-        elif len(target_coords) == 0:
+        if len(target_coords) == 0:
             raise ValueError("Target unit not in the keys")
         else:
             self._target_coord_ = target_coords[0, 0]
