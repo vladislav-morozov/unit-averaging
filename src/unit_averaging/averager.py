@@ -123,6 +123,11 @@ class OptimalUnitAverager(BaseUnitAverager):
     ):
         super().__init__(focus_function, ind_estimates)
 
+        # Check that all or none of the inputs are dicts
+        self._validate_all_dicts_or_none(
+            ind_estimates, ind_covar_ests, unrestricted_units_bool
+        )
+
         # Process covariances
         covar_keys, self.ind_covar_ests = self._convert_inputs_to_array(ind_covar_ests)
         if not np.array_equal(self.keys, covar_keys):
@@ -295,3 +300,28 @@ class OptimalUnitAverager(BaseUnitAverager):
             np.putmask(opt_weights, ~unrestricted_units_bool, weight_per_restr_unit)
 
         return opt_weights
+
+    def _validate_all_dicts_or_none(
+        self,
+        ind_estimates: list | np.ndarray | dict,
+        ind_covar_ests: list | np.ndarray | dict,
+        unrestricted_units_bool: list | np.ndarray | dict | None = None,
+    ) -> None:
+        """Validate that all inputs are dictionaries or none are dictionaries."""
+        is_dict_estimates = isinstance(ind_estimates, dict)
+        is_dict_covar = isinstance(ind_covar_ests, dict)
+        is_dict_unrestricted = (
+            isinstance(unrestricted_units_bool, dict)
+            if unrestricted_units_bool is not None
+            else False
+        )
+
+        if is_dict_estimates or is_dict_covar or is_dict_unrestricted:
+            if not (
+                is_dict_estimates
+                and is_dict_covar
+                and (unrestricted_units_bool is None or is_dict_unrestricted)
+            ):
+                raise TypeError(
+                    "If any input is a dictionary, all inputs must be dictionaries."
+                )
