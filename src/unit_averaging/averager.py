@@ -14,10 +14,17 @@ class BaseUnitAverager(ABC):
         focus_function: FocusFunction,
         ind_estimates: np.ndarray | list,
     ):
-        self.focus_function = focus_function
-        self.ind_estimates = np.array(ind_estimates)
+        self.focus_function = focus_function 
         self.weights_ = None
         self.estimate_ = None
+
+        if isinstance(ind_estimates, dict):
+            self.keys = np.fromiter(ind_estimates.keys(), dtype=object)
+            self.ind_estimates = np.fromiter(ind_estimates.values(), dtype=object)
+        else:
+            # Handle list or array input
+            self.keys = np.arange(len(ind_estimates))
+            self.ind_estimates = np.array(ind_estimates)
 
     def fit(self, target_id: int):
         """Compute the unit averaging weights and the averaging estimator
