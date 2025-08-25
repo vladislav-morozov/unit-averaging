@@ -14,6 +14,7 @@ individual_test_data = [
     (
         InlineFocusFunction(lambda x: x, lambda x: 1),
         [0, 1],
+        0,
         np.array([1, 0]),
         0,
     ),
@@ -21,6 +22,7 @@ individual_test_data = [
     (
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
         [np.array([3, 2]), np.array([4, 5])],
+        0,
         np.array([1, 0]),
         3,
     ),
@@ -28,13 +30,23 @@ individual_test_data = [
     (
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
         np.array([np.array([3, 2]), np.array([4, 5])]),
+        0,
         np.array([1, 0]),
         3,
     ),
-    # Inputs: dicts of numpy arrays
+    # Inputs: dicts of numpy arrays, string keys
     (
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
         {"a": np.array([3, 2]), "b": np.array([4, 5])},
+        "a",
+        np.array([1, 0]),
+        3,
+    ),
+    # Inputs: dicts of numpy arrays, int keys
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        {1: np.array([3, 2]), 3: np.array([4, 5])},
+        3,
         np.array([1, 0]),
         3,
     ),
@@ -44,24 +56,26 @@ individual_test_ids = [
     "scalar_list_individual",
     "array_list_individual",
     "array_of_arrays_individual",
-    "dict_of_arrays_individual",
+    "dict_of_arrays_str_keys_individual",
+    "dict_of_arrays_int_keys_individual",
 ]
 
 
 @pytest.mark.parametrize(
-    "focus_function, ind_estimates, expected_weights, expected_estimate",
+    "focus_function, ind_estimates, target_id, expected_weights, expected_estimate",
     individual_test_data,
     ids=individual_test_ids,
 )
 def test_individual_unit_averager(
     focus_function,
     ind_estimates,
+    target_id,
     expected_weights,
     expected_estimate,
 ):
     """Test the IndividualUnitAverager with various inputs."""
     ua = IndividualUnitAverager(focus_function, ind_estimates)
-    ua.fit(target_id=0)
+    ua.fit(target_id=target_id)
     # Check weights and estimates
     assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
         ua.estimate_, expected_estimate, rtol=1e-03
