@@ -29,7 +29,7 @@ class BaseUnitAverager(ABC):
 
         self.target_id_ = target_id
 
-        # Look up position of target ID in the keys attribute
+        # Look up index of target ID in the keys array
         target_coords = np.argwhere(self.keys == target_id)
         if len(target_coords) == 0:
             raise ValueError("Target unit not in the keys")
@@ -80,7 +80,7 @@ class BaseUnitAverager(ABC):
         """Convert input data (dict, list, or array) into keys and values arrays."""
         if isinstance(input_data, dict):
             # Handle dict inputs
-            # Sort to ensure that all input dicts are sorted in the same way
+            # Sort to ensure same order of all processed arrays in different calls
             sorted_input = dict(sorted(input_data.items()))
             keys = np.fromiter(sorted_input.keys(), dtype=object)
             vals = np.fromiter(sorted_input.values(), dtype=object)
