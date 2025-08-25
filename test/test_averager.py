@@ -241,6 +241,15 @@ fixed_n_test_data = [
         3,
         np.array([0.5, 0.5]),
         1,
+    ), 
+    # Dictionary inputs with string keys
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        {"a": np.array([1, 1]), "b": np.array([1, 1])},
+        {"b": np.array([[1, 0], [0, 1]]), "a": np.array([[1, 0], [0, 1]])},
+        "a",
+        np.array([0.5, 0.5]),
+        1,
     ),
 ]
 fixed_n_test_ids = [
@@ -251,8 +260,9 @@ fixed_n_test_ids = [
     "2 units: reasonable",
     "10 units: identical",
     "10 units: non-targets have crazy variance",
-    "2 units: dict inputs with str keys",
-    "2 units: dict inputs with int keys",
+    "2 units: identical dict inputs with str keys",
+    "2 units: identical dict inputs with int keys",
+    "2 units: identical dict inputs with keys in different order",
 ]
 
 
@@ -321,12 +331,23 @@ large_n_test_data = [
         np.array([0.5, 0.5]),
         1,
     ),
+    # Dictionary inputs with with different orders
+    (
+        InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
+        {"a": np.array([1, 1]), "b": np.array([1, 1])},
+        {"a": np.array([[1, 0], [0, 1]]), "b": np.array([[1, 0], [0, 1]])},
+        {"b": False, "a": False},
+        "a",
+        np.array([0.5, 0.5]),
+        1,
+    ),
 ]
 large_n_test_ids = [
     "Large-N with all units unrestricted",
     "Large-N with all units restricted",
     "Large-N with all units restricted and dict inputs (str keys)",
     "Large-N with all units restricted and dict inputs (int keys)",
+    "Large-N with all units restricted, dict inputs with different orders)",
 ]
 
 

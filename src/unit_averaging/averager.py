@@ -82,8 +82,10 @@ class BaseUnitAverager(ABC):
         """Convert input data (dict, list, or array) into keys and values arrays."""
         if isinstance(input_data, dict):
             # Handle dict inputs
-            keys = np.fromiter(input_data.keys(), dtype=object)
-            vals = np.fromiter(input_data.values(), dtype=object)
+            # Sort to ensure that all input dicts are sorted in the same way
+            sorted_input = dict(sorted(input_data.items()))
+            keys = np.fromiter(sorted_input.keys(), dtype=object)
+            vals = np.fromiter(sorted_input.values(), dtype=object)
         else:
             # Handle list or array inputs
             keys = np.arange(len(input_data))
