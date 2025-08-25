@@ -24,12 +24,12 @@ class BaseUnitAverager(ABC):
         """Compute the unit averaging weights and the averaging estimator
 
         Args:
-            target_id (int): ID of target unit
+            target_id (int | str): ID of target unit
         """
 
         self.target_id_ = target_id
 
-        # Look up target ID in the keys attribute
+        # Look up position of target ID in the keys attribute
         target_coords = np.argwhere(self.keys == target_id)
         if len(target_coords) >= 2:
             raise ValueError("More than unit with supplied target ID.")
@@ -85,7 +85,7 @@ class BaseUnitAverager(ABC):
             keys = np.fromiter(input_data.keys(), dtype=object)
             vals = np.fromiter(input_data.values(), dtype=object)
         else:
-            # Handle list or array input
+            # Handle list or array inputs
             keys = np.arange(len(input_data))
             vals = np.array(input_data)
 
@@ -192,7 +192,7 @@ class OptimalUnitAverager(BaseUnitAverager):
 
     def _build_mse_matrix(
         self,
-        target_id: int,
+        target_coord: int,
         ind_estimates: np.ndarray,
         ind_covar_ests: np.ndarray,
         gradient_estimate_target: np.ndarray,
@@ -203,7 +203,7 @@ class OptimalUnitAverager(BaseUnitAverager):
         This function accommodates both fixed-N and large-N approximations.
 
         Args:
-            target_id (int): index of the target unit in the estimates arrays
+            target_coord (int): index of the target unit in the estimates arrays
             ind_estimates (np.ndarray): An array of individual parameter estimates
                 (thetas in notation of docs and paper).
             ind_covar_ests (np.ndarray): An array of covariance matrices for
@@ -227,8 +227,8 @@ class OptimalUnitAverager(BaseUnitAverager):
         for i in range(len(unrstrct_coefs)):
             for j in range(len(unrstrct_coefs)):
                 # Difference between estimates
-                coef_dif_i = unrstrct_coefs[i] - ind_estimates[target_id]
-                coef_dif_j = unrstrct_coefs[j] - ind_estimates[target_id]
+                coef_dif_i = unrstrct_coefs[i] - ind_estimates[target_coord]
+                coef_dif_j = unrstrct_coefs[j] - ind_estimates[target_coord]
                 psi_ij = np.outer(coef_dif_i, coef_dif_j)
                 # add covariance when appropriate
                 if i == j:
@@ -251,15 +251,15 @@ class OptimalUnitAverager(BaseUnitAverager):
             mg = ind_estimates.mean()
             for i in range(len(b)):
                 b_i = np.outer(
-                    unrstrct_coefs[i] - ind_estimates[target_id],
-                    ind_estimates[target_id] - mg,
+                    unrstrct_coefs[i] - ind_estimates[target_coord],
+                    ind_estimates[target_coord] - mg,
                 )
                 q[i, -1] = -gradient_estimate_target @ b_i @ gradient_estimate_target
                 q[-1, i] = q[i, -1]
 
             # Insert the last element
             q[-1, -1] = np.power(
-                gradient_estimate_target @ (ind_estimates[target_id] - mg),
+                gradient_estimate_target @ (ind_estimates[target_coord] - mg),
                 2,
             )
         else:
