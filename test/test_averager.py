@@ -241,7 +241,7 @@ fixed_n_test_data = [
         3,
         np.array([0.5, 0.5]),
         1,
-    ), 
+    ),
     # Dictionary inputs with string keys
     (
         InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0])),
