@@ -81,9 +81,9 @@ class BaseUnitAverager(ABC):
         if isinstance(input_data, dict):
             # Handle dict inputs
             # Sort to ensure same order of all processed arrays in different calls
-            sorted_input = dict(sorted(input_data.items()))
-            keys = np.fromiter(sorted_input.keys(), dtype=object)
-            vals = np.fromiter(sorted_input.values(), dtype=object)
+            keys = np.fromiter(input_data.keys(), dtype=object)
+            keys.sort()
+            vals = np.array([input_data[key] for key in keys])
         else:
             # Handle list or array inputs
             keys = np.arange(len(input_data))
