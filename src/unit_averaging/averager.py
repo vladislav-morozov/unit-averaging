@@ -12,20 +12,29 @@ class BaseUnitAverager(ABC):
     def __init__(
         self,
         focus_function: FocusFunction,
-        ind_estimates: np.ndarray | list,
+        ind_estimates: np.ndarray | list | dict,
     ):
         self.focus_function = focus_function
-        self.ind_estimates = np.array(ind_estimates)
         self.weights_ = None
         self.estimate_ = None
 
-    def fit(self, target_id: int):
+        self.keys, self.ind_estimates = self._convert_inputs_to_array(ind_estimates)
+
+    def fit(self, target_id: int | str):
         """Compute the unit averaging weights and the averaging estimator
 
         Args:
-            target_id (int): ID of target unit
+            target_id (int | str): ID of target unit
         """
+
         self.target_id_ = target_id
+
+        # Look up index of target ID in the keys array
+        target_coord = np.searchsorted(self.keys, target_id)
+        if target_coord == 0 and self.keys[0] != target_id:
+            raise ValueError("Target unit not in the keys")
+        else:
+            self._target_coord_ = target_coord
 
         # Compute weights
         self._compute_weights()
@@ -67,6 +76,21 @@ class BaseUnitAverager(ABC):
     def _compute_weights(self):
         """Compute unit averaging weights"""
 
+    def _convert_inputs_to_array(self, input_data: list | np.ndarray | dict):
+        """Convert input data (dict, list, or array) into keys and values arrays."""
+        if isinstance(input_data, dict):
+            # Handle dict inputs
+            # Sort to ensure same order of all processed arrays in different calls
+            keys = np.fromiter(input_data.keys(), dtype=object)
+            keys.sort()
+            vals = np.array([input_data[key] for key in keys])
+        else:
+            # Handle list or array inputs
+            keys = np.arange(len(input_data))
+            vals = np.array(input_data)
+
+        return keys, vals
+
 
 class IndividualUnitAverager(BaseUnitAverager):
     """Unit averaging scheme that assigns all weight to the target unit."""
@@ -74,7 +98,7 @@ class IndividualUnitAverager(BaseUnitAverager):
     def _compute_weights(self):
         num_units = len(self.ind_estimates)
         weights = np.zeros(num_units)
-        weights[self.target_id_] = 1.0
+        weights[self._target_coord_] = 1.0
         self.weights_ = weights
 
 
@@ -93,27 +117,45 @@ class OptimalUnitAverager(BaseUnitAverager):
     def __init__(
         self,
         focus_function: FocusFunction,
-        ind_estimates: list | np.ndarray,
-        ind_covar_ests: list | np.ndarray,
-        unrestricted_units_bool: np.ndarray | list | None = None,
+        ind_estimates: list | np.ndarray | dict,
+        ind_covar_ests: list | np.ndarray | dict,
+        unrestricted_units_bool: np.ndarray | list | dict | None = None,
     ):
         super().__init__(focus_function, ind_estimates)
-        self.ind_covar_ests = np.array(ind_covar_ests)
+
+        # Check that all or none of the inputs are dicts
+        self._validate_all_dicts_or_none(
+            ind_estimates, ind_covar_ests, unrestricted_units_bool
+        )
+
+        # Process covariances
+        covar_keys, self.ind_covar_ests = self._convert_inputs_to_array(ind_covar_ests)
+        if not np.array_equal(self.keys, covar_keys):
+            raise ValueError("Keys of estimates and covariances do not match.")
+
         # Detect fixed-N vs. large-N
         if unrestricted_units_bool is not None:
-            self.unrestricted_units_bool = np.array(unrestricted_units_bool)
+            unrestr_keys, self.unrestricted_units_bool = self._convert_inputs_to_array(
+                unrestricted_units_bool
+            )
+            self.unrestricted_units_bool = self.unrestricted_units_bool.astype(bool)
+            if not np.array_equal(self.keys, unrestr_keys):
+                raise ValueError(
+                    "Keys of estimates and unrestricted units do not match."
+                )
+
         else:
             self.unrestricted_units_bool = np.full(len(ind_estimates), True)
 
     def _compute_weights(self):
         # Estimate gradient and ensure it is a 1D numpy array
         gradient_estimate_target = self._clean_gradient(
-            self.focus_function.gradient(self.ind_estimates[self.target_id_])
+            self.focus_function.gradient(self.ind_estimates[self._target_coord_])
         )
 
         # Construct the objective function
         quad_term = self._build_mse_matrix(
-            self.target_id_,
+            self._target_coord_,
             self.ind_estimates,
             self.ind_covar_ests,
             gradient_estimate_target,
@@ -164,7 +206,7 @@ class OptimalUnitAverager(BaseUnitAverager):
 
     def _build_mse_matrix(
         self,
-        target_id: int,
+        target_coord: int,
         ind_estimates: np.ndarray,
         ind_covar_ests: np.ndarray,
         gradient_estimate_target: np.ndarray,
@@ -175,7 +217,7 @@ class OptimalUnitAverager(BaseUnitAverager):
         This function accommodates both fixed-N and large-N approximations.
 
         Args:
-            target_id (int): index of the target unit in the estimates arrays
+            target_coord (int): index of the target unit in the estimates arrays
             ind_estimates (np.ndarray): An array of individual parameter estimates
                 (thetas in notation of docs and paper).
             ind_covar_ests (np.ndarray): An array of covariance matrices for
@@ -199,8 +241,8 @@ class OptimalUnitAverager(BaseUnitAverager):
         for i in range(len(unrstrct_coefs)):
             for j in range(len(unrstrct_coefs)):
                 # Difference between estimates
-                coef_dif_i = unrstrct_coefs[i] - ind_estimates[target_id]
-                coef_dif_j = unrstrct_coefs[j] - ind_estimates[target_id]
+                coef_dif_i = unrstrct_coefs[i] - ind_estimates[target_coord]
+                coef_dif_j = unrstrct_coefs[j] - ind_estimates[target_coord]
                 psi_ij = np.outer(coef_dif_i, coef_dif_j)
                 # add covariance when appropriate
                 if i == j:
@@ -223,15 +265,15 @@ class OptimalUnitAverager(BaseUnitAverager):
             mg = ind_estimates.mean()
             for i in range(len(b)):
                 b_i = np.outer(
-                    unrstrct_coefs[i] - ind_estimates[target_id],
-                    ind_estimates[target_id] - mg,
+                    unrstrct_coefs[i] - ind_estimates[target_coord],
+                    ind_estimates[target_coord] - mg,
                 )
                 q[i, -1] = -gradient_estimate_target @ b_i @ gradient_estimate_target
                 q[-1, i] = q[i, -1]
 
             # Insert the last element
             q[-1, -1] = np.power(
-                gradient_estimate_target @ (ind_estimates[target_id] - mg),
+                gradient_estimate_target @ (ind_estimates[target_coord] - mg),
                 2,
             )
         else:
@@ -258,3 +300,25 @@ class OptimalUnitAverager(BaseUnitAverager):
             np.putmask(opt_weights, ~unrestricted_units_bool, weight_per_restr_unit)
 
         return opt_weights
+
+    def _validate_all_dicts_or_none(
+        self,
+        ind_estimates: list | np.ndarray | dict,
+        ind_covar_ests: list | np.ndarray | dict,
+        unrestricted_units_bool: list | np.ndarray | dict | None = None,
+    ) -> None:
+        """Validate that all inputs are dictionaries or none are dictionaries."""
+        is_dict_estimates = isinstance(ind_estimates, dict)
+        is_dict_covar = isinstance(ind_covar_ests, dict)
+        is_dict_unrestricted = (
+            isinstance(unrestricted_units_bool, dict)
+            if unrestricted_units_bool is not None
+            else is_dict_estimates * is_dict_covar
+        )
+
+        conditions = [is_dict_estimates, is_dict_covar, is_dict_unrestricted]
+
+        if any(conditions) and not all(conditions):
+            raise TypeError(
+                "If any input is a dictionary, all inputs must be dictionaries."
+            )
