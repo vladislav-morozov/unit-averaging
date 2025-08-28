@@ -313,15 +313,12 @@ class OptimalUnitAverager(BaseUnitAverager):
         is_dict_unrestricted = (
             isinstance(unrestricted_units_bool, dict)
             if unrestricted_units_bool is not None
-            else False
+            else is_dict_estimates * is_dict_covar
         )
 
-        if is_dict_estimates or is_dict_covar or is_dict_unrestricted:
-            if not (
-                is_dict_estimates
-                and is_dict_covar
-                and (unrestricted_units_bool is None or is_dict_unrestricted)
-            ):
+        conditions = [is_dict_estimates, is_dict_covar, is_dict_unrestricted]
+
+        if any(conditions) and not all(conditions):
                 raise TypeError(
                     "If any input is a dictionary, all inputs must be dictionaries."
                 )
