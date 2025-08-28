@@ -30,11 +30,11 @@ class BaseUnitAverager(ABC):
         self.target_id_ = target_id
 
         # Look up index of target ID in the keys array
-        target_coords = np.argwhere(self.keys == target_id)
-        if len(target_coords) == 0:
+        target_coord = np.searchsorted(self.keys, target_id)
+        if target_coord == 0 and self.keys[0] != target_id:
             raise ValueError("Target unit not in the keys")
         else:
-            self._target_coord_ = target_coords[0, 0]
+            self._target_coord_ = target_coord
 
         # Compute weights
         self._compute_weights()
@@ -319,6 +319,6 @@ class OptimalUnitAverager(BaseUnitAverager):
         conditions = [is_dict_estimates, is_dict_covar, is_dict_unrestricted]
 
         if any(conditions) and not all(conditions):
-                raise TypeError(
-                    "If any input is a dictionary, all inputs must be dictionaries."
-                )
+            raise TypeError(
+                "If any input is a dictionary, all inputs must be dictionaries."
+            )
