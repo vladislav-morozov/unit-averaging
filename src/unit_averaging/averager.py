@@ -12,7 +12,7 @@ class BaseUnitAverager(ABC):
     def __init__(
         self,
         focus_function: FocusFunction,
-        ind_estimates: np.ndarray | list | dict,
+        ind_estimates: np.ndarray | list | dict[str | int, np.ndarray | list],
     ):
         self.focus_function = focus_function
         self.weights_ = None
@@ -31,7 +31,9 @@ class BaseUnitAverager(ABC):
 
         # Look up index of target ID in the keys array
         target_coord = np.searchsorted(self.keys, target_id)
-        if target_coord == 0 and self.keys[0] != target_id:
+        if (target_coord == 0 and self.keys[0] != target_id) or (
+            target_coord == len(self.keys)
+        ):
             raise ValueError("Target unit not in the keys")
         else:
             self._target_coord_ = target_coord
@@ -89,7 +91,7 @@ class BaseUnitAverager(ABC):
             keys = np.arange(len(input_data))
             vals = np.array(input_data)
 
-        return keys, vals
+        return keys, vals.astype("float64")
 
 
 class IndividualUnitAverager(BaseUnitAverager):
@@ -117,9 +119,12 @@ class OptimalUnitAverager(BaseUnitAverager):
     def __init__(
         self,
         focus_function: FocusFunction,
-        ind_estimates: list | np.ndarray | dict,
-        ind_covar_ests: list | np.ndarray | dict,
-        unrestricted_units_bool: np.ndarray | list | dict | None = None,
+        ind_estimates: list | np.ndarray | dict[str | int, np.ndarray | list],
+        ind_covar_ests: list | np.ndarray | dict[str | int, np.ndarray | list],
+        unrestricted_units_bool: np.ndarray
+        | list
+        | dict[str | int, np.ndarray | list]
+        | None = None,
     ):
         super().__init__(focus_function, ind_estimates)
 
@@ -206,7 +211,7 @@ class OptimalUnitAverager(BaseUnitAverager):
 
     def _build_mse_matrix(
         self,
-        target_coord: int,
+        target_coord: int | np.intp,
         ind_estimates: np.ndarray,
         ind_covar_ests: np.ndarray,
         gradient_estimate_target: np.ndarray,
@@ -262,7 +267,7 @@ class OptimalUnitAverager(BaseUnitAverager):
             b = np.empty(len(unrstrct_coefs), dtype="float64")
 
             # Fill out the elements of the b vector
-            mg = ind_estimates.mean()
+            mg = ind_estimates.mean(axis=0)
             for i in range(len(b)):
                 b_i = np.outer(
                     unrstrct_coefs[i] - ind_estimates[target_coord],
