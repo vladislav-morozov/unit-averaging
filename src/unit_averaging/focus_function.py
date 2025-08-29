@@ -54,11 +54,12 @@ class InlineFocusFunction(FocusFunction):
 
         Args:
             focus_function (Callable[ [float  |  np.floating[Any]  |  np.ndarray],
-                                      float  |  np.floating[Any] ]):
+             float | np.floating[Any] ]):
                 focus function (mu), the target parameter
             gradient (Callable[[float  |  np.floating[Any]  |  np.ndarray],
-                                np.ndarray]):
+             np.ndarray]):
                 gradient of focus function
+
         """
         self._focus_function = focus_function
         self._gradient = gradient

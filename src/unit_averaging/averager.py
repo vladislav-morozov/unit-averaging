@@ -7,7 +7,46 @@ from unit_averaging.focus_function import FocusFunction
 
 
 class BaseUnitAverager(ABC):
-    """Class to encapsulate fit and averaging behavior"""
+    """**Base class for unit averaging methods**.
+
+    This abstract base class encapsulates the common behavior for unit averaging
+    methods. It provides the basic structure for fitting weights and computing
+    averages, and is designed to be subclassed for specific unit averaging strategies.
+
+    Subclasses must implement the ``_compute_weights()`` method to define how the weights
+    are computed for the specific averaging strategy.
+
+    Args:
+        focus_function (:class:`~unit_averaging.focus_function.FocusFunction`): 
+            The focus function used to compute the average.
+        ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
+            Individual unit estimates. Can be a list, numpy array, or dictionary.
+
+    Attributes:
+        focus_function (:class:`~unit_averaging.focus_function.FocusFunction`): 
+            Focus function used to compute the average. 
+        weights_ (np.ndarray): The computed weights for each unit. Initialized as None.
+        estimate_ (float): The computed unit averaging estimate. Initialized as None.
+        keys (np.ndarray): Array of keys corresponding to the units.
+        ind_estimates (np.ndarray): Array of individual unit estimates.
+        target_id_ (int | str): The ID of the target unit.
+
+    Examples:
+        >>> from unit_averaging import BaseUnitAverager, InlineFocusFunction
+        >>> import numpy as np
+        >>> # Custom averager that uses equal weights
+        >>> class CustomUnitAverager(BaseUnitAverager):
+        ...     def _compute_weights(self):
+        ...         self.weights_ = (
+        ...             np.ones(len(self.ind_estimates)) / len(self.ind_estimates)
+        ...            )
+        >>> focus_function = InlineFocusFunction(lambda x: x, lambda x: 1)
+        >>> # Using the averager in practice
+        >>> ind_estimates = [np.array([1, 2]), np.array([3, 4])]
+        >>> averager = CustomUnitAverager(focus_function, ind_estimates)
+        >>> averager.fit(target_id=0)
+        >>> print(averager.estimate_)
+    """
 
     def __init__(
         self,
@@ -17,18 +56,18 @@ class BaseUnitAverager(ABC):
         self.focus_function = focus_function
         self.weights_ = None
         self.estimate_ = None
-
         self.keys, self.ind_estimates = self._convert_inputs_to_array(ind_estimates)
 
     def fit(self, target_id: int | str):
-        """Compute the unit averaging weights and the averaging estimator
+        """Compute the unit averaging weights and the averaging estimator.
 
         Args:
-            target_id (int | str): ID of target unit
+            target_id (int | str): ID of the target unit.
+
+        Raises:
+            ValueError: If the target unit is not found in the keys.
         """
-
         self.target_id_ = target_id
-
         # Look up index of target ID in the keys array
         target_coord = np.searchsorted(self.keys, target_id)
         if (target_coord == 0 and self.keys[0] != target_id) or (
@@ -37,46 +76,50 @@ class BaseUnitAverager(ABC):
             raise ValueError("Target unit not in the keys")
         else:
             self._target_coord_ = target_coord
-
         # Compute weights
         self._compute_weights()
-
         # Compute appropriate unit averaging estimate
         self.estimate_ = self.average(
             self.focus_function,
         )
 
     def average(self, focus_function: FocusFunction | None = None) -> float:
-        """Perform unit averaging with the fitted weights
+        """Perform unit averaging with the fitted weights.
 
         Args:
-            focus_function (FocusFunction | None): focus function to use in
-                computing the average. mu in notation of docs and paper. If
-                None, defaults to self.focus_function
+            focus_function (FocusFunction | None): Focus function to use in
+                computing the average. If None, defaults to the focus function
+                used in fitting.
 
         Returns:
-            float: unit averaging estimate
+            float: The unit averaging estimate.
+
+        Raises:
+            TypeError: If weights have not been fitted.
         """
         # Check if weights have been fitted
         if self.weights_ is None:
             raise TypeError(
                 "Weights have not been fitted. Call the 'fit' method first."
             )
-
         # If no new focus function is supplied, use the base one
         if focus_function is None:
             focus_function = self.focus_function
-
-        # Compute unit weighed average
+        # Compute unit weighted average
         weighted_ind_estimates = [
-            weight * focus_function.focus_function(ind_est)
+            weight * focus_function(ind_est)
             for ind_est, weight in zip(self.ind_estimates, self.weights_, strict=True)
         ]
         return sum(weighted_ind_estimates)
 
     @abstractmethod
     def _compute_weights(self):
-        """Compute unit averaging weights"""
+        """Compute unit averaging weights.
+
+        This method should be implemented by subclasses to define how the
+        weights are computed.
+        """
+        pass
 
     def _convert_inputs_to_array(self, input_data: list | np.ndarray | dict):
         """Convert input data (dict, list, or array) into keys and values arrays."""
