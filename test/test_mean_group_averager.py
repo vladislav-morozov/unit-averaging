@@ -123,3 +123,23 @@ def test_mean_group_averager_with_dicts(
     assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
         ua.estimate_, expected_estimate, rtol=1e-03
     )
+
+
+@pytest.mark.parametrize(
+    "ind_estimates, target_id",
+    [
+        ([0, 1], "non_integer_index"),
+        ([0, 1], 2),
+        ({"a": 0, "b": 1}, "c"),
+    ],
+    ids=[
+        "non_integer_index",
+        "out_of_bounds_index",
+        "key_not_in_dict",
+    ],
+)
+def test_individual_averager_target_missing(identity_focus_function, ind_estimates, target_id):
+    """Test that IndividualUnitAverager raises ValueError for missing target unit."""
+    ua = MeanGroupUnitAverager(identity_focus_function, ind_estimates)
+    with pytest.raises(ValueError, match="Target unit not in the keys"):
+        ua.fit(target_id=target_id)

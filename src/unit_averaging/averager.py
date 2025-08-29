@@ -31,7 +31,9 @@ class BaseUnitAverager(ABC):
 
         # Look up index of target ID in the keys array
         target_coord = np.searchsorted(self.keys, target_id)
-        if target_coord == 0 and self.keys[0] != target_id:
+        if (target_coord == 0 and self.keys[0] != target_id) or (
+            target_coord == len(self.keys)
+        ):
             raise ValueError("Target unit not in the keys")
         else:
             self._target_coord_ = target_coord
