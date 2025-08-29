@@ -217,5 +217,13 @@ def test_optimal_averager_type_mismatch_errors(
     first_coord_focus_function, ind_estimates, ind_covar_ests, unrestricted_units_bool
 ):
     """Test that OptimalUnitAverager raises TypeError for mismatched input types."""
-    with pytest.raises(TypeError, match="If any input is a dictionary, all inputs must be dictionaries."):
-        OptimalUnitAverager(first_coord_focus_function, ind_estimates, ind_covar_ests, unrestricted_units_bool)
+    with pytest.raises(
+        TypeError,
+        match="If any input is a dictionary, all inputs must be dictionaries.",
+    ):
+        OptimalUnitAverager(
+            first_coord_focus_function,
+            ind_estimates,
+            ind_covar_ests,
+            unrestricted_units_bool,
+        )
