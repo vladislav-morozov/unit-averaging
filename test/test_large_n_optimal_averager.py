@@ -180,3 +180,42 @@ def test_optimal_averager_key_mismatch_errors(
             ind_covar_ests,
             unrestricted_units_bool,
         )
+
+
+@pytest.mark.parametrize(
+    "ind_estimates, ind_covar_ests, unrestricted_units_bool",
+    [
+        (
+            {"a": np.array([1, 1]), "b": np.array([1, 1])},
+            np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+            None,
+        ),
+        (
+            np.array([np.array([1, 1]), np.array([1, 1])]),
+            {"a": np.array([[1, 0], [0, 1]]), "b": np.array([[1, 0], [0, 1]])},
+            None,
+        ),
+        (
+            {"a": np.array([1, 1]), "b": np.array([1, 1])},
+            {"a": np.array([[1, 0], [0, 1]]), "b": np.array([[1, 0], [0, 1]])},
+            np.array([True, False]),
+        ),
+        (
+            {"a": np.array([1, 1]), "b": np.array([1, 1])},
+            np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+            {"a": True, "b": False},
+        ),
+    ],
+    ids=[
+        "estimates_dict_covar_array",
+        "estimates_array_covar_dict",
+        "estimates_dict_covar_dict_unrestricted_array",
+        "estimates_dict_covar_array_unrestricted_dict",
+    ],
+)
+def test_optimal_averager_type_mismatch_errors(
+    first_coord_focus_function, ind_estimates, ind_covar_ests, unrestricted_units_bool
+):
+    """Test that OptimalUnitAverager raises TypeError for mismatched input types."""
+    with pytest.raises(TypeError, match="If any input is a dictionary, all inputs must be dictionaries."):
+        OptimalUnitAverager(first_coord_focus_function, ind_estimates, ind_covar_ests, unrestricted_units_bool)
