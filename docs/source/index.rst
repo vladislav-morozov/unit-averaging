@@ -14,4 +14,5 @@ unit_averaging documentation
    reference/base_unit_averager.rst
    reference/individual_unit_averager.rst
    reference/optimal_unit_averager.rst
+   reference/focus_function.rst
    reference/inline_focus_function.rst

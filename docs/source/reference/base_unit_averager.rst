@@ -6,7 +6,7 @@ BaseUnitAverager
    :show-inheritance:
    :members: fit, average, _compute_weights
    :inherited-members:
-   :member-order: bysource
+   :member-order: alphabetical
 
    .. rubric:: Methods
 

@@ -3,15 +3,14 @@
 dl.field-list dt {
     font-weight: bold;
     font-family: monospace;
-    margin-bottom: 0.5em;
+    margin-bottom: 4.5em;
 }
 
-/* Parameter details (type + default) */
+/* Force monospace for argument types */
 dl.field-list dt em {
-    font-weight: normal;
-    font-family: sans-serif;
-    font-style: normal;
-    color: #555;
+    font-family: monospace !important;
+    font-style: normal !important;
+    color: #000 !important;
 }
 
 /* Section headers */

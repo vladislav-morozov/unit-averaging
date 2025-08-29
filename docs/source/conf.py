@@ -19,6 +19,8 @@ extensions = [
     "sphinx.ext.autodoc",  # Core autodoc support
     "sphinx.ext.napoleon",  # Google/Numpy docstring parsing
     "sphinx.ext.viewcode",  # Optional: Add links to source code
+    "sphinx_copybutton",
+    'myst_parser',  # Add this
 ]
 
 templates_path = ["_templates"]
@@ -41,7 +43,6 @@ napoleon_custom_sections = [
 ]  # Treat Attributes like Parameters
 
 # Autodoc settings
-autodoc_class_signature = "separated"
 autodoc_typehints = "description"
 autodoc_default_options = {
     "members": True,
@@ -51,11 +52,28 @@ autodoc_default_options = {
     "ignore-module-all": True,
 }
 
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
+}
+
+myst_enable_extensions = [
+    "colon_fence",       # For code blocks
+]
+
+# html_theme_options = {
+#     "light_css_variables": {
+#         "font-stack": "Arial, sans-serif",
+#         "font-stack--monospace": "Courier, monospace",
+#         "font-stack--headings": "Roboto Slab, sans-serif",
+#     },
+# }
+
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 # html_theme = "groundwork"
 # html_theme = "sphinx_celery"
-html_theme = 'furo'
+html_theme = "furo"
 # html_theme = 'piccolo_theme'
 # html_theme = 'sphinx_rtd_theme'
