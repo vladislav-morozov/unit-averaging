@@ -42,7 +42,8 @@ Documentation = "https://vladislav-morozov.github.io/unit-averaging/"
 [tool.pytest.ini_options]
 testpaths = [
   "test", 
-]
+] 
+addopts = "--cov=unit_averaging --cov-report=term-missing --cov-branch"
 
 
 ###############
