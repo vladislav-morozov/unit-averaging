@@ -1,0 +1,49 @@
+/* docs/source/_static/custom.css */
+/* Bold parameter names (like scikit-learn) */
+dl.field-list dt {
+    font-weight: bold;
+    font-family: monospace;
+    margin-bottom: 0.5em;
+}
+
+/* Parameter details (type + default) */
+dl.field-list dt em {
+    font-weight: normal;
+    font-family: sans-serif;
+    font-style: normal;
+    color: #555;
+}
+
+/* Section headers */
+dl.field-list dt:before {
+    content: none;  /* Remove default bullets */
+}
+
+/* Attributes section */
+dl.field-list dd ul {
+    margin: 0.5em 0;
+    padding-left: 1em;
+}
+
+/* Parameter table layout */
+dl.field-list {
+    margin-bottom: 2em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1em;
+}
+
+/* Example boxes (scikit-learn style) */
+.admonition.example {
+    background-color: #f8f9fa;
+    border-left: 4px solid #1093d5;
+    padding: 10px 20px;
+    margin: 20px 0;
+}
+
+/* Note boxes */
+.admonition.note {
+    background-color: #f8f9fa;
+    border-left: 4px solid #6c757d;
+    padding: 10px 20px;
+    margin: 20px 0;
+}
