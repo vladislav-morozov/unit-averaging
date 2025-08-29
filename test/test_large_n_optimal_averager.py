@@ -10,7 +10,8 @@ def first_coord_focus_function():
 
 
 @pytest.mark.parametrize(
-    "ind_estimates, ind_covar_ests, unrestricted_units_bool, target_id, expected_weights, expected_estimate",
+    "ind_estimates, ind_covar_ests, unrestricted_units_bool, "
+    "target_id, expected_weights, expected_estimate",
     [
         (
             np.array([np.array([1.0, 1]), np.array([1, 1])]),
@@ -83,7 +84,8 @@ def test_large_n_averaging_with_arrays(
 
 
 @pytest.mark.parametrize(
-    "ind_estimates, ind_covar_ests, unrestricted_units_bool, target_id, expected_weights, expected_estimate",
+    "ind_estimates, ind_covar_ests, unrestricted_units_bool, "
+    "target_id, expected_weights, expected_estimate",
     [
         (
             {"a": np.array([1, 1]), "b": np.array([1, 1])},

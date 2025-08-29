@@ -138,7 +138,9 @@ def test_mean_group_averager_with_dicts(
         "key_not_in_dict",
     ],
 )
-def test_individual_averager_target_missing(identity_focus_function, ind_estimates, target_id):
+def test_individual_averager_target_missing(
+    identity_focus_function, ind_estimates, target_id
+):
     """Test that IndividualUnitAverager raises ValueError for missing target unit."""
     ua = MeanGroupUnitAverager(identity_focus_function, ind_estimates)
     with pytest.raises(ValueError, match="Target unit not in the keys"):
