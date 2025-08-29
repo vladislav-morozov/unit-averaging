@@ -12,7 +12,7 @@ class BaseUnitAverager(ABC):
     def __init__(
         self,
         focus_function: FocusFunction,
-        ind_estimates: np.ndarray | list | dict,
+        ind_estimates: np.ndarray | list | dict[str | int, np.ndarray | list],
     ):
         self.focus_function = focus_function
         self.weights_ = None
@@ -89,7 +89,7 @@ class BaseUnitAverager(ABC):
             keys = np.arange(len(input_data))
             vals = np.array(input_data)
 
-        return keys, vals
+        return keys, vals.astype("float64")
 
 
 class IndividualUnitAverager(BaseUnitAverager):
@@ -206,7 +206,7 @@ class OptimalUnitAverager(BaseUnitAverager):
 
     def _build_mse_matrix(
         self,
-        target_coord: int,
+        target_coord: int | np.intp,
         ind_estimates: np.ndarray,
         ind_covar_ests: np.ndarray,
         gradient_estimate_target: np.ndarray,
