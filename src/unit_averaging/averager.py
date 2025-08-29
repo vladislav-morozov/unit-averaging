@@ -264,7 +264,7 @@ class OptimalUnitAverager(BaseUnitAverager):
             b = np.empty(len(unrstrct_coefs), dtype="float64")
 
             # Fill out the elements of the b vector
-            mg = ind_estimates.mean()
+            mg = ind_estimates.mean(axis=0)
             for i in range(len(b)):
                 b_i = np.outer(
                     unrstrct_coefs[i] - ind_estimates[target_coord],

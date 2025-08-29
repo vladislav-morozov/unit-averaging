@@ -5,12 +5,8 @@ from unit_averaging import InlineFocusFunction, OptimalUnitAverager
 
 
 @pytest.fixture
-def first_coord_focus_function_2d():
-    return InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0]))
-
-@pytest.fixture
-def first_coord_focus_function_5d():
-    return InlineFocusFunction(lambda x: x[0], lambda x: np.array([1, 0, 0, 0, 0]))
+def first_coord_focus_function():
+    return InlineFocusFunction(lambda x: x[0], lambda x: np.eye(len(x))[0])
 
 
 @pytest.mark.parametrize(
@@ -53,14 +49,14 @@ def first_coord_focus_function_5d():
     ],
 )
 def test_fixed_n_averaging_with_arrays(
-    first_coord_focus_function_2d,
+    first_coord_focus_function,
     ind_estimates,
     ind_covar_ests,
     target_id,
     expected_weights,
     expected_estimate,
 ):
-    ua = OptimalUnitAverager(first_coord_focus_function_2d, ind_estimates, ind_covar_ests)
+    ua = OptimalUnitAverager(first_coord_focus_function, ind_estimates, ind_covar_ests)
     ua.fit(target_id=target_id)
     assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
         ua.estimate_, expected_estimate, rtol=1e-03
@@ -91,14 +87,14 @@ def test_fixed_n_averaging_with_arrays(
     ],
 )
 def test_fixed_n_averaging_with_large_arrays(
-    first_coord_focus_function_5d,
+    first_coord_focus_function,
     ind_estimates,
     ind_covar_ests,
     target_id,
     expected_weights,
     expected_estimate,
 ):
-    ua = OptimalUnitAverager(first_coord_focus_function_5d, ind_estimates, ind_covar_ests)
+    ua = OptimalUnitAverager(first_coord_focus_function, ind_estimates, ind_covar_ests)
     ua.fit(target_id=target_id)
     assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
         ua.estimate_, expected_estimate, rtol=1e-03
@@ -137,14 +133,14 @@ def test_fixed_n_averaging_with_large_arrays(
     ],
 )
 def test_fixed_n_averaging_with_dicts(
-    first_coord_focus_function_2d,
+    first_coord_focus_function,
     ind_estimates,
     ind_covar_ests,
     target_id,
     expected_weights,
     expected_estimate,
 ):
-    ua = OptimalUnitAverager(first_coord_focus_function_2d, ind_estimates, ind_covar_ests)
+    ua = OptimalUnitAverager(first_coord_focus_function, ind_estimates, ind_covar_ests)
     ua.fit(target_id=target_id)
     assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
         ua.estimate_, expected_estimate, rtol=1e-03
