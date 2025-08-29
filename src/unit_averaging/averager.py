@@ -119,9 +119,12 @@ class OptimalUnitAverager(BaseUnitAverager):
     def __init__(
         self,
         focus_function: FocusFunction,
-        ind_estimates: list | np.ndarray | dict,
-        ind_covar_ests: list | np.ndarray | dict,
-        unrestricted_units_bool: np.ndarray | list | dict | None = None,
+        ind_estimates: list | np.ndarray | dict[str | int, np.ndarray | list],
+        ind_covar_ests: list | np.ndarray | dict[str | int, np.ndarray | list],
+        unrestricted_units_bool: np.ndarray
+        | list
+        | dict[str | int, np.ndarray | list]
+        | None = None,
     ):
         super().__init__(focus_function, ind_estimates)
 
