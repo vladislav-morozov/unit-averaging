@@ -187,3 +187,15 @@ def test_individual_averaging_method(
         expected_estimate,
         rtol=1e-03,
     )
+
+
+def test_individual_averaging_not_fitted(
+    first_coord_focus_function,
+):
+    ua = IndividualUnitAverager(first_coord_focus_function, [0, 0])
+
+    with pytest.raises(
+        TypeError,
+        match="Weights have not been fitted. Call the 'fit' method first.",
+    ):
+        ua.average()
