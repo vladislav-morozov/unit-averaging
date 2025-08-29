@@ -134,9 +134,56 @@ def test_individual_averager_with_dicts(
     ],
 )
 def test_individual_averager_target_missing(
-    first_coord_focus_function, ind_estimates, target_id,
-                                            ):
+    first_coord_focus_function,
+    ind_estimates,
+    target_id,
+):
     """Test that IndividualUnitAverager raises ValueError for missing target unit."""
     ua = IndividualUnitAverager(first_coord_focus_function, ind_estimates)
     with pytest.raises(ValueError, match="Target unit not in the keys"):
         ua.fit(target_id=target_id)
+
+
+@pytest.mark.parametrize(
+    "ind_estimates, target_id, other_function, expected_estimate",
+    [
+        (
+            {"a": np.array([3, 2]), "b": np.array([4, 5])},
+            "a",
+            InlineFocusFunction(lambda x: x[1], lambda x: np.array([0, 1])),
+            2,
+        ),
+        (
+            {1: np.array([3, 2]), 3: np.array([4, 5])},
+            3,
+            InlineFocusFunction(lambda x: x[1], lambda x: np.array([0, 1])),
+            5,
+        ),
+        (
+            {"a": [4, 2], "b": [-5, 1]},
+            "b",
+            None,
+            -5,
+        ),
+    ],
+    ids=[
+        "average_dict_of_arrays_str_keys",
+        "average_dict_of_arrays_int_keys",
+        "average_with_default_function",
+    ],
+)
+def test_individual_averaging_method(
+    first_coord_focus_function,
+    ind_estimates,
+    target_id,
+    other_function,
+    expected_estimate,
+):
+    ua = IndividualUnitAverager(first_coord_focus_function, ind_estimates)
+    ua.fit(target_id=target_id)
+
+    assert np.allclose(
+        ua.average(focus_function=other_function),
+        expected_estimate,
+        rtol=1e-03,
+    )
