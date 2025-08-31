@@ -3,16 +3,21 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-unit_averaging documentation
+Unit Averaging
 ============================
 
 
 .. toctree::
-   :maxdepth: 2
+   :hidden:
+   :maxdepth: 1
    :caption: Contents
    
-   reference/base_unit_averager.rst
-   reference/individual_unit_averager.rst
-   reference/optimal_unit_averager.rst
-   reference/focus_function.rst
-   reference/inline_focus_function.rst
+   tutorials/index.rst
+   theory/theory.rst
+   reference/index.rst
+
+
+Some front page information.
+
+
+:doc:`/tutorials/index` 

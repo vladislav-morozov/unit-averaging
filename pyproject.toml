@@ -101,7 +101,14 @@ commands = [["pytest"]]
 description = "make docs"
 base_python = ["python3.13"]
 deps = [
-  "sphinx",  
+  "sphinx",
+  "sphinx-paramlinks",
+  "sphinx-copybutton",
+  "sphinx-rtd-theme",
+  "sphinxext-opengraph",
+  "myst-parser",
+  "piccolo-theme",
+  "sphinx-celery",
   "furo",
 ]
 commands = [

@@ -31,7 +31,7 @@ exclude_patterns = []
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
 napoleon_include_init_with_doc = False
-napoleon_include_special_with_doc = True
+napoleon_include_special_with_doc = False
 napoleon_use_admonition_for_examples = True  # Wrap examples in a box
 napoleon_use_admonition_for_notes = True  # Wrap notes in a box
 napoleon_use_admonition_for_references = True  # Wrap references in a box
@@ -48,7 +48,6 @@ autodoc_typehints = "description"
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource",
-    "special-members": "__init__",
     "exclude-members": "__weakref__",
     "ignore-module-all": True,
 }
@@ -107,6 +106,7 @@ html_title = "Unit Averaging"
 pygments_style = "emacs"
 pygments_dark_style = "monokai"
 
+mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
 
 # Open Graph configuration
 ogp_site_url = "https://vladislav-morozov.github.io/unit-averaging/"
