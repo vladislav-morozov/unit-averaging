@@ -13,23 +13,25 @@ class BaseUnitAverager(ABC):
     methods. It provides the basic structure for fitting weights and computing
     averages, and is designed to be subclassed for specific unit averaging strategies.
 
-    Subclasses must implement the ``_compute_weights()`` method to define how the weights
-    are computed for the specific averaging strategy.
+    Subclasses must implement the ``_compute_weights()`` method to define how the
+    weights are computed for the specific averaging strategy.
 
     Args:
-        focus_function (:class:`~unit_averaging.focus_function.FocusFunction`): 
+        focus_function (:class:`~unit_averaging.focus_function.FocusFunction`):
             The focus function used to compute the average.
-        ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
+        ind_estimates (``np.ndarray`` | ``list`` | ``dict[str|int, np.ndarray|list]``):
             Individual unit estimates. Can be a list, numpy array, or dictionary.
 
     Attributes:
-        focus_function (:class:`~unit_averaging.focus_function.FocusFunction`): 
-            Focus function used to compute the average. 
-        weights_ (np.ndarray): The computed weights for each unit. Initialized as None.
-        estimate_ (float): The computed unit averaging estimate. Initialized as None.
-        keys (np.ndarray): Array of keys corresponding to the units.
-        ind_estimates (np.ndarray): Array of individual unit estimates.
-        target_id_ (int | str): The ID of the target unit.
+        focus_function (:class:`~unit_averaging.focus_function.FocusFunction`):
+            Focus function used to compute the average.
+        weights_ (``np.ndarray``): The computed weights for each unit.
+            Initialized as None.
+        estimate_ (``float``): The computed unit averaging estimate.
+            Initialized as None.
+        keys (``np.ndarray``): Array of keys corresponding to the units.
+        ind_estimates (``np.ndarray``): Array of individual unit estimates.
+        target_id_ (``int`` | ``str``): The ID of the target unit.
 
     Examples:
         >>> from unit_averaging import BaseUnitAverager, InlineFocusFunction
