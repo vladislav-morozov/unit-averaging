@@ -55,10 +55,15 @@ class BaseUnitAverager(ABC):
         focus_function: FocusFunction,
         ind_estimates: np.ndarray | list | dict[str | int, np.ndarray | list],
     ):
+        # Inputs
         self.focus_function = focus_function
+        self.keys, self.ind_estimates = self._convert_inputs_to_array(ind_estimates)
+        # For learned parameters
         self.weights_ = None
         self.estimate_ = None
-        self.keys, self.ind_estimates = self._convert_inputs_to_array(ind_estimates)
+        # Related to target unit
+        self.target_id_ = None
+        self._target_coord_ = None
 
     def fit(self, target_id: int | str):
         """Compute the unit averaging weights and the averaging estimator.
@@ -87,6 +92,8 @@ class BaseUnitAverager(ABC):
 
     def average(self, focus_function: FocusFunction | None = None) -> float:
         """Perform unit averaging with the fitted weights.
+
+
 
         Args:
             focus_function (FocusFunction | None): Focus function to use in
