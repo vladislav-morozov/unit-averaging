@@ -271,7 +271,7 @@ class MeanGroupUnitAverager(BaseUnitAverager):
         >>> import numpy as np
         >>> # Define a focus function
         >>> focus_function = InlineFocusFunction(
-        ...     lambda x: x[0], 
+        ...     lambda x: x[0],
         ...     lambda x: np.array([1, 0])
         ... )
         >>> # Define individual unit estimates
@@ -299,7 +299,113 @@ class MeanGroupUnitAverager(BaseUnitAverager):
 
 
 class OptimalUnitAverager(BaseUnitAverager):
-    """Optimal unit averaging weight scheme that minimizes the plug-in MSE."""
+    """**Optimal weight scheme that minimizes the plug-in Mean Squared Error (MSE).**
+
+    It supports two regimes: fixed-N and large-N, each with different approaches
+    to weight allocation.
+
+    **Fixed-N Regime:**
+    In the fixed-N regime, the weights of all units vary independently, subject
+    only to the constraints of non-negativity and summing to 1. This is an "agnostic"
+    scheme where the algorithm determines the optimal weight for each unit individually,
+    without any grouping or restrictions. This regime is suitable when the number of
+    units is small or when you want to allow maximum flexibility in weight allocation.
+
+    **Large-N Regime:**
+    In the large-N regime, you can specify some units as "unrestricted" (free)
+    while the remaining units are considered "restricted." The key idea is that:
+
+    - The weights of unrestricted units vary independently.
+    - All restricted units receive equal weights.
+    - The algorithm only chooses the weight of the restricted set as a whole.
+
+    This approach is particularly useful when you have a large number of restricted
+    units. The average of a large restricted set will closely approximate the true
+    average of the parameters. This allows for more efficient and precise shrinkage,
+    as the algorithm can focus on optimizing the weights of the unrestricted units
+    and the total weight of the restricted set.
+
+
+    Args:
+        focus_function (FocusFunction):
+            Focus function expressing the transformation of interest.
+        ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
+            Individual unit estimates. Can be a list, numpy array, or dictionary.
+            Each unit-specific estimate should be a NumPy array or list.
+            The first dimension of ``ind_estimates`` indexes units (rows or
+            dictionary entries).
+        ind_covar_ests (np.ndarray | list | dict[str | int, np.ndarray | list]):
+            Individual unit covariance estimates. Can be a list, numpy array, or
+            dictionary. Each unit-specific covariance estimate should be a NumPy
+            array or list of lists. The first dimension of ``ind_covar_ests`` indexes
+            units (rows or dictionary entries).
+        unrestricted_units_bool (np.ndarray | list | dict[str | int, bool] | None):
+            Optional. Boolean array indicating which units are unrestricted for
+            weight computations, with ``True`` meaning that a unit is unrestricted.
+            If a dictionary, keys should match those in `ind_estimates` and
+            ``ind_covar_ests``. If None, all units are considered unrestricted.
+            Defaults to None.
+
+    Attributes:
+        ind_estimates (np.ndarray):
+            Array of individual unit estimates.
+        ind_covar_ests (np.ndarray):
+            Array of individual unit covariance estimates.
+        unrestricted_units_bool (np.ndarray):
+            Boolean array indicating which units are unrestricted.
+        keys (np.ndarray):
+            Array of keys corresponding to the units. The individual estimates are
+            converted to numpy arrays internally. If ``ind_estimates`` is a
+            dictionary, the keys are preserved in the ``keys`` attribute. If
+            ``ind_estimates`` is a list or array, ``keys`` defaults to numeric
+            indices (0, 1, 2, ...).
+        weights_ (np.ndarray):
+            The computed weights for each unit.
+        estimate_ (float):
+            The computed unit averaging estimate.
+        focus_function (:class:`~unit_averaging.focus_function.FocusFunction`):
+            Focus function expressing the transformation of interest.
+        target_id_ (int | str):
+            The ID of the target unit. Initialized as None, set by calling ``fit()``.
+
+    Example with restricted and unrestricted units:
+        >>> from unit_averaging import OptimalUnitAverager, InlineFocusFunction
+        >>> import numpy as np
+        >>> # Define a focus function
+        >>> focus_function = InlineFocusFunction(
+        ...     lambda x: x[0] * x[1],
+        ...     lambda x: np.array([x[1], x[0]]),
+        ... )
+        >>> # Define individual unit estimates
+        >>> ind_estimates = {
+        ...     "unit1": np.array([5, 6]),
+        ...     "unit2": np.array([7, 8]),
+        ...     "unit3": np.array([9, 3]),
+        ...     "unit4": np.array([3, 10]),
+        ... }
+        >>> # Define individual unit covariance estimates
+        >>> ind_covar_ests = {
+        ...     "unit1": np.array([[3, 0.25], [0.25, 3]]),
+        ...     "unit2": np.array([[4, 0.5], [0.5, 5]]),
+        ...     "unit3": np.array([[1, -0.25], [-0.25, 1]]),
+        ...     "unit4": np.array([[1, 0.5], [0.5, 1]]),
+        ... }
+        >>> # Define unrestricted units
+        >>> unrestricted_units_bool = {
+        ...     "unit1": True,
+        ...     "unit2": True,
+        ...     "unit3": False,
+        ...     "unit4": False,
+        ... }
+        >>> # Create an OptimalUnitAverager instance
+        >>> averager = OptimalUnitAverager(
+        ...     focus_function, ind_estimates, ind_covar_ests, unrestricted_units_bool
+        ... )
+        >>> # Fit the averager to the target unit
+        >>> averager.fit(target_id="unit1")
+        >>> print(averager.weights_.round(3))  # [0.324 0.    0.338 0.338]
+        >>> print(averager.estimate_)  # 28.99
+    """
 
     def __init__(
         self,
@@ -477,7 +583,17 @@ class OptimalUnitAverager(BaseUnitAverager):
         unrestricted_units_bool: np.ndarray,
         ind_estimates: np.ndarray,
     ) -> np.ndarray:
-        """Allocate fixed-N and large-N weights across units."""
+        """Allocate fixed-N and large-N weights across units.
+
+        Args:
+            solution (np.ndarray): The solution vector from the optimization problem.
+            unrestricted_units_bool (np.ndarray): Boolean array indicating which
+                units are unrestricted.
+            ind_estimates (np.ndarray): Array of individual unit estimates.
+
+        Returns:
+            np.ndarray: The allocated optimal weights.
+        """
         num_restr_units = len(ind_estimates) - sum(unrestricted_units_bool)
         opt_weights = np.zeros(ind_estimates.shape[0])
 
@@ -497,7 +613,18 @@ class OptimalUnitAverager(BaseUnitAverager):
         ind_covar_ests: list | np.ndarray | dict,
         unrestricted_units_bool: list | np.ndarray | dict | None = None,
     ) -> None:
-        """Validate that all inputs are dictionaries or none are dictionaries."""
+        """Validate that all inputs are dictionaries or none are dictionaries.
+
+        Args:
+            ind_estimates (list | np.ndarray | dict): Individual unit estimates.
+            ind_covar_ests (list | np.ndarray | dict): Individual unit covariance
+                estimates.
+            unrestricted_units_bool (list | np.ndarray | dict | None, optional):
+                Boolean array indicating which units are unrestricted.
+
+        Raises:
+            TypeError: If some inputs are dictionaries and others are not.
+        """
         is_dict_estimates = isinstance(ind_estimates, dict)
         is_dict_covar = isinstance(ind_covar_ests, dict)
         is_dict_unrestricted = (
