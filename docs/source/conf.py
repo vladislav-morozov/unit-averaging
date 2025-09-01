@@ -22,10 +22,15 @@ extensions = [
     "sphinxext.opengraph",
     "sphinx_copybutton",
     "myst_parser",  # Add this
+    "sphinx.ext.autosummary",
 ]
 
 templates_path = ["_templates"]
 exclude_patterns = []
+
+# Generate autosummary pages automatically
+autosummary_generate = True
+autosummary_imported_members = True
 
 # Napoleon
 napoleon_google_docstring = True
@@ -77,7 +82,7 @@ html_theme_options = {
     "light_css_variables": {
         "color-brand-primary": "#9718DC",
         "color-brand-content": "#9718DC",
-        "color-admonition-background": "#B491C7",
+        "color-admonition-background": "#C3C3C3",
         "color-foreground-secondary": "#545353",
         "color-background-secondary": "#DEDEDE",
         "color-api-pre-name": "#49004D",

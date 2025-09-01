@@ -1,9 +1,45 @@
 Focus Functions
 =====================
 
+
+.. currentmodule:: unit_averaging.focus_function
+
+   
+
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: Contents
 
    FocusFunction.rst
    InlineFocusFunction.rst
+
+
+
+Focus functions define transformations applied to individual unit estimates.
+They consist of two components:
+
+1. Focus Function: Maps estimates to a scalar parameter of interest.
+2. Gradient: Computes derivatives for optimization.
+
+
+Available focus functions classes:  
+
+.. list-table::
+   :widths: 25 75
+   :header-rows: 1
+
+   * - Class
+     - Description
+   * - :class:`FocusFunction`
+     - Abstract base class. Subclass and implement ``focus_function()`` and ``gradient()``.
+   * - :class:`InlineFocusFunction`
+     - Convenience class for creating focus functions from callables.
+ 
+ 
+
+
+.. seealso::
+   
+   - :doc:`../tutorials/index` for worked examples
+   - :doc:`averagers` for the different averagers.

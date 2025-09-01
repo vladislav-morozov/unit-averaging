@@ -1,48 +1,24 @@
 /* docs/source/_static/custom.css */
 /* Bold parameter names (like scikit-learn) */
-dl.field-list dt {
-    font-weight: bold;
+
+/* Style the autosummary table like scikit-learn */
+.autosummary table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+.autosummary table td {
+    padding: 0.5em;
+    border-bottom: 1px solid #ddd;
+}
+
+.autosummary table td:first-child {
     font-family: monospace;
-    margin-bottom: 4.5em;
+    font-weight: bold;
 }
 
-/* Force monospace for argument types */
-dl.field-list dt em {
-    font-family: monospace !important;
-    font-style: normal !important;
-    color: #000 !important;
-}
-
-/* Section headers */
-dl.field-list dt:before {
-    content: none;  /* Remove default bullets */
-}
-
-/* Attributes section */
-dl.field-list dd ul {
-    margin: 0.5em 0;
-    padding-left: 1em;
-}
-
-/* Parameter table layout */
-dl.field-list {
-    margin-bottom: 2em;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 1em;
-}
-
-/* Example boxes (scikit-learn style) */
-.admonition.example {
-    background-color: #f8f9fa;
-    border-left: 4px solid #1093d5;
-    padding: 10px 20px;
-    margin: 20px 0;
-}
-
-/* Note boxes */
-.admonition.note {
-    background-color: #f8f9fa;
-    border-left: 4px solid #6c757d;
-    padding: 10px 20px;
-    margin: 20px 0;
+.autosummary table td:last-child {
+    font-size: 0.9em;
+    color: #555;
 }

@@ -1,3 +1,10 @@
+"""
+Unit Averagers
+==============
+
+This module provides classes for unit averaging strategies.
+"""
+
 from abc import ABC, abstractmethod
 
 import cvxpy as cp
