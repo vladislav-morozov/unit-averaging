@@ -37,7 +37,7 @@ class BaseUnitAverager(ABC):
             Initialized as None, computed by calling ``fit()``
         estimate_ (float): The computed unit averaging estimate.
             Initialized as None.
-        focus_function (:class:`~unit_averaging.focus_function.FocusFunction`):
+        focus_function (FocusFunction):
             Focus function expressing the transformation of interest.
         target_id_ (int | str): The ID of the target unit. Initialized as None,
             set by calling ``fit()``.
@@ -58,11 +58,8 @@ class BaseUnitAverager(ABC):
         >>> ind_estimates = [np.array([4, 2]), np.array([3, 4])]
         >>> averager = CustomUnitAverager(focus_function, ind_estimates)
         >>> averager.fit(target_id=0)
-        >>> print(averager.weights_)
-        >>> print(averager.estimate_)
-        [0.5, 0.5]
-        12.5
-
+        >>> print(averager.weights_)  # [0.5, 0.5]
+        >>> print(averager.estimate_) # 12.5
     """
 
     def __init__(
@@ -200,7 +197,7 @@ class IndividualUnitAverager(BaseUnitAverager):
         estimate_ (float):
             The computed unit averaging estimate, which is simply the target
             unit's estimate.
-        focus_function (:class:`~unit_averaging.focus_function.FocusFunction`):
+        focus_function (FocusFunction):
             Focus function expressing the transformation of interest.
         target_id_ (int | str):
             The ID of the target unit. Initialized as None, set by calling ``fit()``.
@@ -217,10 +214,8 @@ class IndividualUnitAverager(BaseUnitAverager):
         >>> # Fit the averager to the target unit
         >>> averager.fit(target_id="b")
         >>> # Print the estimate
-        >>> print(averager.weights_)
-        >>> print(averager.estimate_)
-        [0., 1.]
-        3.0
+        >>> print(averager.weights_)     # [0., 1.]
+        >>> print(averager.estimate_)    # 3.0
     """
 
     def _compute_weights(self):
@@ -235,9 +230,69 @@ class IndividualUnitAverager(BaseUnitAverager):
 
 
 class MeanGroupUnitAverager(BaseUnitAverager):
-    """Unit averaging scheme that assigns equal weights to all units"""
+    """**Unit averaging scheme that assigns equal weights to all units.**
+
+    This class implements a unit averaging scheme where equal weights are
+    assigned to all units — the mean group estimator. The MG approach typically
+    is a good estimator of the expected value of a parameter in a heterogeneous
+    setting.
+
+    Args:
+        focus_function (FocusFunction):
+            Focus function expressing the transformation of interest.
+        ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
+            Individual unit estimates. Can be a list, numpy array, or dictionary.
+            Each unit-specific estimate should be a NumPy array or a list.
+            The first dimension of `ind_estimates` indexes units (rows or
+            dictionary entries).
+
+    Attributes:
+        ind_estimates (np.ndarray):
+            Array of individual unit estimates.
+        keys (np.ndarray):
+            Array of keys corresponding to the units. The individual estimates are
+            converted to numpy arrays internally. If ``ind_estimates`` is a
+            dictionary, the keys are preserved in the ``keys`` attribute. If
+            ``ind_estimates`` is a list or array, ``keys`` defaults to numeric
+            indices (0, 1, 2, ...).
+        weights_ (np.ndarray):
+            The computed weights for each unit. For this scheme, all weights
+            are equal and sum to 1.
+        estimate_ (float):
+            The computed unit averaging estimate. Here a simple average of all
+            unit estimates.
+        focus_function (FocusFunction):
+            Focus function expressing the transformation of interest.
+        target_id_ (int | str):
+            The ID of the target unit. Initialized as None, set by calling ``fit()``.
+
+    Example:
+        >>> from unit_averaging import MeanGroupUnitAverager, InlineFocusFunction
+        >>> import numpy as np
+        >>> # Define a focus function
+        >>> focus_function = InlineFocusFunction(
+        ...     lambda x: x[0], 
+        ...     lambda x: np.array([1, 0])
+        ... )
+        >>> # Define individual unit estimates
+        >>> ind_estimates = {
+        ...     "unit1": np.array([5, 6]),
+        ...     "unit2": np.array([7, 8]),
+        ...     "unit3": np.array([9, 10])
+        ... }
+        >>> # Create a MeanGroupUnitAverager instance
+        >>> averager = MeanGroupUnitAverager(focus_function, ind_estimates)
+        >>> # Fit the averager to the target unit
+        >>> averager.fit(target_id="unit1")
+        >>> print(averager.weights_)   # [0.33333333 0.33333333 0.33333333]
+        >>> print(averager.estimate_)  # 7.0
+    """
 
     def _compute_weights(self):
+        """Compute unit averaging weights.
+
+        This method assigns equal weights to all units.
+        """
         num_units = len(self.ind_estimates)
         weights = np.ones(num_units) / num_units
         self.weights_ = weights
