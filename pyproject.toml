@@ -96,3 +96,35 @@ deps = [
   "pytest-cov"
 ]
 commands = [["pytest"]]
+
+[tool.tox.env.docs]
+description = "make docs"
+base_python = ["python3.13"]
+deps = [ 
+  "sphinx",
+  "sphinx-paramlinks",
+  "sphinx-copybutton", 
+  "sphinxext-opengraph",
+  "myst-parser", 
+  "furo",
+]
+commands = [
+  ["sphinx-build", "-n", "-W", "--keep-going", "-b", "html", "docs/source/", "docs/build/"]
+]
+
+[tool.tox.env.devdocs]
+description = "Write docs"
+base_python = ["python3.13"]
+deps = [
+  "sphinx",
+  "sphinx-autobuild", 
+  "sphinx-paramlinks",
+  "sphinx-copybutton",  
+  "sphinxext-opengraph", 
+  "myst-parser", 
+  "furo",
+  "sphinx-github-style",
+]
+commands = [
+  ["sphinx-autobuild", "--port", "8100", "docs/source/", "docs/build/"]
+]
