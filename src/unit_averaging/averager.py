@@ -17,21 +17,31 @@ class BaseUnitAverager(ABC):
     weights are computed for the specific averaging strategy.
 
     Args:
-        focus_function (:class:`~unit_averaging.focus_function.FocusFunction`):
-            The focus function used to compute the average.
-        ind_estimates (``np.ndarray`` | ``list`` | ``dict[str|int, np.ndarray|list]``):
+        focus_function (FocusFunction):
+            Focus function expressing the transformation of interest.
+        ind_estimates (np.ndarray | list | dict[str|int, np.ndarray|list]):
             Individual unit estimates. Can be a list, numpy array, or dictionary.
+            Each unit-specific estimate should be a NumPy array or a list.
+            The first dimension of `ind_estimates` indexes units (array rows or
+            dict entries).
 
     Attributes:
         focus_function (:class:`~unit_averaging.focus_function.FocusFunction`):
-            Focus function used to compute the average.
-        weights_ (``np.ndarray``): The computed weights for each unit.
+            Focus function expressing the transformation of interest.
+        weights_ (np.ndarray): The computed weights for each unit.
+            Initialized as None, computed by calling ``fit()``
+        estimate_ (float): The computed unit averaging estimate.
             Initialized as None.
-        estimate_ (``float``): The computed unit averaging estimate.
-            Initialized as None.
-        keys (``np.ndarray``): Array of keys corresponding to the units.
-        ind_estimates (``np.ndarray``): Array of individual unit estimates.
-        target_id_ (``int`` | ``str``): The ID of the target unit.
+        keys (np.ndarray): Array of keys corresponding to the units.
+
+            The individual estimates are converted to numpy arrays internally.
+            If ``ind_estimates`` is a dictionary, the keys are preserved in the
+            ``keys`` attribute. If ``ind_estimates`` is not an array, ``keys``
+            defaults to numeric indices (0, 1, 2, ...).
+
+        ind_estimates (np.ndarray): Array of individual unit estimates.
+        target_id_ (int | str): The ID of the target unit. Initialized as None,
+            set by calling ``fit()``.
 
     Examples:
         >>> from unit_averaging import BaseUnitAverager, InlineFocusFunction
@@ -42,8 +52,8 @@ class BaseUnitAverager(ABC):
         ...         self.weights_ = (
         ...             np.ones(len(self.ind_estimates)) / len(self.ind_estimates)
         ...            )
-        >>> focus_function = InlineFocusFunction(lambda x: x, lambda x: 1)
         >>> # Using the averager in practice
+        >>> focus_function = InlineFocusFunction(lambda x: x, lambda x: 1)
         >>> ind_estimates = [np.array([1, 2]), np.array([3, 4])]
         >>> averager = CustomUnitAverager(focus_function, ind_estimates)
         >>> averager.fit(target_id=0)
@@ -55,6 +65,7 @@ class BaseUnitAverager(ABC):
         focus_function: FocusFunction,
         ind_estimates: np.ndarray | list | dict[str | int, np.ndarray | list],
     ):
+        """Initialize the averager with base collection of arguments."""
         # Inputs
         self.focus_function = focus_function
         self.keys, self.ind_estimates = self._convert_inputs_to_array(ind_estimates)
@@ -69,7 +80,11 @@ class BaseUnitAverager(ABC):
         """Compute the unit averaging weights and the averaging estimator.
 
         Args:
-            target_id (int | str): ID of the target unit.
+            target_id (int | str): ID of the target unit. This is specified in
+            terms of the keys attribute, which are either numeric indices
+            (if ``ind_estimates`` was an array or list) or dictionary keys (if
+            ``ind_estimates`` was a dictionary)
+
 
         Raises:
             ValueError: If the target unit is not found in the keys.
@@ -93,18 +108,19 @@ class BaseUnitAverager(ABC):
     def average(self, focus_function: FocusFunction | None = None) -> float:
         """Perform unit averaging with the fitted weights.
 
-
+        This method computes the unit averaging estimate using the fitted weights.
+        It can accept a different focus function and reuse the fitted weights.
 
         Args:
             focus_function (FocusFunction | None): Focus function to use in
-                computing the average. If None, defaults to the focus function
-                used in fitting.
+                computing the averaging estimator. Expresses the parameter of
+                interest. If None, defaults to the focus function used in fitting.
 
         Returns:
             float: The unit averaging estimate.
 
         Raises:
-            TypeError: If weights have not been fitted.
+            TypeError: If weights have not been fitted yet by calling ``fit()``
         """
         # Check if weights have been fitted
         if self.weights_ is None:
@@ -125,8 +141,9 @@ class BaseUnitAverager(ABC):
     def _compute_weights(self):
         """Compute unit averaging weights.
 
-        This method should be implemented by subclasses to define how the
-        weights are computed.
+        This abstract method should be implemented by subclasses to define how
+        the weights are computed. The computed weights should be stored in the
+        `weights_` attribute.
         """
         pass
 
@@ -147,7 +164,18 @@ class BaseUnitAverager(ABC):
 
 
 class IndividualUnitAverager(BaseUnitAverager):
-    """Unit averaging scheme that assigns all weight to the target unit."""
+    """Unit averaging scheme that assigns all weight to the target unit.
+
+    Args:
+        focus_function (FocusFunction):
+            Focus function expressing the transformation of interest.
+        ind_estimates (np.ndarray | list | dict[str|int, np.ndarray|list]):
+            Individual unit estimates. Can be a list, numpy array, or dictionary.
+            Each unit-specific estimate should be a NumPy array or a list.
+            The first dimension of `ind_estimates` indexes units (rows or dict
+            entries).
+
+    """
 
     def _compute_weights(self):
         num_units = len(self.ind_estimates)
