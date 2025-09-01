@@ -89,9 +89,9 @@ class BaseUnitAverager(ABC):
 
         Args:
             target_id (int | str): ID of the target unit. This is specified in
-            terms of the keys attribute, which are either numeric indices
-            (if ``ind_estimates`` was an array or list) or dictionary keys (if
-            ``ind_estimates`` was a dictionary)
+                terms of the keys attribute, which are either numeric indices
+                (if ``ind_estimates`` was an array or list) or dictionary keys (if
+                ``ind_estimates`` was a dictionary)
 
 
         Raises:
