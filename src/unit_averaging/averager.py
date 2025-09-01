@@ -83,7 +83,6 @@ class BaseUnitAverager(ABC):
         self.estimate_ = None
         # Related to target unit
         self.target_id_ = None
-        self._target_coord_ = None
 
     def fit(self, target_id: int | str):
         """Compute the unit averaging weights and the averaging estimator.
