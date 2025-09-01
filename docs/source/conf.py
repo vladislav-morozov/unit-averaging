@@ -3,6 +3,8 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import inspect
+import os
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -16,16 +18,16 @@ author = "Vladislav Morozov"
 
 extensions = [
     "sphinx.ext.autosummary",
-    "sphinx.ext.autodoc",  # Core autodoc support
-    "sphinx.ext.napoleon",  # Google/Numpy docstring parsing
-    "sphinx.ext.viewcode",  # Optional: Add links to source code
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
     "sphinxext.opengraph",
     "sphinx_copybutton",
-    "myst_parser",  # Add this
+    "myst_parser",
     "sphinx.ext.autosummary",
+    "sphinx.ext.linkcode",
 ]
 
-templates_path = ["_templates"]
+templates_path = ["/_templates/"]
 exclude_patterns = []
 
 # Generate autosummary pages automatically
@@ -37,13 +39,12 @@ napoleon_google_docstring = True
 napoleon_numpy_docstring = False
 napoleon_include_init_with_doc = False
 napoleon_include_special_with_doc = True
-napoleon_use_admonition_for_examples = True  # Wrap examples in a box
-napoleon_use_admonition_for_notes = True  # Wrap notes in a box
-napoleon_use_admonition_for_references = True  # Wrap references in a box
+napoleon_use_admonition_for_examples = True
+napoleon_use_admonition_for_notes = True
+napoleon_use_admonition_for_references = True
 napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
-
 napoleon_custom_sections = [
     ("Attributes", "params_style")
 ]  # Treat Attributes like Parameters
@@ -57,22 +58,26 @@ autodoc_default_options = {
     "ignore-module-all": True,
 }
 
+# MyST
 source_suffix = {
     ".rst": "restructuredtext",
     ".md": "markdown",
 }
-
 myst_enable_extensions = [
     "colon_fence",  # For code blocks
 ]
 
-# html_theme_options = {
-#     "light_css_variables": {
-#         "font-stack": "Arial, sans-serif",
-#         "font-stack--monospace": "Courier, monospace",
-#         "font-stack--headings": "Roboto Slab, sans-serif",
-#     },
-# }
+# GitHub repo configuration
+html_context = {
+    "display_github": True,
+    "github_user": "vladislav-morozov",
+    "github_repo": "unit-averaging",
+    "github_version": "main",  # or 'master', or a tag like 'v1.0'
+}
+
+# Viewcode options
+html_show_sourcelink = False
+html_sourcelink = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -110,10 +115,50 @@ html_title = "Unit Averaging"
 pygments_style = "emacs"
 pygments_dark_style = "monokai"
 
-mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
 
 # Open Graph configuration
 ogp_site_url = "https://vladislav-morozov.github.io/unit-averaging/"
 
+# MathJax
+mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+
 # Copy button
 copybutton_exclude = ".linenos, .gp"
+
+# Nitpick ignores for build
+nitpick_ignore = [
+    ("py:class", "np.ndarray"),
+    ("py:class", "np.floating"),
+    ("py:class", "abc.ABC"),
+]
+
+# Handling the source button
+def linkcode_resolve(domain, info):
+    if domain != "py":
+        return None
+
+    modname = info["module"]
+    fullname = info["fullname"]
+
+    try:
+        submod = __import__(modname, fromlist=[""])
+        obj = submod
+        for part in fullname.split("."):
+            obj = getattr(obj, part)
+        fn = inspect.getsourcefile(obj)
+        source, lineno = inspect.getsourcelines(obj)
+    except Exception:
+        return None
+
+    # Remap installed path to source path
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    rel_fn = os.path.relpath(fn, start=project_root)
+
+    # If your source lives in 'src/', adjust accordingly:
+    if "site-packages" in rel_fn:
+        rel_fn = rel_fn.split("site-packages/")[-1]
+
+    return_path = (f"https://github.com/vladislav-morozov/unit-averaging/blob/develop/"
+                   f"/src/{rel_fn}#L{lineno}-L{lineno + len(source) - 1}")
+
+    return return_path

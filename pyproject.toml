@@ -100,15 +100,12 @@ commands = [["pytest"]]
 [tool.tox.env.docs]
 description = "make docs"
 base_python = ["python3.13"]
-deps = [
+deps = [ 
   "sphinx",
   "sphinx-paramlinks",
-  "sphinx-copybutton",
-  "sphinx-rtd-theme",
+  "sphinx-copybutton", 
   "sphinxext-opengraph",
-  "myst-parser",
-  "piccolo-theme",
-  "sphinx-celery",
+  "myst-parser", 
   "furo",
 ]
 commands = [
@@ -122,13 +119,11 @@ deps = [
   "sphinx",
   "sphinx-autobuild", 
   "sphinx-paramlinks",
-  "sphinx-copybutton", 
-  "sphinx-rtd-theme",
-  "sphinxext-opengraph",
-  "myst-parser",
-  "piccolo-theme",
-  "sphinx-celery",
+  "sphinx-copybutton",  
+  "sphinxext-opengraph", 
+  "myst-parser", 
   "furo",
+  "sphinx-github-style",
 ]
 commands = [
   ["sphinx-autobuild", "--port", "8100", "docs/source/", "docs/build/"]
