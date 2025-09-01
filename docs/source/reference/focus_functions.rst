@@ -5,5 +5,5 @@ Focus Functions
    :maxdepth: 2
    :caption: Contents
 
-   focus_function.rst
-   inline_focus_function.rst
+   FocusFunction.rst
+   InlineFocusFunction.rst

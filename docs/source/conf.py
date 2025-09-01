@@ -19,7 +19,7 @@ extensions = [
     "sphinx.ext.autodoc",  # Core autodoc support
     "sphinx.ext.napoleon",  # Google/Numpy docstring parsing
     "sphinx.ext.viewcode",  # Optional: Add links to source code
-    'sphinxext.opengraph',
+    "sphinxext.opengraph",
     "sphinx_copybutton",
     "myst_parser",  # Add this
 ]
@@ -31,7 +31,7 @@ exclude_patterns = []
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
 napoleon_include_init_with_doc = False
-napoleon_include_special_with_doc = False
+napoleon_include_special_with_doc = True
 napoleon_use_admonition_for_examples = True  # Wrap examples in a box
 napoleon_use_admonition_for_notes = True  # Wrap notes in a box
 napoleon_use_admonition_for_references = True  # Wrap references in a box
@@ -86,13 +86,12 @@ html_theme_options = {
     "dark_css_variables": {
         "color-brand-primary": "gold",
         "color-brand-content": "#9718DC",
-        "color-admonition-background": "gold",
+        "color-admonition-background": "#242424",
         "color-api-pre-name": "#CABD46",
         "color-api-name": "gold",
         "color-foreground-secondary": "#D9D9D9",
         "color-background-border": "#313131",
-        "color-brand-visited": "#fff",
-        "color-admonition-background": "#313131"
+        "color-brand-visited": "#8830B8",
     },
     "navigation_with_keys": True,
     "top_of_page_buttons": ["view", "edit"],
@@ -110,3 +109,6 @@ mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
 
 # Open Graph configuration
 ogp_site_url = "https://vladislav-morozov.github.io/unit-averaging/"
+
+# Copy button
+copybutton_exclude = ".linenos, .gp"

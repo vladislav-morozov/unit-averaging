@@ -7,3 +7,4 @@ IndividualUnitAverager
    :inherited-members:
    :member-order: alphabetical 
  
+   .. rubric:: Methods

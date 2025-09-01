@@ -6,4 +6,6 @@ MeanGroupUnitAverager
    :show-inheritance:
    :inherited-members:
    :member-order: alphabetical 
+
+   .. rubric:: Methods
  

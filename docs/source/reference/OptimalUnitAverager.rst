@@ -4,3 +4,5 @@ OptimalUnitAverager
    :members:
    :inherited-members:
    :show-inheritance:
+
+   .. rubric:: Methods

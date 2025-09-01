@@ -1,5 +1,5 @@
 About Unit Averaging
-===========
+=======================
  
 
 This page explains the mathematical foundations of unit averaging.
