@@ -8,9 +8,9 @@ import numpy as np
 class FocusFunction(ABC):
     """Abstract base class to encapsulate a focus function and its gradient.
 
-    This class provides a framework for implementing focus functions and their 
-    gradients. A focus function represents a transformation of interest applied 
-    to parameter estimates. Subclasses must implement both the 
+    This class provides a framework for implementing focus functions and their
+    gradients. A focus function represents a transformation of interest applied
+    to parameter estimates. Subclasses must implement both the
     ``focus_function`` and ``gradient`` methods to define the specific
     transformation and its derivative.
 
@@ -24,10 +24,10 @@ class FocusFunction(ABC):
         >>> from unit_averaging import FocusFunction
         >>> import numpy as np
         >>> class LinearFocusFunction(FocusFunction):
-        ...     def focus_function(self, ind_estimate): 
+        ...     def focus_function(self, ind_estimate):
         ...         return ind_estimate[0] + ind_estimate[1]
         ...
-        ...     def gradient(self, ind_estimate): 
+        ...     def gradient(self, ind_estimate):
         ...         return np.array([1.0, 1.0])
         >>> # Create an instance of the custom focus function
         >>> focus_func = LinearFocusFunction()
@@ -47,8 +47,8 @@ class FocusFunction(ABC):
     ) -> float | np.floating[Any]:
         """Compute the focus function for a given estimate.
 
-        This method applies the focus function transformation to an individual 
-        estimate. The focus function defines the parameter of interest that the 
+        This method applies the focus function transformation to an individual
+        estimate. The focus function defines the parameter of interest that the
         unit averaging process aims to estimate.
 
         Args:
@@ -88,15 +88,15 @@ class FocusFunction(ABC):
 class InlineFocusFunction(FocusFunction):
     """Convenience class for creating focus functions using callable objects.
 
-    This class allows you to create a focus function by directly passing 
-    callable objects for both the focus function and its gradient. It's 
-    useful when the focus function and its gradient are simple enough to be 
-    defined as lambda functions or other callable objects, eliminating the 
+    This class allows you to create a focus function by directly passing
+    callable objects for both the focus function and its gradient. It's
+    useful when the focus function and its gradient are simple enough to be
+    defined as lambda functions or other callable objects, eliminating the
     need to create a full subclass of ``FocusFunction``.
 
     Args:
         focus_function (Callable): A callable that implements the focus function
-            This function should take an individual estimate (scalar or array) 
+            This function should take an individual estimate (scalar or array)
             and return a scalar result representing the parameter of interest.
 
             Signature: ``(float | np.ndarray) -> (float | np.ndarray)``.
