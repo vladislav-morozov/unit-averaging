@@ -64,7 +64,20 @@ source_suffix = {
     ".md": "markdown",
 }
 myst_enable_extensions = [
-    "colon_fence",  # For code blocks
+    "amsmath",
+    "attrs_inline",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "fieldlist",
+    "html_admonition",
+    "html_image",
+    "linkify",
+    "replacements",
+    "smartquotes",
+    "strikethrough",
+    "substitution",
+    "tasklist",
 ]
 
 # GitHub repo configuration

@@ -14,6 +14,7 @@ Unit Averaging
    
    tutorials/index.rst
    theory/theory.rst
+   theory/exp.md
    reference/index.rst
 
 
