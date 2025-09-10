@@ -125,6 +125,8 @@ deps = [
   "linkify-it-py",
   "matplotlib",
   "myst-parser", 
+  "pandas",
+  "statsmodels",
   "sphinx",
   "sphinx-autobuild", 
   "sphinx-copybutton",  
