@@ -374,7 +374,7 @@ class OptimalUnitAverager(BaseUnitAverager):
         target_id_ (int | str):
             The ID of the target unit. Initialized as None, set by calling ``fit()``.
 
-    Example with restricted and unrestricted units:
+    Example:
         >>> from unit_averaging import OptimalUnitAverager, InlineFocusFunction
         >>> import numpy as np
         >>> # Define a focus function
