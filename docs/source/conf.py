@@ -22,12 +22,13 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinxext.opengraph",
     "sphinx_copybutton",
+    "sphinx_gallery.gen_gallery",
     "myst_parser",
     "sphinx.ext.autosummary",
     "sphinx.ext.linkcode",
 ]
 
-templates_path = ["/_templates/"]
+templates_path = ["_templates"]
 exclude_patterns = []
 
 # Generate autosummary pages automatically
@@ -87,6 +88,15 @@ html_context = {
     "github_repo": "unit-averaging",
     "github_version": "main",  # or 'master', or a tag like 'v1.0'
 }
+
+# Gallery settings
+sphinx_gallery_conf = {
+    "examples_dirs": "../examples",  # path to your example scripts
+    "gallery_dirs": "tutorials",  # path to where to save gallery generated output 
+    "within_subsection_order": "FileNameSortKey",
+    "min_reported_time": 60,
+}
+
 
 # Viewcode options
 html_show_sourcelink = False
@@ -178,3 +188,10 @@ def linkcode_resolve(domain, info):
     )
 
     return return_path
+
+
+html_static_path = ["_static"]
+
+
+def setup(app):
+    app.add_css_file("css/custom.css")  # may also be an URL
