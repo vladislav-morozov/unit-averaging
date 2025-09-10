@@ -116,6 +116,7 @@ commands = [
 description = "Write docs"
 base_python = ["python3.13"]
 deps = [
+  "linkify-it-py",
   "sphinx",
   "sphinx-autobuild", 
   "sphinx-paramlinks",

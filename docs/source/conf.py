@@ -64,7 +64,20 @@ source_suffix = {
     ".md": "markdown",
 }
 myst_enable_extensions = [
-    "colon_fence",  # For code blocks
+    "amsmath",
+    "attrs_inline",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "fieldlist",
+    "html_admonition",
+    "html_image",
+    "linkify",
+    "replacements",
+    "smartquotes",
+    "strikethrough",
+    "substitution",
+    "tasklist",
 ]
 
 # GitHub repo configuration
@@ -132,6 +145,7 @@ nitpick_ignore = [
     ("py:class", "abc.ABC"),
 ]
 
+
 # Handling the source button
 def linkcode_resolve(domain, info):
     if domain != "py":
@@ -158,7 +172,9 @@ def linkcode_resolve(domain, info):
     if "site-packages" in rel_fn:
         rel_fn = rel_fn.split("site-packages/")[-1]
 
-    return_path = (f"https://github.com/vladislav-morozov/unit-averaging/blob/develop/"
-                   f"/src/{rel_fn}#L{lineno}-L{lineno + len(source) - 1}")
+    return_path = (
+        f"https://github.com/vladislav-morozov/unit-averaging/blob/develop/"
+        f"/src/{rel_fn}#L{lineno}-L{lineno + len(source) - 1}"
+    )
 
     return return_path

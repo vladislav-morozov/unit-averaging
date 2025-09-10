@@ -12,8 +12,8 @@ Unit Averaging
    :maxdepth: 1
    :caption: Contents
    
-   tutorials/index.rst
-   theory/theory.rst
+   tutorials/index.rst 
+   theory/theory.md
    reference/index.rst
 
 
