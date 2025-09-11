@@ -124,6 +124,7 @@ description = "Write docs"
 base_python = ["python3.13"]
 deps = [
   "furo",
+  "geopandas",
   "linkify-it-py",
   "matplotlib",
   "myst-parser", 
@@ -138,5 +139,5 @@ deps = [
   "sphinxext-opengraph", 
 ]
 commands = [
-  ["sphinx-autobuild", "--port", "8101", "docs/source/", "docs/build/"]
+  ["sphinx-autobuild", "--port", "8100", "docs/source/", "docs/build/"]
 ]
