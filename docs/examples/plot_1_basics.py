@@ -4,7 +4,7 @@ Getting Started with Unit Averaging
 
 This is a worked example showcasing how unit averaging can integrated
 
-Goes from raw data, shows the necessary data construction, and showcases 
+Goes from raw data, shows the necessary data construction, and showcases
 """
 
 # %%
@@ -12,6 +12,7 @@ Goes from raw data, shows the necessary data construction, and showcases
 # ----------------------------------
 
 import pandas as pd
+from germany_plot_utils import plot_germany
 
 from unit_averaging import InlineFocusFunction, OptimalUnitAverager
 
@@ -40,7 +41,7 @@ german_data.iloc[-4:, [0, 2, -1]]
 
 
 # %%
-# The data is difference to ensure stationarity. We will be forecasting changes 
+# The data is difference to ensure stationarity. We will be forecasting changes
 # in unemployment
 
 # %%
@@ -57,19 +58,22 @@ german_data.iloc[-4:, [0, 2, -1]]
 # %%
 # Agnostic
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-# 
-# Define focus function. Observe that that in this case using the actual values 
+#
+# Define focus function. Observe that that in this case using the actual values
 # Hannover in 2019, but being able to use different coefficients
 
 
 # %%
-# Agnostic
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#
+# Our target
 
+
+1
 
 # %%
-# Our target
+# Can also reuse fitted weights
+
+# %%
+# Running ``average()`` with no inputs reuses the focus function passed to the constructor
 
 
 # %%
