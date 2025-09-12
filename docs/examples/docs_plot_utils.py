@@ -3,13 +3,12 @@ This module provides plotting utilities.
 
 """
 
+from pathlib import Path
+
 import geopandas as gpd
-import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.colors as colors
-
-
-from pathlib import Path
+import matplotlib.pyplot as plt
 
 # Shapefile path
 AAB_SHAPE_FILE_PATH = (
@@ -45,7 +44,7 @@ def plot_germany(data_df, **kwargs):
 
     # plot
 
-    fig, ax = plt.subplots(figsize=(15, 7))
+    fig, ax = plt.subplots(figsize=(8, 7))
     merged_geo_data_df.to_crs("EPSG:25832").plot(series_name, ax=ax, **kwargs)
     ax.axis("off")
 
