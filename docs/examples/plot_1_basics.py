@@ -6,8 +6,11 @@ This is a worked example showcasing how unit averaging can integrated.
 
 Goes from raw data, shows the necessary data construction, and showcases things.
 
+
 This ``unit-averaging`` package is designed to accommodate a variety of approaches
-for estimating individual models and transforming their parameters. 
+for estimating individual models and transforming their parameters.
+
+This example pays relatively more 
 
 .. admonition:: Functionality covered
 
@@ -93,17 +96,18 @@ print(regions[:10])
 #      level models (defining a suitable *focus function*)
 #
 # #. Estimate the model for each unit separately and collect the results.
-# #. Pass the unit-level estimates, the focus function, along with any other 
+# #. Pass the unit-level estimates, the focus function, along with any other
 #    necessary inputs to a suitable
 #    ``Averager`` from this package and ``fit()`` it.
+#
 #
 #
 # .. seealso:: See :doc:`this page <../theory/theory>` for a more formal discussion of
 #              unit averaging from a mathematical perspective.
 #
 #
-# Models Defining the Focus Function
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# Region-Specific Models
+# ^^^^^^^^^^^^^^^^^^^^^^^
 #
 # In our case, we will specify that the unemployment in each region :math:`i`
 # follows a simple autoregressive (AR) process: it depends on the unemployment
@@ -112,15 +116,34 @@ print(regions[:10])
 #
 # .. math::
 #
-#    x \rightarrow \sin(x)
+#    U_{i,t} = c_i+\alpha_i U_{i, t-1} + \beta_i U_{Germany, t-1} + \varepsilon_{i, t},
 #
+# where $U_{i, t}$ is the unemployment rate in region $i$ in month $t$.
+# While the general shape of the model is the same for all regions, the coefficients
+# are region-specific. That allows different regions to have different unemployment
+# dynamics.
 #
-# Then the forecast for January 2020 can be computed
+# Focus Function
+# ^^^^^^^^^
 #
+# With the model in hand, we need to express the target parameter (unemployment
+# for Cologne in 01.2020) as a function of the parameters of the unit-level
+# models. Mathematically, the model implies the following forecast function:
 #
-# Observe that that in this case using the actual values
-# Cologne in 2019, but being able to use different coefficients
-
+# .. math::
+#
+#   \mu(c, \alpha, \beta) = c + \alpha U_{Cologne, 12.2019} + \beta U_{Germany, 12.2019}
+#
+# The function $\mu$ is called a *focus function*: it defines how the parameters
+# of the underlying models map into the actual final parameter of interest.
+# 
+# All of the averager classes of this package expect as inputs:
+# 
+# #. A collection of estimated parameters for each unit (see below)
+# #. A ``FocusFunction`` or ``InlineFocusFunction`` that implements the :math:`mu`
+#    of interest.
+#
+# This two-step approach permits one to work with several 
 
 target_region = "Köln"
 target_data = (
@@ -128,8 +151,9 @@ target_data = (
 )
 
 # %%
+# 
 # Using ``InlineFocusFunction`` class. Requires specifying the target parameter
-# itself (in this case some math). We also need to spply the gradient
+# itself (in this case some math). We also need to supply the gradient
 
 forecast_cologne_jan_2020 = InlineFocusFunction(
     focus_function=lambda coef: coef[0]
@@ -140,6 +164,9 @@ forecast_cologne_jan_2020 = InlineFocusFunction(
 
 
 # %%
+# Estimating Unit Models
+# ^^^^^^^^^^^^^^^^^^^^^^^
+#
 # Our model will look like
 # The data is difference to ensure stationarity. We will be forecasting changes
 # in unemployment
@@ -153,9 +180,15 @@ german_data = german_data.iloc[2:,]
 #
 #
 # All unit averagers expect data in two of two forms: numpy array or dict.
+# Dicts are appropriate when the individual units have descriptive identifiers.
+#
+# This is our case.
 
 ind_estimates = {}
 ind_covar_ests = {}
+
+# %%
+# Now estimate.
 
 for region in regions:
     # Extract data and add lags
@@ -168,11 +201,6 @@ for region in regions:
     ind_estimates[region] = ar_results.params.to_numpy()
     ind_covar_ests[region] = ar_results.cov_params().to_numpy()
 
-
-target_region = "Köln"
-target_data = (
-    german_data.loc["2019-12", [target_region, "Deutschland"]].to_numpy().squeeze()
-)
 
 # %%
 # Using Optimal Unit Averaging
@@ -225,7 +253,7 @@ fig, ax = plot_germany(weight_df, cmap="Purples", vmin=-0.005)
 
 
 # %%
-#
+# Unit averaging can also be used to discover patterns in the data
 # Stuttgart
 
 # %%
