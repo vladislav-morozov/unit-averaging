@@ -84,7 +84,8 @@ def plot_germany(data_df, title, **kwargs):
     cbar.set_label("a")
     cbar.ax.set_xlim(0, data_df[series_name].max())
     cbar.ax.tick_params(colors="white")
-
+    plt.show()
+    
     return fig, ax
 
 
