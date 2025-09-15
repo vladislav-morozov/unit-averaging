@@ -319,7 +319,7 @@ fig, ax = plot_germany(
 # This map shows how the averaging estimator assigns weights to improve the
 # quality of the forecast for Frankfurt. As we can see, relatively large weights
 # are assigned to Frankfurt itself (broadly in the middle of the country), and
-# the regions surrounding it. Hamburg (in the north), Munich (southeast), 
+# the regions surrounding it. Hamburg (in the north), Munich (southeast),
 # Berlin (east), and
 # the Rhein-Ruhr region (west) also receive some weight.
 
