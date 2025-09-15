@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 import cvxpy as cp
 import numpy as np
 
-from unit_averaging.focus_function import FocusFunction
+from unit_averaging.focus_function import BaseFocusFunction
 
 
 class BaseUnitAverager(ABC):
@@ -24,7 +24,7 @@ class BaseUnitAverager(ABC):
     weights are computed for the specific averaging strategy.
 
     Args:
-        focus_function (FocusFunction):
+        focus_function (BaseFocusFunction):
             Focus function expressing the transformation of interest.
         ind_estimates (np.ndarray | list | dict[str|int, np.ndarray|list]):
             Individual unit estimates. Can be a list, numpy array, or dictionary.
@@ -44,7 +44,7 @@ class BaseUnitAverager(ABC):
             Initialized as None, computed by calling ``fit()``
         estimate_ (float): The computed unit averaging estimate.
             Initialized as None.
-        focus_function (FocusFunction):
+        focus_function (BaseFocusFunction):
             Focus function expressing the transformation of interest.
         target_id_ (int | str): The ID of the target unit. Initialized as None,
             set by calling ``fit()``.
@@ -71,7 +71,7 @@ class BaseUnitAverager(ABC):
 
     def __init__(
         self,
-        focus_function: FocusFunction,
+        focus_function: BaseFocusFunction,
         ind_estimates: np.ndarray | list | dict[str | int, np.ndarray | list],
     ):
         """Initialize the averager with base collection of arguments."""
@@ -113,14 +113,14 @@ class BaseUnitAverager(ABC):
             self.focus_function,
         )
 
-    def average(self, focus_function: FocusFunction | None = None) -> float:
+    def average(self, focus_function: BaseFocusFunction | None = None) -> float:
         """Perform unit averaging with the fitted weights.
 
         This method computes the unit averaging estimate using the fitted weights.
         It can accept a different focus function and reuse the fitted weights.
 
         Args:
-            focus_function (FocusFunction | None): Focus function to use in
+            focus_function (BaseFocusFunction | None): Focus function to use in
                 computing the averaging estimator. Expresses the parameter of
                 interest. If None, defaults to the focus function used in fitting.
 
@@ -180,7 +180,7 @@ class IndividualUnitAverager(BaseUnitAverager):
     averaging schemes with no averaging using the same interface.
 
     Args:
-        focus_function (FocusFunction):
+        focus_function (BaseFocusFunction):
             Focus function expressing the transformation of interest.
         ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
             Individual unit estimates. Can be a list, numpy array, or dictionary.
@@ -203,7 +203,7 @@ class IndividualUnitAverager(BaseUnitAverager):
         estimate_ (float):
             The computed unit averaging estimate, which is simply the target
             unit's estimate.
-        focus_function (FocusFunction):
+        focus_function (BaseFocusFunction):
             Focus function expressing the transformation of interest.
         target_id_ (int | str):
             The ID of the target unit. Initialized as None, set by calling ``fit()``.
@@ -244,7 +244,7 @@ class MeanGroupUnitAverager(BaseUnitAverager):
     setting.
 
     Args:
-        focus_function (FocusFunction):
+        focus_function (BaseFocusFunction):
             Focus function expressing the transformation of interest.
         ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
             Individual unit estimates. Can be a list, numpy array, or dictionary.
@@ -267,7 +267,7 @@ class MeanGroupUnitAverager(BaseUnitAverager):
         estimate_ (float):
             The computed unit averaging estimate. Here a simple average of all
             unit estimates.
-        focus_function (FocusFunction):
+        focus_function (BaseFocusFunction):
             Focus function expressing the transformation of interest.
         target_id_ (int | str):
             The ID of the target unit. Initialized as None, set by calling ``fit()``.
@@ -333,7 +333,7 @@ class OptimalUnitAverager(BaseUnitAverager):
 
 
     Args:
-        focus_function (FocusFunction):
+        focus_function (BaseFocusFunction):
             Focus function expressing the transformation of interest.
         ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
             Individual unit estimates. Can be a list, numpy array, or dictionary.
@@ -369,7 +369,7 @@ class OptimalUnitAverager(BaseUnitAverager):
             The computed weights for each unit.
         estimate_ (float):
             The computed unit averaging estimate.
-        focus_function (:class:`~unit_averaging.focus_function.FocusFunction`):
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
             Focus function expressing the transformation of interest.
         target_id_ (int | str):
             The ID of the target unit. Initialized as None, set by calling ``fit()``.
@@ -415,7 +415,7 @@ class OptimalUnitAverager(BaseUnitAverager):
 
     def __init__(
         self,
-        focus_function: FocusFunction,
+        focus_function: BaseFocusFunction,
         ind_estimates: list | np.ndarray | dict[str | int, np.ndarray | list],
         ind_covar_ests: list | np.ndarray | dict[str | int, np.ndarray | list],
         unrestricted_units_bool: np.ndarray

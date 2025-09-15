@@ -5,7 +5,7 @@ from typing import Any
 import numpy as np
 
 
-class FocusFunction(ABC):
+class BaseFocusFunction(ABC):
     """Abstract base class to encapsulate a focus function and its gradient.
 
     This class provides a framework for implementing focus functions and their
@@ -21,9 +21,9 @@ class FocusFunction(ABC):
         None (abstract class)
 
     Examples:
-        >>> from unit_averaging import FocusFunction
+        >>> from unit_averaging import BaseFocusFunction
         >>> import numpy as np
-        >>> class LinearFocusFunction(FocusFunction):
+        >>> class LinearFocusFunction(BaseFocusFunction):
         ...     def focus_function(self, ind_estimate):
         ...         return ind_estimate[0] + ind_estimate[1]
         ...
@@ -85,14 +85,14 @@ class FocusFunction(ABC):
         pass
 
 
-class InlineFocusFunction(FocusFunction):
+class InlineFocusFunction(BaseFocusFunction):
     """Convenience class for creating focus functions using callable objects.
 
     This class allows you to create a focus function by directly passing
     callable objects for both the focus function and its gradient. It's
     useful when the focus function and its gradient are simple enough to be
     defined as lambda functions or other callable objects, eliminating the
-    need to create a full subclass of ``FocusFunction``.
+    need to create a full subclass of ``BaseFocusFunction``.
 
     Args:
         focus_function (Callable): A callable that implements the focus function
