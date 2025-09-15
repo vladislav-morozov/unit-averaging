@@ -35,9 +35,9 @@ Available averagers:
    * - :class:`BaseUnitAverager`
      - Abstract base class. Subclass and implement ``_compute_weights()`` for custom strategies.
    * - :class:`IndividualUnitAverager`
-     - Assigns all weight to the target unit (``weights_ = [0, ..., 1, ..., 0]``).
+     - Assigns all weight to the target unit (``weights = [0, ..., 1, ..., 0]``).
    * - :class:`MeanGroupUnitAverager`
-     - Equal weights for all units (``weights_ = [1/N, ..., 1/N]``).
+     - Equal weights for all units (``weights = [1/N, ..., 1/N]``).
    * - :class:`OptimalUnitAverager`
      - MSE-optimal weights (agnostic and with prior restrictions).
 

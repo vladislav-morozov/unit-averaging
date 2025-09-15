@@ -4,10 +4,10 @@ from unit_averaging.averager import (
     MeanGroupUnitAverager,
     OptimalUnitAverager,
 )
-from unit_averaging.focus_function import FocusFunction, InlineFocusFunction
+from unit_averaging.focus_function import BaseFocusFunction, InlineFocusFunction
 
 __all__ = [
-    "FocusFunction",
+    "BaseFocusFunction",
     "InlineFocusFunction",
     "BaseUnitAverager",
     "IndividualUnitAverager",

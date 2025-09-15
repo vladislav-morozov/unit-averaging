@@ -38,8 +38,8 @@ def test_individual_averager_with_scalars(
 ):
     ua = IndividualUnitAverager(identity_focus_function, ind_estimates)
     ua.fit(target_id=target_id)
-    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
-        ua.estimate_, expected_estimate, rtol=1e-03
+    assert np.allclose(ua.weights, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate, expected_estimate, rtol=1e-03
     )
 
 
@@ -63,8 +63,8 @@ def test_individual_averager_with_lists(
 ):
     ua = IndividualUnitAverager(first_coord_focus_function, ind_estimates)
     ua.fit(target_id=target_id)
-    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
-        ua.estimate_, expected_estimate, rtol=1e-03
+    assert np.allclose(ua.weights, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate, expected_estimate, rtol=1e-03
     )
 
 
@@ -88,8 +88,8 @@ def test_individual_averager_with_arrays(
 ):
     ua = IndividualUnitAverager(first_coord_focus_function, ind_estimates)
     ua.fit(target_id=target_id)
-    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
-        ua.estimate_, expected_estimate, rtol=1e-03
+    assert np.allclose(ua.weights, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate, expected_estimate, rtol=1e-03
     )
 
 
@@ -115,8 +115,8 @@ def test_individual_averager_with_dicts(
 ):
     ua = IndividualUnitAverager(first_coord_focus_function, ind_estimates)
     ua.fit(target_id=target_id)
-    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
-        ua.estimate_, expected_estimate, rtol=1e-03
+    assert np.allclose(ua.weights, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate, expected_estimate, rtol=1e-03
     )
 
 

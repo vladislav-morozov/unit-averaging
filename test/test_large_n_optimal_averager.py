@@ -78,8 +78,8 @@ def test_large_n_averaging_with_arrays(
         unrestricted_units_bool,
     )
     ua.fit(target_id=target_id)
-    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
-        ua.estimate_, expected_estimate, rtol=1e-03
+    assert np.allclose(ua.weights, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate, expected_estimate, rtol=1e-03
     )
 
 
@@ -134,8 +134,8 @@ def test_large_n_averaging_with_dicts(
         unrestricted_units_bool,
     )
     ua.fit(target_id=target_id)
-    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
-        ua.estimate_, expected_estimate, rtol=1e-03
+    assert np.allclose(ua.weights, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate, expected_estimate, rtol=1e-03
     )
 
 

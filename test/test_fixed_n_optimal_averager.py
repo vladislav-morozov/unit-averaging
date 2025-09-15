@@ -58,8 +58,8 @@ def test_fixed_n_averaging_with_arrays(
 ):
     ua = OptimalUnitAverager(first_coord_focus_function, ind_estimates, ind_covar_ests)
     ua.fit(target_id=target_id)
-    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
-        ua.estimate_, expected_estimate, rtol=1e-03
+    assert np.allclose(ua.weights, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate, expected_estimate, rtol=1e-03
     )
 
 
@@ -96,8 +96,8 @@ def test_fixed_n_averaging_with_large_arrays(
 ):
     ua = OptimalUnitAverager(first_coord_focus_function, ind_estimates, ind_covar_ests)
     ua.fit(target_id=target_id)
-    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
-        ua.estimate_, expected_estimate, rtol=1e-03
+    assert np.allclose(ua.weights, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate, expected_estimate, rtol=1e-03
     )
 
 
@@ -142,8 +142,8 @@ def test_fixed_n_averaging_with_dicts(
 ):
     ua = OptimalUnitAverager(first_coord_focus_function, ind_estimates, ind_covar_ests)
     ua.fit(target_id=target_id)
-    assert np.allclose(ua.weights_, expected_weights, rtol=1e-03) and np.allclose(
-        ua.estimate_, expected_estimate, rtol=1e-03
+    assert np.allclose(ua.weights, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate, expected_estimate, rtol=1e-03
     )
 
 

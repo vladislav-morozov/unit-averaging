@@ -101,12 +101,20 @@ commands = [["pytest"]]
 description = "make docs"
 base_python = ["python3.13"]
 deps = [ 
-  "sphinx",
-  "sphinx-paramlinks",
-  "sphinx-copybutton", 
-  "sphinxext-opengraph",
-  "myst-parser", 
   "furo",
+  "geopandas",
+  "linkify-it-py",
+  "matplotlib",
+  "myst-parser", 
+  "pandas",
+  "statsmodels",
+  "sphinx",
+  "sphinx-autobuild", 
+  "sphinx-copybutton",  
+  "sphinx-gallery",
+  "sphinx-github-style",
+  "sphinx-paramlinks",
+  "sphinxext-opengraph", 
 ]
 commands = [
   ["sphinx-build", "-n", "-W", "--keep-going", "-b", "html", "docs/source/", "docs/build/"]
@@ -116,16 +124,21 @@ commands = [
 description = "Write docs"
 base_python = ["python3.13"]
 deps = [
+  "furo",
+  "geopandas",
   "linkify-it-py",
+  "matplotlib",
+  "myst-parser", 
+  "pandas",
+  "statsmodels",
   "sphinx",
   "sphinx-autobuild", 
-  "sphinx-paramlinks",
   "sphinx-copybutton",  
-  "sphinxext-opengraph", 
-  "myst-parser", 
-  "furo",
+  "sphinx-gallery",
   "sphinx-github-style",
+  "sphinx-paramlinks",
+  "sphinxext-opengraph", 
 ]
 commands = [
-  ["sphinx-autobuild", "--port", "8100", "docs/source/", "docs/build/"]
+  ["sphinx-autobuild", "--port", "8101", "docs/source/", "docs/build/"]
 ]
