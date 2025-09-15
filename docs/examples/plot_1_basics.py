@@ -28,7 +28,11 @@ import pandas as pd
 from docs_plot_utils import plot_germany
 from statsmodels.tsa.ar_model import AutoReg
 
-from unit_averaging import InlineFocusFunction, OptimalUnitAverager
+from unit_averaging import (
+    IndividualUnitAverager,
+    InlineFocusFunction,
+    OptimalUnitAverager,
+)
 
 # %%
 # If you want to following this example locally, download the requisite files
@@ -36,7 +40,7 @@ from unit_averaging import InlineFocusFunction, OptimalUnitAverager
 #
 
 # %%
-# Problem, Data, and Key Idea
+# Problem, Key Idea, Data
 # ----------------------------------
 #
 # Introduction
@@ -108,7 +112,6 @@ print(regions[:10])
 #    ``Averager`` from this package and ``fit()`` it.
 #
 #
-#
 # .. seealso:: See :doc:`this page <../theory/theory>` for a more formal discussion of
 #              unit averaging from a mathematical perspective.
 #
@@ -116,69 +119,30 @@ print(regions[:10])
 # Region-Specific Models
 # ^^^^^^^^^^^^^^^^^^^^^^^
 #
-# In our case, we will specify that the unemployment in each region :math:`i`
-# follows a simple autoregressive (AR) process: it depends on the unemployment
+# In our case, we will specify that the *change* in unemployment in each region
+# :math:`i` follows a simple autoregressive (AR) process: it depends on the unemployment
 # in the same region in the previous month, along with Germany-wide unemployment
 # in the previous month:
 #
 # .. math::
 #
-#    U_{i,t} = c_i+\alpha_i U_{i, t-1} + \beta_i U_{Germany, t-1} + \varepsilon_{i, t},
+#    \Delta U_{i,t} = c_i+\alpha_i \Delta  U_{i, t-1} + 
+#    \beta_i \Delta U_{Germany, t-1} + \varepsilon_{i, t},
 #
-# where :math:`U_{i, t}` is the unemployment rate in region :math:`i` in month
-# :math:`t`.
+# where :math:`\Delta  U_{i, t}` is the change in the unemployment rate in 
+# region :math:`i` in month :math:`t`. We specify the model in differences to
+# ensure stationarity.
+#
 # While the general shape of the model is the same for all regions, the coefficients
 # are region-specific. That allows different regions to have different unemployment
 # dynamics.
-#
-# Focus Function
-# ^^^^^^^^^^^^^^
-#
-# With the model in hand, we need to express the target parameter (unemployment
-# for Frankfurt in 01.2020) as a function of the parameters of the unit-level
-# models. Mathematically, the model implies the following forecast function:
-#
-# .. math::
-#
-#   \mu(c, \alpha, \beta) = c + \alpha U_{Frankfurt, 12.2019} + \beta U_{Germany, 12.2019}
-#
-# The function :math:`\mu` is called a *focus function*: it defines how the parameters
-# of the underlying models map into the actual final parameter of interest.
-#
-# All of the averager classes of this package expect as inputs:
-#
-# #. A focus function along with its gradient with respect to the parameters.
-# #. A collection of estimated parameters for each unit (see below).
-#
-# We start with creating a focus function. In general, the package offers two
-# classes for defining one: an ``InlineFocusFunction`` or implementing a concrete
-# ``BaseFocusFunction``. The former option is convenient when :math:`\mu`
-# and its gradient are already available in form of callables or a simple lambda
-# function. These are then simply passed as arguments to the constructor of
-# ``InlineFocusFunction``. The latter option is more flexible and requires
-# implementing the focus function and its gradient as methods.
-#
-# In our case, the focus function and its gradient are relatively simple, so we
-# use an ``InlineFocusFunction``. We pass suitable lambda functions as the
-# ``focus_function`` and ``gradient`` arguments:
-
-# Extract data on last month of target region
-target_data = german_data.loc["2019-12", ["Frankfurt", "Deutschland"]].to_numpy().squeeze()
-
-# Construct focus function
-forecast_frankfurt_jan_2020 = InlineFocusFunction(
-    focus_function=lambda coef: coef[0]
-    + coef[1] * target_data[0]
-    + coef[2] * target_data[1],
-    gradient=lambda coef: np.array([1, target_data[0], target_data[1]]),
-)
 
 
 # %%
 # Estimating Unit Models
 # ^^^^^^^^^^^^^^^^^^^^^^^
 #
-# The second key required input for all averagers is the information on the
+# The first key required input for all averagers is the information on the
 # estimated unit-level parameters (in this case the estimated
 # :math:`c_i, \alpha_i, \beta_i`). In case of ``OptimalUnitAverager`` we need to
 # supply both the individual estimates and the associated unit-level estimated
@@ -215,6 +179,48 @@ for region in regions:
     # Add to dictionaries
     ind_estimates[region] = ar_results.params.to_numpy()
     ind_covar_ests[region] = ar_results.cov_params().to_numpy()
+
+# %%
+# Focus Function
+# ^^^^^^^^^^^^^^
+#
+# With the model in hand and estimates in hand, 
+# we need to express the target parameter (unemployment
+# for Frankfurt in 01.2020) as a function of the parameters of the unit-level
+# models. Mathematically, the model implies the following forecast function:
+#
+# .. math::
+#
+#   \mu(c, \alpha, \beta) = c + \alpha \Delta U_{Frankfurt, 12.2019} 
+#                           + \beta \Delta U_{Germany, 12.2019}
+#
+# The function :math:`\mu` is called a *focus function*: it defines how the parameters
+# of the underlying models map into the actual final parameter of interest.
+#
+# In general, the package offers two classes for defining a focus function: 
+# an ``InlineFocusFunction`` or implementing a concrete
+# ``BaseFocusFunction``. The former option is convenient when :math:`\mu`
+# and its gradient are already available in form of callables or a simple lambda
+# function. These are then simply passed as arguments to the constructor of
+# ``InlineFocusFunction``. The latter option is more flexible and requires
+# implementing the focus function and its gradient as methods.
+#
+# In our case, the focus function and its gradient are relatively simple, so we
+# use an ``InlineFocusFunction``. We pass suitable lambda functions as the
+# ``focus_function`` and ``gradient`` arguments:
+
+# Extract data on last month of target region
+target_data = (
+    german_data.loc["2019-12", ["Frankfurt", "Deutschland"]].to_numpy().squeeze()
+)
+
+# Construct focus function
+forecast_frankfurt_jan_2020 = InlineFocusFunction(
+    focus_function=lambda coef: coef[0]
+    + coef[1] * target_data[0]
+    + coef[2] * target_data[1],
+    gradient=lambda coef: np.array([1, target_data[0], target_data[1]]),
+)
 
 
 # %%
@@ -253,12 +259,12 @@ averager.fit(target_id="Frankfurt")
 
 # %%
 #
-# .. tip:: The averager classes of this package follow two layer approach  .
-#          This allows, which might be more ergonomic.
-#          Of course, one can also supply target parameters
-#          directly, and pass an identity focus function if that is more convenient
+# .. tip:: The averager classes of this package follow a two layer approach which
+#          separate the unit-level estimates from the focus transformation. This
+#          allows one to consider several focus functions on the same dataset.
+#          However, one may also directly supply precomputed target parameters,
+#          and pass an identity focus function if that is more convenient
 #          in a given context.
-#
 
 
 # %%
@@ -279,12 +285,12 @@ averager.fit(target_id="Frankfurt")
 print(averager.weights[:10].round(3))
 
 # %%
-# These weights can be matched with the corresponding units by accessing the 
+# These weights can be matched with the corresponding units by accessing the
 # ``keys`` attribute, which stores the keys of the supplied units as a NumPy
 # array:
 
 print(averager.keys[:10])
- 
+
 # %%
 # One may easily create a dictionary of weights by combining the two attributes:
 
@@ -294,9 +300,10 @@ for key, val in zip(averager.keys, averager.weights, strict=True):
 
 
 # %%
-# These weights may then be further analyzed for patterns. For example, we may
-# plot 
- 
+# These weights may themselves then be analyzed for patterns. For example, we may
+# plot the weights assigned to each region when computing the optimal combination
+# for Frankfurt:
+
 
 weight_df = pd.Series(weight_dict).reset_index()
 weight_df.columns = ["aab", "weights"]
@@ -309,21 +316,52 @@ fig, ax = plot_germany(
 )
 
 # %%
-# This map shows how the averaging estimator assigns weights to improve the 
-# quality of the forecast for Frankfurt. As we can see, it 
-# 
-# Unit averaging can also be used to discover patterns in the data
-# Stuttgart
+# This map shows how the averaging estimator assigns weights to improve the
+# quality of the forecast for Frankfurt. As we can see, relatively large weights
+# are assigned to Frankfurt itself (broadly in the middle of the country), and
+# the regions surrounding it. Hamburg (in the north) and Munich (southeast), and
+# the Rhein-Ruhr region (west) also receive some weight.
 
 # %%
 # Averaging Estimate
 # ^^^^^^^^^^^^^^^^^^^
-# Can also reuse fitted weights
+#
+# We now turn to the averaging estimates themselves. The estimated value of the
+# target parameter (unemployment in Frankfurt) is stored in the ``estimate``
+# attribute:
+
+print(averager.estimate.round(3))
+
+# %%
+# In other words, the optimally weighted forecast is that of an 0.03% increase
+# to the next month.
+#
+# We can easily compare that forecast with a forecast without any unit averaging
+# and simply using Frankfurt-only data. ``IndividualUnitAverager`` is a utility
+# class that implements using target-unit only data with the same interface
+# as other averagers:
+
+ind_averager = IndividualUnitAverager(
+    focus_function=forecast_frankfurt_jan_2020,
+    ind_estimates=ind_estimates,
+)
+ind_averager.fit(target_id="Frankfurt")
+print(ind_averager.estimate.round(3))
+
+# %%
+# In this case the individual forecast is close to the averaged one. Assuming that
+# the individual forecast is broadly unbiased, this means that the averaged one
+# will have lower variance due to using data on more regions.
+
+# %%
+# Finally, every averager in the package (and any custom averager that inherits from
+# ``BaseUnitAverager``) also implements an `average()` method that allows one
+# to reuse the fitted weights with a different focus function.
+#
+# As a very simple example, we can define a forecaster
 
 
 # %%
-# ``IndividualUnitAverager``
-
-# %%
-# Running ``average()`` with no inputs reuses the focus function passed to the 
-# constructor
+# .. tip:: Note, however, that is generally optimal to refit weights for every focus
+#          function separately, since that allows the averager to optimally exploit
+#          the relevant similarities in the data.
