@@ -105,7 +105,7 @@ class BaseUnitAverager(ABC):
         ):
             raise ValueError("Target unit not in the keys")
         else:
-            self._target_coord_ = target_coord
+            self._target_coord = target_coord
         # Compute weights
         self._compute_weights()
         # Compute appropriate unit averaging estimate
@@ -231,7 +231,7 @@ class IndividualUnitAverager(BaseUnitAverager):
         """
         num_units = len(self.ind_estimates)
         weights = np.zeros(num_units)
-        weights[self._target_coord_] = 1.0
+        weights[self._target_coord] = 1.0
         self.weights = weights
 
 
@@ -452,12 +452,12 @@ class OptimalUnitAverager(BaseUnitAverager):
     def _compute_weights(self):
         # Estimate gradient and ensure it is a 1D numpy array
         gradient_estimatetarget = self._clean_gradient(
-            self.focus_function.gradient(self.ind_estimates[self._target_coord_])
+            self.focus_function.gradient(self.ind_estimates[self._target_coord])
         )
 
         # Construct the objective function
         quad_term = self._build_mse_matrix(
-            self._target_coord_,
+            self._target_coord,
             self.ind_estimates,
             self.ind_covar_ests,
             gradient_estimatetarget,
