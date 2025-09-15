@@ -2,7 +2,7 @@ r"""
 Getting Started with Optimal Unit Averaging
 ============================================
 
-This tutorial walks you through the complete workflow of `unit_averaging`.
+This tutorial walks you through the complete workflow of ``unit_averaging``.
 It lays out a template for going from raw data to optimal estimation with unit
 averaging. Throughout, we use a real-world example: forecasting Frankfurt's
 unemployment rate using data from 150 German regions, while taking into account
@@ -26,7 +26,7 @@ By the end, you should be able to:
 
 import numpy as np
 import pandas as pd
-from docs_plot_utils import plot_germany
+from docs_utils import plot_germany
 from statsmodels.tsa.ar_model import AutoReg
 
 from unit_averaging import (
@@ -304,13 +304,12 @@ for key, val in zip(averager.keys, averager.weights, strict=True):
 # plot the weights assigned to each region when computing the optimal combination
 # for Frankfurt:
 
-
 weight_df = pd.Series(weight_dict).reset_index()
 weight_df.columns = ["aab", "weights"]
 
 fig, ax = plot_germany(
     weight_df,
-    "Weight in Averaging Combination",
+    "Weight in Optimal Averaging Combination",
     cmap="Purples",
     vmin=-0.005,
 )
@@ -319,7 +318,7 @@ fig, ax = plot_germany(
 # This map shows how the averaging estimator assigns weights to improve the
 # quality of the forecast for Frankfurt. As we can see, relatively large weights
 # are assigned to Frankfurt itself (broadly in the middle of the country), and
-# the regions surrounding it. Hamburg (in the north), Munich (southeast), 
+# the regions surrounding it. Hamburg (in the north), Munich (southeast),
 # Berlin (east), and
 # the Rhein-Ruhr region (west) also receive some weight.
 

@@ -33,7 +33,7 @@ $$
 \mu(\theta_i)
 $$
 
-The transformed parameters $\mu(\theta_i)$ may be purely predictive (GDP forecast, probability of quitting the service) or be causal/structural (individual treatment effects, multipliers, etc.). These focus functions $\mu(\cdot)$ are represented by the [`FocusFunction`](../reference/FocusFunction.rst)  and [`InlineFocusFunction`](../reference/InlineFocusFunction.rst) classes. 
+The transformed parameters $\mu(\theta_i)$ may be purely predictive (GDP forecast, probability of quitting the service) or be causal/structural (individual treatment effects, multipliers, etc.). These focus functions $\mu(\cdot)$ are represented by the [`BaseFocusFunction`](../reference/BaseFocusFunction.rst)  and [`InlineFocusFunction`](../reference/InlineFocusFunction.rst) classes. 
 
 We want to estimate $\mu(\theta_i)$ optimally in terms of the MSE.
 

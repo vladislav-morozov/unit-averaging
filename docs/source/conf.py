@@ -93,7 +93,7 @@ html_context = {
 sphinx_gallery_conf = {
     "examples_dirs": "../examples",  # path to your example scripts
     "filename_pattern": "/plot_",
-    "ignore_pattern": "docs_plot_utils.py",
+    "ignore_pattern": "docs_utils.py",
     "gallery_dirs": "tutorials",  # path to where to save gallery generated output
     "within_subsection_order": "FileNameSortKey",
     "min_reported_time": 60,
