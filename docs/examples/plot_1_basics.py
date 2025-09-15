@@ -26,7 +26,7 @@ By the end, you should be able to:
 
 import numpy as np
 import pandas as pd
-from docs_plot_utils import plot_germany
+from docs_utils import plot_germany
 from statsmodels.tsa.ar_model import AutoReg
 
 from unit_averaging import (
