@@ -211,7 +211,7 @@ for region in regions:
 
 # Extract data on last month of target region
 target_data = (
-    german_data.loc["2019-12", ["Frankfurt", "Deutschland"]].to_numpy().squeeze()
+    german_data.loc["2019-12", ["Frankfurt", "Germany_lag"]].to_numpy().squeeze()
 )
 
 # Construct focus function
@@ -333,8 +333,8 @@ fig, ax = plot_germany(
 print(averager.estimate.round(3))
 
 # %%
-# In other words, the optimally weighted forecast is that of an 0.03% increase
-# to the next month.
+# In other words, the optimally weighted forecast is that of a 0.15% decrease
+# in the unemployment rate in the region.
 #
 # We can easily compare that forecast with a forecast without any unit averaging
 # and simply using Frankfurt-only data. ``IndividualUnitAverager`` is a utility
@@ -358,8 +358,24 @@ print(ind_averager.estimate.round(3))
 # ``BaseUnitAverager``) also implements an `average()` method that allows one
 # to reuse the fitted weights with a different focus function.
 #
-# As a very simple example, we can define a forecaster
+# As a very simple example, we can define a forecaster for some other time point,
+# say, for 12.2019:
 
+ 
+other_target_data = (
+    german_data.loc["2019-11", ["Frankfurt", "Germany_lag"]].to_numpy().squeeze()
+)
+other_focus_function = InlineFocusFunction(
+    focus_function=lambda coef: coef[0]
+    + coef[1] * other_target_data[0]
+    + coef[2] * other_target_data[1],
+    gradient=lambda coef: np.array([1, other_target_data[0], other_target_data[1]]),
+)
+
+# %%
+# We now pass the new focus function to teh ``average()`` method:
+
+averager.average(other_focus_function).round(3)
 
 # %%
 # .. tip:: Note, however, that is generally optimal to refit weights for every focus
