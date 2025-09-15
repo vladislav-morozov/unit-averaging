@@ -2,21 +2,13 @@ r"""
 Getting Started with Optimal Unit Averaging
 ============================================
 
-This is a worked example showcasing how unit averaging can integrated.
-
-Goes from raw data, shows the necessary data construction, and showcases things.
-
-It also gives an essential explanation
-
-
-This ``unit-averaging`` package is designed to accommodate a variety of approaches
-for estimating individual models and transforming their parameters.
-
-This example pays relatively more
+This example shows the essential functionality of the package and how it may be
+used in practice for going from raw data to averaging results. It also gives an 
+essential explanation of the averaging process.
 
 .. admonition:: Functionality covered
 
-    ``OptimalUnitAverager`` and ``InlineFocusFunction``
+    ``OptimalUnitAverager``, ``IndividualUnitAverager``, and ``InlineFocusFunction``
 
 
 
@@ -179,6 +171,11 @@ for region in regions:
     # Add to dictionaries
     ind_estimates[region] = ar_results.params.to_numpy()
     ind_covar_ests[region] = ar_results.cov_params().to_numpy()
+
+# %%
+# .. info:: This ``unit-averaging`` package is designed to accommodate a variety
+#           of packages for estimating the unit-level models.
+ 
 
 # %%
 # Focus Function
