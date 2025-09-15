@@ -20,11 +20,10 @@ For example, imagine that you want to forecast the gross domestic product (GDP) 
 - Pool all the data and fit a single predictive model. This approach has the highest bias.
 - Compromise and use the panel-wide information to optimally reduce the variance of the individual-only approach.
 
-Unit averaging is an ensemble method in the spirit of compromise estimators.
+Unit averaging is an ensemble method that embodies this compromise. It may be viewed as generalized and flexible shrinkage approach.
 
 
-
-## Target Parameter and Goal
+## Focus Parameter and Goal
 
 To describe the approach let $i=1, \dots, N$ be the different units in your data (countries, customers, firms; or studies in a meta-analysis). The data is *heterogeneous* in the sense that each unit $i$ has their own version of some parameter $\theta_i$.
 
@@ -43,7 +42,7 @@ The goal is to estimate $\mu(\theta_i)$ optimally in the sense of minimizing the
 
 :::{admonition} Focus functions in `unit_averaging`
 :class: admonition
- In `unit_averaging`, these focus functions $\mu(\cdot)$ are represented by [`InlineFocusFunction`](../reference/InlineFocusFunction.rst) and concrete implementations of [`BaseFocusFunction`](../reference/BaseFocusFunction.rst). See [Getting Started](../tutorials/plot_1_basics) for an example.
+Use [`InlineFocusFunction`](../reference/InlineFocusFunction.rst) for simple $\mu(\cdot)$ (e.g. lambda functions) or subclass [`BaseFocusFunction`](../reference/BaseFocusFunction.rst) for complex cases. See [Getting Started](../tutorials/plot_1_basics) for an example.
 :::
 
 
@@ -57,7 +56,7 @@ The goal is to estimate $\mu(\theta_i)$ optimally in the sense of minimizing the
 
 The unit averaging approach proceeds in two steps:
 
-1. Estimate $\hat{\theta}_i$ and $\mu(\hat{\theta}_i)$ separately for each unit (producing "individual" or "unit-specific" estimators).
+1. Estimate each $\theta_i$ with the individual (or unit-specific) estimator $\hat{\theta}_i$. Compute $\mu(\hat{\theta}_i)$ for all $i$. 
 2. Compute a weighted average of the individual estimators:
 
 $$
@@ -70,22 +69,26 @@ Different weights define different schemes, and this package implements several 
 
 ### Why Averaging Makes Sense
 
-To understand the intuition behind $\hat{\mu}(\mathbf{w})$, suppose that we can write the individual-specific true parameters $\theta_i$ as 
+To understand the intuition behind $\hat{\mu}(\mathbf{w})$, suppose that we can write the individual-specific true parameters $\theta_i$ as a sum of two pieces:
 
 $$
 \theta_i = \mathbb{E}[\theta_i] + \eta_i.
 $$
 
-Here $\mathbb{E}[\theta_i]$ is the average value that is *common* to all units, while $\eta_i$ is a mean-zero value that is *specific* to unit $i$. 
+Here 
+
+- $\mathbb{E}[\theta_i]$ is the average value that is *common* to all units (e.g. broad global economic laws).
+- $\eta_i$ is a mean-zero value that is *specific* to unit $i$ (e.g. France-specific dynamics).
 
 Unit averaging is motivated by the fact that each unit carries information about $\mathbb{E}[\theta_i]$. Using data on non-target units may help reduce the uncertainty about $\mathbb{E}[\theta_i]$ and reduce the overall variance of the estimator. 
 
-:::{admonition} Why a linear combination? 
+By averaging $\mu(\hat{\theta}_i)$ after estimation (not pooling data beforehand), unit averaging can exploit shared information across units without assuming a specific model form.
+
+
+:::{admonition} Why not pool the data?
 :class: admonition 
 
-Taking a linear combination of $\mu(\hat{\theta}_i)$ (post-estimation averaging) is what allows unit averaging to exploit the above intuition about $\mathbb{E}[\theta_i]$ regardless of the model context. 
-
-The approach stands as an alternative to pre-estimation data pooling (estimating a single model on the combined data). In dynamic and/or nonlinear contexts, the latter approach typically suffers from biases that are hard to characterize and control, making it less attractive.
+An alternative estimation approach is to pool the data on all units and estimate a single model. However, in dynamic and/or nonlinear contexts this approach typically suffers from biases that are hard to characterize and control. Already in simple settings (e.g. linear dynamic panel models), the bias may be arbitrarily large.
 
 :::
 
@@ -94,28 +97,26 @@ The approach stands as an alternative to pre-estimation data pooling (estimating
 
 At the same time, adding information of other units creates a trade-off. While it may decrease the uncertainty regarding $\mathbb{E}[\theta_i]$, it may create bias by adding potentially irrelevant information about $\eta_i$.
 
-Optimally exploiting this bias-variance trade-off leads to the MSE-optimal weights implemented by the [`OptimalUnitAverager`](../reference/OptimalUnitAverager.rst) class. These optimal weights solve a convex quadratic problem of the form
+Optimally exploiting this bias-variance trade-off leads to the MSE-optimal weights implemented by the [`OptimalUnitAverager`](../reference/OptimalUnitAverager.rst) class. Formally, these optimal weights solve a convex quadratic problem of the form
 
 $$
 \hat{\mathbf{w}} = \mathrm{argmin} \mathbf{w}'\mathbf{\hat{\Psi}}\mathbf{w},
 $$
 
-where the matrix $\mathbf{\hat{\Psi}}$ encodes the variances and estimated biases between the target unit and the other units. The weights $\hat{\mathbf{w}}$ are non-negative and sum to 1.
+where the matrix $\mathbf{\hat{\Psi}}$ encodes the variances and estimated biases between the target unit and the other units. The weights $\hat{\mathbf{w}}$ are non-negative and sum to 1. Higher weights are assigned to units with lower variances and to units that are more similar to the target unit.
+
+
 
 
 There are two main approaches to optimal unit averaging that differ in whether they use prior information:
 
-- Agnostic ("fixed-N") unit averaging requires no prior information. In this regime, each weight $w_i$ may freely vary between 0 and 1 (up to summing to 1). The algorithm is free to choose which units to pay more attention to.
-- Optimal averaging with prior information ("large-$N$") requires the user to split the units into two categories: unrestricted and restricted units.
+- No priors: ("fixed-N" in the original paper): in this regime, each weight $w_i$ may freely vary between 0 and 1 (up to summing to 1). The algorithm is free to choose to which units it pays more attention.
+- With priods ("large-$N$" in the original paper): the user splits the units into two categories: unrestricted and restricted units.
     - The weights of unrestricted units vary independently.
     - All restricted units receive equal weights.
     - The algorithm only chooses the weight of the restricted set as a whole.
 
-    This approach is particularly useful when you have a large number of restricted
-    units. The average of a large restricted set will closely approximate the true
-    average of the parameters. This allows for more efficient and precise shrinkage,
-    as the algorithm can focus on optimizing the weights of the unrestricted units
-    and the total weight of the restricted set.
+    If the number of restricted units is large, the average of a large restricted set will closely approximate $\mathbb{E}[\theta_i]$, allowing for more efficient shrinkage.
  
 The prior information for selecting the unrestricted units may be obtained on the basis of domain knowledge, other studies, or in a data-driven manner.
 
@@ -137,12 +138,12 @@ For a full theoretical justification and explicit expressions for the matrix $\P
 
 ## Averaging Beyond Optimal Weights
 
-The MSE-optimal weights described above are tailored to the task of efficiently estimating unit-specific parameters.
-
-However, there are other different schemes with different targets that one can consider. For example,
+While MSE-optimal weights are powerful for unit-specific estimation, other weighting schemes may better suit different goals. For example:
 
 - Mean group estimation that uses *equal weights* ($w_i=1/N$ for all $i$). This scheme targets $\mathbb{E}[\mu(\theta_i)]$ implemented as [`MeanGroupUnitAverager`](../reference/MeanGroupUnitAverager.rst)
-- Likelihood-weighted schemes that minimize the Kullback-Leibler divergence to the target parameter instead of the MSE. These can be implemented by subclassing from [`BaseUnitAverager`](../reference/OptimalUnitAverager.rst) and implementing the desired likelihood function or model. As an example, see the [tutorial](../tutorials/plot_2_custom_basic) on defining custom averaging schemes.
+- Likelihood-weighted schemes that minimize the Kullback-Leibler divergence to the focus parameter instead of the MSE. 
+
+Custom averaging schemes can be implemented by subclassing from [`BaseUnitAverager`](../reference/BaseUnitAverager.rst) and implementing the desired likelihood function or model. As an example, see the [tutorial](../tutorials/plot_2_custom_basic) on defining custom averaging schemes.
 
 :::{admonition} Next steps
 
