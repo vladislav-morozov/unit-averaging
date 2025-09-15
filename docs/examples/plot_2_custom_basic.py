@@ -16,6 +16,16 @@ By the end, you should be able to:
 
 """
 
+import numpy as np
+import pandas as pd
+from docs_plot_utils import plot_germany
+from statsmodels.tsa.ar_model import AutoReg
+
+from unit_averaging import (
+    BaseUnitAverager,
+    InlineFocusFunction,
+)
+
 # %%
 # Introduction
 # -------------
@@ -48,30 +58,74 @@ By the end, you should be able to:
 #   :doc:`Getting Started <plot_1_basics>`).
 # - Logic for handling dict and array inputs for individual estimates, along with
 #   appropriate logic in the constructor.
-# 
+#
 #
 # The ``fit()`` method itself does the following things
-# 
+#
 # #. Appropriately handles the target ID (``target_id`` argument).
 # #. Calls the ``_compute_weights()`` method.
 # #. Computes the averaging estimates.
 #
 # It is the ``_compute_weights()`` method that captures all the logic specific
 # to each approach. ``_compute_weights()`` is an abstract method of
-# ``BaseUnitAverager`` and should be implemented by any concrete averager approach.
+# ``BaseUnitAverager`` that computes the weights and assigns them to the
+# corresponding attribute (``weights``).
+# This method should be implemented by any concrete averager approach.
+#
 
 # %%
 # Defining an Exponentially Weighted Averager
 # --------------------------------------------
 #
-# To illustrate the process,
-# This will be a simple
+# To illustrate the workflow, we now define a custom unit averaging schemes
+# whose weights decrease exponentially with the distance from the parameter
+# estimates for the target unit.
 #
-# Accordingly, we do not need to redefine the ``_init_`` to add more
+# Weight Scheme
+# ^^^^^^^^^^^^^^
+#
+# Formally, let :math:`\hat{\theta}_i` be the estimated coefficient vector
+# for unit :math:`i`. We define the weight :math:`w_i` of unit :math:`i`
+# in the averaging estimator as
+#
+# .. math::
+#
+#   w_i = \dfrac{\exp(-||\hat{\theta}_i - \hat{\theta}_{target}||)}{
+#           \sum_{j=1}^N \exp(-||\hat{\theta}_i - \hat{\theta}_{target}||) },
+#
+# where :math:`||\cdot||` is the Euclidean norm. This scheme gives more
+# weights to units whose coefficient estimates are closer to that of the target
+# unit.
+
+# %%
+# Defining the Averager
+# ^^^^^^^^^^^^^^^^^^^^^^
+#
+# We can now create our ``ExpDistUnitAverager`` by inheriting from
+# ``BaseUnitAverager`` and implementing the exponential weights.
+#
+# Observe that the weights :math:`w_i` can be computed just from the target ID and
+# the collection of individual estimates. In such cases, one does not have to
+# redefine or expand the constructor obtained from ``BaseUnitAverage``. We only
+# need to implement the ``_compute_weights()`` method.
+
+
+class ExpDistUnitAverager(BaseUnitAverager):
+    def _compute_weights(self):
+        """Compute unit averaging weights.
+
+        This method implements
+        """
+        return super()._compute_weights()
 
 
 # %%
-# We will create based on normalized exponential distance to the focus unit
-# :class:`BaseFocusFunction`
+#
 
-print(2)
+# %%
+# Our Averager in Practice
+# -------------------------
+#
+# To illustrate the
+#
+# For convenience,
