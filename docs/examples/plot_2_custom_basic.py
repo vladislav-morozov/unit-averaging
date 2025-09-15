@@ -18,7 +18,7 @@ By the end, you should be able to:
 
 import numpy as np
 import pandas as pd
-from docs_plot_utils import plot_germany
+from docs_utils import plot_germany
 from statsmodels.tsa.ar_model import AutoReg
 
 from unit_averaging import (
@@ -56,13 +56,16 @@ from unit_averaging import (
 #
 # - The ``fit()`` and  ``average()`` methods (see
 #   :doc:`Getting Started <plot_1_basics>`).
-# - Logic for handling dict and array inputs for individual estimates, along with
-#   appropriate logic in the constructor.
+# - Logic for handling dict and array inputs for individual estimates.
+#   Under the hood, all inputs related to individual units are
+#   converted to NumPy arrays.
 #
 #
 # The ``fit()`` method itself does the following things
 #
-# #. Appropriately handles the target ID (``target_id`` argument).
+# #. Handles the target ID (``target_id`` argument) and identifies the index
+#    of the target unit in the processed individual estimates array
+#    (creating the ``_target_coord`` attribute).
 # #. Calls the ``_compute_weights()`` method.
 # #. Computes the averaging estimates.
 #
@@ -71,6 +74,7 @@ from unit_averaging import (
 # ``BaseUnitAverager`` that computes the weights and assigns them to the
 # corresponding attribute (``weights``).
 # This method should be implemented by any concrete averager approach.
+#
 #
 
 # %%
@@ -107,25 +111,33 @@ from unit_averaging import (
 # Observe that the weights :math:`w_i` can be computed just from the target ID and
 # the collection of individual estimates. In such cases, one does not have to
 # redefine or expand the constructor obtained from ``BaseUnitAverage``. We only
-# need to implement the ``_compute_weights()`` method.
-
+# need to implement the ``_compute_weights()`` method:
 
 class ExpDistUnitAverager(BaseUnitAverager):
     def _compute_weights(self):
         """Compute unit averaging weights.
 
-        This method implements
+        This method implements exponential weights.
         """
-        return super()._compute_weights()
-
+        # Extract theta_hat of target unit
+        target_params = self.ind_estimates[self._target_coord]
+        # Compute weights
+        raw_diff = np.linalg.norm(self.ind_estimates - target_params, ord=2, axis=1)
+        return raw_diff / sum(raw_diff)
 
 # %%
+# .. admonition:: Important
 #
+#    In the above implementation, we directly work with the internal 
+#    representations of data: the ``ind_estimates`` attribute is a NumPy array
+#    and the index of the target unit is stored as `_target_coord`. The requisite
+#    processing of raw inputs is handled by the ``__init__()`` and ``fit()``
+#    methods of ``BaseUnitAverager``.
 
 # %%
 # Our Averager in Practice
 # -------------------------
 #
-# To illustrate the
+# To illustrate the 
 #
 # For convenience,
