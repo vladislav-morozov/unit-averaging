@@ -2,10 +2,20 @@ r"""
 Getting Started with Optimal Unit Averaging
 ============================================
 
-This example shows the essential functionality of the package and how it may be
-used in practice for going from raw data to averaging results. It also gives an 
-essential explanation of the averaging process.
+This tutorial walks you through the complete workflow of `unit_averaging`.
+It lays out a template for going from raw data to optimal estimation with unit
+averaging. throughout, we a real-world example: forecasting Frankfurt's
+unemployment rate using data from 150 German regions, while taking into account
+the difference in regional dynamics.
 
+By the end, you should be able to:
+
+#. Define a focus function to map model parameters to your target (e.g., a forecast),
+#. Prepare data on unit-level estimates.
+#. Define and fit an optimal unit averager.
+#. Compare results against a baseline (single-unit estimation).
+
+---
 .. admonition:: Functionality covered
 
     ``OptimalUnitAverager``, ``IndividualUnitAverager``, and ``InlineFocusFunction``
@@ -38,8 +48,8 @@ from unit_averaging import (
 # Introduction
 # ^^^^^^^^^^^^^
 #
-# Suppose that it is December, 2019 and we want to optimally *forecast
-# the unemployment rate* in *Frankfurt* in the next month.
+# Suppose that it is December, 2019 and we want to optimally *forecast*
+# the change in the *unemployment rate* in *Frankfurt* in the next month.
 # At our disposal we have a panel (longitudinal) dataset of unemployment rates
 # for all the regions of Germany, Frankfurt included.
 #
@@ -51,15 +61,15 @@ from unit_averaging import (
 # specific region).
 #
 # Unit averaging is ensemble method specifically designed for efficient estimation
-# of such unit-specific parameters (e.g. unemployment in Frankfurt) for situations
-# when you have data on multiple units. It is applicable both with panel data,
+# of such unit-specific target parameters (e.g. unemployment in Frankfurt)
+# in settings when you have data on multiple units.
+# It is applicable both with panel data,
 # as in this example, and in meta-analysis settings.
 #
 # Essentially, unit averaging computes a weighted linear combination of the
-# estimates of all the units. In optimal unit averaging, the weights are chosen
-# to optimally trade the increase in bias due to using data on non-Frankfurt
-# units with the decrease in variance due to using more data.
-
+# estimates of all the units. By borrowing strength
+# from similar units, optimal unit averaging reduces variance in estimates while
+# controlling the bias caused by using units with different dynamics.
 
 # %%
 # Data
@@ -112,18 +122,17 @@ print(regions[:10])
 # ^^^^^^^^^^^^^^^^^^^^^^^
 #
 # In our case, we will specify that the *change* in unemployment in each region
-# :math:`i` follows a simple autoregressive (AR) process: it depends on the unemployment
-# in the same region in the previous month, along with Germany-wide unemployment
-# in the previous month:
+# :math:`i` follows a simple autoregressive (ARx) process: it depends on the
+# unemploymentin the same region in the previous month, along with
+# Germany-wide unemployment in the previous month:
 #
 # .. math::
 #
-#    \Delta U_{i,t} = c_i+\alpha_i \Delta  U_{i, t-1} + 
+#    \Delta U_{i,t} = c_i+\alpha_i \Delta  U_{i, t-1} +
 #    \beta_i \Delta U_{Germany, t-1} + \varepsilon_{i, t},
 #
-# where :math:`\Delta  U_{i, t}` is the change in the unemployment rate in 
-# region :math:`i` in month :math:`t`. We specify the model in differences to
-# ensure stationarity.
+# where :math:`\Delta  U_{i, t}` is the change in the unemployment rate in
+# region :math:`i` in month :math:`t`.
 #
 # While the general shape of the model is the same for all regions, the coefficients
 # are region-specific. That allows different regions to have different unemployment
@@ -152,8 +161,8 @@ ind_covar_ests = {}
 
 # %%
 # We now estimate the coefficients :math:`c_i, \alpha_i, \beta_i` unit-by-unit
-# by running a suitable autoregression with ``statsmodels``. As a minor technical
-# note, we estimate the equation in differences to ensure stationarity:
+# by running a suitable autoregression with ``statsmodels``. In line with the
+# above model, we estimate the model in differences:
 
 # Difference data and create lag of Germany-wide rate
 german_data = german_data.diff()
@@ -175,26 +184,28 @@ for region in regions:
 # %%
 # .. info:: This ``unit-averaging`` package is designed to accommodate a variety
 #           of packages for estimating the unit-level models.
- 
+
 
 # %%
 # Focus Function
 # ^^^^^^^^^^^^^^
 #
-# With the model in hand and estimates in hand, 
+# With the model in hand and estimates in hand,
 # we need to express the target parameter (unemployment
 # for Frankfurt in 01.2020) as a function of the parameters of the unit-level
 # models. Mathematically, the model implies the following forecast function:
 #
 # .. math::
 #
-#   \mu(c, \alpha, \beta) = c + \alpha \Delta U_{Frankfurt, 12.2019} 
+#   \mu(c, \alpha, \beta) = c + \alpha \Delta U_{Frankfurt, 12.2019}
 #                           + \beta \Delta U_{Germany, 12.2019}
 #
-# The function :math:`\mu` is called a *focus function*: it defines how the parameters
-# of the underlying models map into the actual final parameter of interest.
+# The function :math:`\mu` is called a *focus function*. It is the bridge between
+# unit-specific estimates and the target parameter.
+# It defines how to combine the estimated coefficients (e.g., :math:`c_i,
+# \alpha_i, \beta_i`) into a single forecast (e.g., Frankfurt's unemployment change).
 #
-# In general, the package offers two classes for defining a focus function: 
+# In general, the package offers two classes for defining a focus function:
 # an ``InlineFocusFunction`` or implementing a concrete
 # ``BaseFocusFunction``. The former option is convenient when :math:`\mu`
 # and its gradient are already available in form of callables or a simple lambda
@@ -282,9 +293,7 @@ averager.fit(target_id="Frankfurt")
 print(averager.weights[:10].round(3))
 
 # %%
-# These weights can be matched with the corresponding units by accessing the
-# ``keys`` attribute, which stores the keys of the supplied units as a NumPy
-# array:
+# The ``keys`` attribute maps weights to their corresponding regions:
 
 print(averager.keys[:10])
 
@@ -358,7 +367,7 @@ print(ind_averager.estimate.round(3))
 # As a very simple example, we can define a forecaster for some other time point,
 # say, for 12.2019:
 
- 
+
 other_target_data = (
     german_data.loc["2019-11", ["Frankfurt", "Germany_lag"]].to_numpy().squeeze()
 )
@@ -370,11 +379,13 @@ other_focus_function = InlineFocusFunction(
 )
 
 # %%
-# We now pass the new focus function to teh ``average()`` method:
+# We now pass the new focus function to the ``average()`` method:
 
 averager.average(other_focus_function).round(3)
 
 # %%
-# .. tip:: Note, however, that is generally optimal to refit weights for every focus
+# .. tip:: It is best practice to refit weights for every focus
 #          function separately, since that allows the averager to optimally exploit
-#          the relevant similarities in the data.
+#          the relevant similarities in the data. Reusing weights ``average()``
+#          is only recommended with similar focus functions or when computation
+#          is expensive.
