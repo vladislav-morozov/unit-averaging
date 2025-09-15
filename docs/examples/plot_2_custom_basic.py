@@ -2,7 +2,7 @@ r"""
 Creating Custom Unit Averagers
 ====================================
 
-
+<Here a brief intro paragraph>
 
 
 By the end, you should be able to:
@@ -16,15 +16,12 @@ By the end, you should be able to:
 
 """
 
-import numpy as np
 import pandas as pd
-from docs_utils import plot_germany
-from statsmodels.tsa.ar_model import AutoReg
+from docs_utils import plot_germany, prepare_frankfurt_example
+from numpy import exp
+from numpy.linalg import norm
 
-from unit_averaging import (
-    BaseUnitAverager,
-    InlineFocusFunction,
-)
+from unit_averaging import BaseUnitAverager
 
 # %%
 # Introduction
@@ -100,6 +97,9 @@ from unit_averaging import (
 # where :math:`||\cdot||` is the Euclidean norm. This scheme gives more
 # weights to units whose coefficient estimates are closer to that of the target
 # unit.
+#
+# In contrast to the optimal weight scheme of ``OptimalUnitAverager``, this weight
+# scheme does not take variance information into account.
 
 # %%
 # Defining the Averager
@@ -111,7 +111,9 @@ from unit_averaging import (
 # Observe that the weights :math:`w_i` can be computed just from the target ID and
 # the collection of individual estimates. In such cases, one does not have to
 # redefine or expand the constructor obtained from ``BaseUnitAverage``. We only
-# need to implement the ``_compute_weights()`` method:
+# need to implement the ``_compute_weights()`` method that assigns the ``weights``
+# attribute as a result:
+
 
 class ExpDistUnitAverager(BaseUnitAverager):
     def _compute_weights(self):
@@ -122,22 +124,63 @@ class ExpDistUnitAverager(BaseUnitAverager):
         # Extract theta_hat of target unit
         target_params = self.ind_estimates[self._target_coord]
         # Compute weights
-        raw_diff = np.linalg.norm(self.ind_estimates - target_params, ord=2, axis=1)
-        return raw_diff / sum(raw_diff)
+        raw_diff = exp(-norm(self.ind_estimates - target_params, ord=2, axis=1))
+        self.weights = raw_diff / sum(raw_diff)
+
 
 # %%
 # .. admonition:: Important
 #
-#    In the above implementation, we directly work with the internal 
+#    In the above implementation, we directly work with the internal
 #    representations of data: the ``ind_estimates`` attribute is a NumPy array
 #    and the index of the target unit is stored as `_target_coord`. The requisite
 #    processing of raw inputs is handled by the ``__init__()`` and ``fit()``
 #    methods of ``BaseUnitAverager``.
 
 # %%
-# Our Averager in Practice
-# -------------------------
+# ``ExpDistUnitAverager`` in Practice
+# ------------------------------------------
 #
-# To illustrate the 
+# To illustrate ``ExpDistUnitAverager`` in action, we come back to the example
+# from :doc:`Getting Started <plot_1_basics>`. In short, the practical problem
+# of interest is predicting the change in unemployment in Frankfurt in January
+# 2020 using a panel of 150 German labor market districts, Frankfurt included.
 #
-# For convenience,
+# Since ``ExpDistUnitAverager`` did not redefine the constructor from
+# ``BaseUnitAverager``, it needs the same two parameters: a focus function and
+# and array/dict of individual estimates. We construct those using the same
+# code as in :doc:`Getting Started <plot_1_basics>`. For brevity, the full code
+# is omitted, please see :doc:`Getting Started <plot_1_basics>`
+
+ind_estimates, _, forecast_frankfurt_jan_2020 = prepare_frankfurt_example()
+
+averager = ExpDistUnitAverager(
+    focus_function=forecast_frankfurt_jan_2020,
+    ind_estimates=ind_estimates,
+)
+
+# %%
+#
+# We can now fit our averager and examine the predicted value:
+
+averager.fit(target_id="Frankfurt")
+print(averager.estimate.round(3))
+
+# %%
+#
+# Finally, as before, we can examine the fitted ``weights``:
+
+weight_df = pd.DataFrame({"aab": averager.keys, "weights": averager.weights})
+
+fig, ax = plot_germany(
+    weight_df,
+    "Weight in Averaging Combination: Exponential Weights",
+    cmap="Purples",
+    vmin=-0.005,
+)
+
+# %%
+# ``ExpDistUnitAverager`` spreads the weights rather broadly across Germany,
+# with the notable exception of former East Germany. In other words, the unemployment
+# dynamics in many regions are fairly similar to those of Frankfurt in terms of
+# coefficients.
