@@ -11,7 +11,7 @@ Focus Functions
    :maxdepth: 2
    :caption: Contents
 
-   FocusFunction.rst
+   BaseFocusFunction.rst
    InlineFocusFunction.rst
 
 
@@ -31,7 +31,7 @@ Available focus functions classes:
 
    * - Class
      - Description
-   * - :class:`FocusFunction`
+   * - :class:`BaseFocusFunction`
      - Abstract base class. Subclass and implement ``focus_function()`` and ``gradient()``.
    * - :class:`InlineFocusFunction`
      - Convenience class for creating focus functions from callables.
