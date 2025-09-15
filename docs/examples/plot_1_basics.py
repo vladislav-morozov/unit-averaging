@@ -304,13 +304,12 @@ for key, val in zip(averager.keys, averager.weights, strict=True):
 # plot the weights assigned to each region when computing the optimal combination
 # for Frankfurt:
 
-
 weight_df = pd.Series(weight_dict).reset_index()
 weight_df.columns = ["aab", "weights"]
 
 fig, ax = plot_germany(
     weight_df,
-    "Weight in Averaging Combination",
+    "Weight in Optimal Averaging Combination",
     cmap="Purples",
     vmin=-0.005,
 )
