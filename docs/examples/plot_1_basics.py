@@ -2,7 +2,7 @@ r"""
 Getting Started with Optimal Unit Averaging
 ============================================
 
-This tutorial walks you through the complete workflow of `unit_averaging`.
+This tutorial walks you through the complete workflow of ``unit_averaging``.
 It lays out a template for going from raw data to optimal estimation with unit
 averaging. Throughout, we use a real-world example: forecasting Frankfurt's
 unemployment rate using data from 150 German regions, while taking into account
