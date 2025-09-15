@@ -10,7 +10,7 @@ Goes from raw data, shows the necessary data construction, and showcases things.
 This ``unit-averaging`` package is designed to accommodate a variety of approaches
 for estimating individual models and transforming their parameters.
 
-This example pays relatively more 
+This example pays relatively more
 
 .. admonition:: Functionality covered
 
@@ -41,21 +41,21 @@ from unit_averaging import InlineFocusFunction, OptimalUnitAverager
 # ^^^^^^^^^^^^^
 #
 # Suppose that it is December, 2019 and we want to optimally *forecast
-# the unemployment rate in Cologne* in the next month.
+# the unemployment rate* in *Cologne* in the next month.
 # At our disposal we have a panel (longitudinal) dataset of unemployment rates
 # for all the regions of Germany, Cologne included.
 #
 # What is the key challenge to using all this data efficiently? The regions are
 # different in unseen ways (or *heterogeneous*): each of them has its own
-# unemployment dynamics, driven by different composition of economies,
-# populations, and laws. Throwing the data on all of them into a single prediction
+# unemployment dynamics, driven by differences in their economies,
+# populations, and laws. Throwing the data on all the regions into a single prediction
 # model usually may yield a very biased forecast for Cologne (or for any other
 # specific region).
 #
 # Unit averaging is ensemble method specifically designed for efficient estimation
 # of such unit-specific parameters (e.g. unemployment in Cologne) for situations
 # when you have data on multiple units. It is applicable both with panel data,
-# as in this example, and with meta-analysis or more exotic settings.
+# as in this example, and in meta-analysis settings.
 
 
 # %%
@@ -76,7 +76,7 @@ german_data.index = pd.DatetimeIndex(german_data.index.values, freq="MS")
 print(german_data.iloc[-4:, [0, 2, -1]])
 
 # %%
-# The different regions are identified by their names, which serve as column
+# The different regions are identified by their string names, which serve as column
 # names in the data:
 
 regions = german_data.columns[:-1].to_numpy()
@@ -118,7 +118,8 @@ print(regions[:10])
 #
 #    U_{i,t} = c_i+\alpha_i U_{i, t-1} + \beta_i U_{Germany, t-1} + \varepsilon_{i, t},
 #
-# where $U_{i, t}$ is the unemployment rate in region $i$ in month $t$.
+# where :math:`U_{i, t}` is the unemployment rate in region :math:`i` in month
+# :math:`t`.
 # While the general shape of the model is the same for all regions, the coefficients
 # are region-specific. That allows different regions to have different unemployment
 # dynamics.
@@ -134,32 +135,35 @@ print(regions[:10])
 #
 #   \mu(c, \alpha, \beta) = c + \alpha U_{Cologne, 12.2019} + \beta U_{Germany, 12.2019}
 #
-# The function $\mu$ is called a *focus function*: it defines how the parameters
+# The function :math:`\mu` is called a *focus function*: it defines how the parameters
 # of the underlying models map into the actual final parameter of interest.
-# 
-# All of the averager classes of this package expect as inputs:
-# 
-# #. A collection of estimated parameters for each unit (see below)
-# #. A ``FocusFunction`` or ``InlineFocusFunction`` that implements the :math:`mu`
-#    of interest.
 #
-# This two-step approach permits one to work with several 
+# All of the averager classes of this package expect as inputs:
+#
+# #. A focus function along with its gradient with respect to the parameters.
+# #. A collection of estimated parameters for each unit (see below).
+#
+# We start with creating a focus function. In general, the package offers two
+# classes for defining one: an ``InlineFocusFunction`` or implementing a concrete
+# ``BaseFocusFunction``. The former option is convenient when :math:`\mu`
+# and its gradient are already available in form of callables or a simple lambda
+# function. These are then simply passed as arguments to the constructor of
+# ``InlineFocusFunction``. The latter option is more flexible and requires
+# implementing the focus function and its gradient as methods.
+#
+# In our case, the focus function and its gradient are relatively simple, so we 
+# use an ``InlineFocusFunction``. We pass suitable lambda functions as the 
+# ``focus_function`` and ``gradient`` arguments:
 
-target_region = "Köln"
-target_data = (
-    german_data.loc["2019-12", [target_region, "Deutschland"]].to_numpy().squeeze()
-)
+# Extract data on last month of target region
+target_data = german_data.loc["2019-12", ["Köln", "Deutschland"]].to_numpy().squeeze()
 
-# %%
-# 
-# Using ``InlineFocusFunction`` class. Requires specifying the target parameter
-# itself (in this case some math). We also need to supply the gradient
-
+# Construct focus function
 forecast_cologne_jan_2020 = InlineFocusFunction(
     focus_function=lambda coef: coef[0]
     + coef[1] * target_data[0]
     + coef[2] * target_data[1],
-    gradient=lambda x: np.array([1, target_data[0], target_data[1]]),
+    gradient=lambda coefs: np.array([1, target_data[0], target_data[1]]),
 )
 
 
@@ -167,6 +171,7 @@ forecast_cologne_jan_2020 = InlineFocusFunction(
 # Estimating Unit Models
 # ^^^^^^^^^^^^^^^^^^^^^^^
 #
+# The second input 
 # Our model will look like
 # The data is difference to ensure stationarity. We will be forecasting changes
 # in unemployment
@@ -225,6 +230,15 @@ averager = OptimalUnitAverager(
 
 averager.fit(target_id="Köln")
 
+# %%
+#
+# .. tip:: The averager classes of this package follow two layer approach  .
+#          This allows, which might be more ergonomic.
+#          Of course, one can also supply target parameters
+#          directly, and pass an identity focus function if that is more convenient
+#          in a given context.
+#
+
 
 # %%
 # Results
@@ -249,7 +263,12 @@ for key, val in zip(averager.keys, averager.weights_, strict=False):
 weight_df = pd.Series(weight_dict).reset_index()
 weight_df.columns = ["aab", "weights"]
 
-fig, ax = plot_germany(weight_df, cmap="Purples", vmin=-0.005)
+fig, ax = plot_germany(
+    weight_df,
+    "Weight in Averaging Combination",
+    cmap="Purples",
+    vmin=-0.005,
+)
 
 
 # %%
