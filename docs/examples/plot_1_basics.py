@@ -4,18 +4,17 @@ Getting Started with Optimal Unit Averaging
 
 This tutorial walks you through the complete workflow of `unit_averaging`.
 It lays out a template for going from raw data to optimal estimation with unit
-averaging. throughout, we a real-world example: forecasting Frankfurt's
+averaging. Throughout, we use a real-world example: forecasting Frankfurt's
 unemployment rate using data from 150 German regions, while taking into account
-the difference in regional dynamics.
+the differences in regional dynamics.
 
 By the end, you should be able to:
 
 #. Define a focus function to map model parameters to your target (e.g., a forecast),
 #. Prepare data on unit-level estimates.
 #. Define and fit an optimal unit averager.
-#. Compare results against a baseline (single-unit estimation).
+#. Compare results against the baseline of no averaging.
 
----
 .. admonition:: Functionality covered
 
     ``OptimalUnitAverager``, ``IndividualUnitAverager``, and ``InlineFocusFunction``
@@ -35,11 +34,6 @@ from unit_averaging import (
     InlineFocusFunction,
     OptimalUnitAverager,
 )
-
-# %%
-# If you want to following this example locally, download the requisite files
-#
-#
 
 # %%
 # Problem, Key Idea, Data
@@ -62,7 +56,7 @@ from unit_averaging import (
 #
 # Unit averaging is ensemble method specifically designed for efficient estimation
 # of such unit-specific target parameters (e.g. unemployment in Frankfurt)
-# in settings when you have data on multiple units.
+# in settings with data on multiple units.
 # It is applicable both with panel data,
 # as in this example, and in meta-analysis settings.
 #
@@ -182,7 +176,7 @@ for region in regions:
     ind_covar_ests[region] = ar_results.cov_params().to_numpy()
 
 # %%
-# .. info:: This ``unit-averaging`` package is designed to accommodate a variety
+# .. note:: This ``unit-averaging`` package is designed to accommodate a variety
 #           of packages for estimating the unit-level models.
 
 
@@ -325,7 +319,8 @@ fig, ax = plot_germany(
 # This map shows how the averaging estimator assigns weights to improve the
 # quality of the forecast for Frankfurt. As we can see, relatively large weights
 # are assigned to Frankfurt itself (broadly in the middle of the country), and
-# the regions surrounding it. Hamburg (in the north) and Munich (southeast), and
+# the regions surrounding it. Hamburg (in the north), Munich (southeast), 
+# Berlin (east), and
 # the Rhein-Ruhr region (west) also receive some weight.
 
 # %%
@@ -339,11 +334,11 @@ fig, ax = plot_germany(
 print(averager.estimate.round(3))
 
 # %%
-# In other words, the optimally weighted forecast is that of a 0.15% decrease
+# In other words, the optimally weighted forecast is that of a 0.11% decrease
 # in the unemployment rate in the region.
 #
 # We can easily compare that forecast with a forecast without any unit averaging
-# and simply using Frankfurt-only data. ``IndividualUnitAverager`` is a utility
+# and simply using Frankfurt-only data. ``IndividualUnitAverager`` is a convenience
 # class that implements using target-unit only data with the same interface
 # as other averagers:
 
@@ -382,6 +377,7 @@ other_focus_function = InlineFocusFunction(
 # We now pass the new focus function to the ``average()`` method:
 
 averager.average(other_focus_function).round(3)
+
 
 # %%
 # .. tip:: It is best practice to refit weights for every focus
