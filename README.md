@@ -4,9 +4,21 @@
  
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 
-A Python package for estimating unit-specific parameters in heterogeneous data settings (panel data and meta-analysis). Implements unit averaging: an ensemble method that efficiently combines information across multiple units (e.g., countries, firms, or studies) while accounting for their individual differences.
 
-![unit_averaging logo](docs/source/_static/logo_transp.png)
+ 
+<table>
+  <tr>
+    <td style="width:70%; vertical-align:top;"> 
+      <p>
+        A Python package for estimating unit-specific parameters in heterogeneous data settings (panel data and meta-analysis). Implements unit averaging: an ensemble method that efficiently combines information across multiple units (e.g., countries, firms, or studies) while accounting for their individual differences.
+      </p>
+    </td>
+    <td style="width:30%; vertical-align:top;">
+      <img src="docs/source/_static/logo_transp.png" alt="Logo" width="100%" />
+    </td>
+  </tr>
+</table>
+ 
 
 ## Key Features
 
