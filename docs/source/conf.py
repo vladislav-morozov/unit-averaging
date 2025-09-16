@@ -24,7 +24,7 @@ extensions = [
     "sphinxext.opengraph",
     "sphinx_copybutton",
     "sphinx_gallery.gen_gallery",
-    'sphinx_sitemap',
+    "sphinx_sitemap",
     "myst_parser",
 ]
 templates_path = ["_templates"]
@@ -118,7 +118,7 @@ html_theme_options = {
 
 html_title = "Unit Averaging"
 html_logo = "_static/logo_transp.png"
-html_baseurl = 'https://vladislav-morozov.github.io/unit-averaging/'
+html_baseurl = "https://vladislav-morozov.github.io/unit-averaging/"
 
 pygments_style = "emacs"
 pygments_dark_style = "monokai"
