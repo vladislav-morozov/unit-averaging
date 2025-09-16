@@ -1,0 +1,11 @@
+ 
+/* Hide all download buttons/links (redundant but thorough) */
+.sphx-glr-download-link-note,
+.sphx-glr-download-link,
+.sphx-glr-download-jupyter,
+.sphx-glr-download-python,
+.sphx-glr-download-zip  {
+    display: none !important;
+}
+ 
+ 

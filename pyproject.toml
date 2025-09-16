@@ -1,0 +1,205 @@
+#############################################
+#  Package: unit_averaging                  #
+#  Author: Vladislav Morozov                #
+#  Description: Efficient ensemble          #
+#               estimation of unit-specific #
+#               parameters                  #
+#  License: MIT                             #
+#  Python: >=3.12                           #
+#############################################
+
+
+###########################
+### Build Configuration ###
+###########################
+
+[build-system]
+requires = ["setuptools", "wheel", "cython"]
+build-backend = "setuptools.build_meta"
+
+
+#####################
+### Project Setup ### 
+#####################
+
+[project]
+requires-python = ">= 3.12"
+name = "unit_averaging"
+version = "0.0.1"
+dependencies = [
+    "cvxpy >= 1.0.0",
+    "numpy >= 2.0.0",
+]
+authors = [ 
+  {name = "Vladislav Morozov"}, 
+] 
+description = "Unit averaging in Python: efficient ensemble estimation of unit-specific parameters"
+license = "MIT"
+readme = "README.md"
+keywords = ["ensemble"]
+classifiers = [
+  # How mature is this project?  
+  #   4 - Beta
+  #   5 - Production/Stable
+  "Development Status :: 4 - Beta",
+
+  # Indicate who your project is intended for
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Education",
+  "Topic :: Scientific/Engineering", 
+
+  # Specify the Python versions you support here.
+  "Programming Language :: Python :: 3", 
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+[project.urls]
+Homepage = "https://github.com/vladislav-morozov/unit-averaging/"
+Documentation = "https://vladislav-morozov.github.io/unit-averaging/"
+
+
+##############
+### Pytest ###
+##############
+
+[tool.pytest.ini_options]
+testpaths = [
+  "test", 
+] 
+addopts = "--cov=unit_averaging --cov-report=term-missing --cov-branch"
+
+
+###############
+### Pyright ### 
+###############
+
+[tool.pyright] 
+include = ["src"] 
+exclude = ["**/__pycache__"] 
+
+reportMissingImports = "error" 
+reportMissingTypeStubs = false
+
+pythonVersion = "3.12" 
+pythonPlatform = "Linux"  
+
+
+#############
+### Ruff ### 
+#############
+
+[tool.ruff]
+line-length = 88
+target-version = 'py312' 
+
+[tool.ruff.lint]
+# Enable the selection of rules to use.
+select = [
+    "E",  # Pycodestyle errors
+    "W",  # Pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ 
+
+###########
+### Tox ### 
+###########
+
+[tool.tox]
+envlist = ["py313", "py312"]
+
+# Base environments: testing
+[tool.tox.env_run_base]
+description = "Run test under {base_python}" 
+deps = [
+  "pytest",
+  "pytest-cov"
+]
+commands = [["pytest"]]
+
+[tool.tox.env.typecheck] 
+description = "Type check the package"
+base_python = ["python3.13"]
+deps = [
+  "pytest",
+  "pyright",
+  "types-termcolor"
+] 
+commands = [
+  ["pyright"]
+]
+
+[tool.tox.env.format]
+description = "Check code format"
+base_python = ["python3.13"]
+deps = ["ruff"]
+skip_install=true
+commands = [
+  ["ruff", "format", "--check"]
+]
+
+[tool.tox.env.lint]
+description = "Lint code"
+base_python = ["python3.13"]
+deps = ["ruff"]
+skip_install=true
+commands = [
+  ["ruff", "check"]
+]
+
+[tool.tox.env.docs]
+description = "Build docs"
+base_python = ["python3.13"]
+deps = [ 
+  "furo",
+  "geopandas",
+  "linkify-it-py",
+  "matplotlib",
+  "myst-parser", 
+  "pandas",
+  "statsmodels",
+  "sphinx",
+  "sphinx-autobuild", 
+  "sphinx-copybutton",  
+  "sphinx-gallery",
+  "sphinx-github-style",
+  "sphinx-paramlinks",
+  "sphinx-sitemap",
+  "sphinxext-opengraph", 
+]
+commands = [
+  ["sphinx-build", "-n", "-W", "--keep-going", "-b", "html", "docs/source/", "docs/build/"]
+]
+
+[tool.tox.env.devdocs]
+description = "Develop docs live"
+base_python = ["python3.13"]
+deps = [
+  "furo",
+  "geopandas",
+  "linkify-it-py",
+  "matplotlib",
+  "myst-parser", 
+  "pandas",
+  "statsmodels",
+  "sphinx",
+  "sphinx-autobuild", 
+  "sphinx-copybutton",  
+  "sphinx-gallery",
+  "sphinx-github-style",
+  "sphinx-paramlinks",
+  "sphinx-sitemap",
+  "sphinxext-opengraph", 
+]
+commands = [
+  ["sphinx-autobuild", "--port", "8101", "docs/source/", "docs/build/"]
+]
+
+############################
+### End of configuration ###
+############################
