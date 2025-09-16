@@ -38,6 +38,22 @@ from unit_averaging import (
 )
 
 # %%
+#
+# .. admonition:: Following along
+#
+#    If you would like to follow along on a local machine, please download the
+#    contents of the ``data`` folder
+#    `here
+#    <https://github.com/vladislav-morozov/unit-averaging/tree/main/docs/examples/data>`__
+#    . To recreate the plots, also download the ``docs_utils.py``
+#    `file
+#    <https://github.com/vladislav-morozov/unit-averaging/blob/main/docs/examples/docs_utils.py>`__
+#    .
+#
+#
+
+
+# %%
 # Problem, Key Idea, Data
 # ----------------------------------
 #
