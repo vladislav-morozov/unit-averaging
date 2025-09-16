@@ -17,7 +17,9 @@ By the end, you should be able to:
 
 .. admonition:: Functionality covered
 
-    ``OptimalUnitAverager``, ``IndividualUnitAverager``, and ``InlineFocusFunction``
+    :doc:`OptimalUnitAverager <../reference/OptimalUnitAverager>`,
+    :doc:`IndividualUnitAverager <../reference/IndividualUnitAverager>`,
+    and :doc:`InlineFocusFunction <../reference/InlineFocusFunction>`
 
 
 
