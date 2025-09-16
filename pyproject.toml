@@ -25,7 +25,7 @@ build-backend = "setuptools.build_meta"
 [project]
 requires-python = ">= 3.12"
 name = "unit_averaging"
-version = "0.0.1"
+version = "1.0.0"
 dependencies = [
     "cvxpy >= 1.0.0",
     "numpy >= 2.0.0",
