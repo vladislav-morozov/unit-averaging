@@ -110,7 +110,7 @@ where the matrix $\mathbf{\hat{\Psi}}$ encodes the variances and estimated biase
 
 There are two main approaches to optimal unit averaging that differ in whether they use prior information:
 
-- No priors: ("fixed-N" in the original paper): in this regime, each weight $w_i$ may freely vary between 0 and 1 (up to summing to 1). The algorithm is free to choose to which units it pays more attention.
+- No priors: ("fixed-$N$" in the original paper): in this regime, each weight $w_i$ may freely vary between 0 and 1 (up to summing to 1). The algorithm is free to choose to which units it pays more attention.
 - With priods ("large-$N$" in the original paper): the user splits the units into two categories: unrestricted and restricted units.
     - The weights of unrestricted units vary independently.
     - All restricted units receive equal weights.
@@ -140,7 +140,7 @@ For a full theoretical justification and explicit expressions for the matrix $\P
 
 While MSE-optimal weights are powerful for unit-specific estimation, other weighting schemes may better suit different goals. For example:
 
-- Mean group estimation that uses *equal weights* ($w_i=1/N$ for all $i$). This scheme targets $\mathbb{E}[\mu(\theta_i)]$ implemented as [`MeanGroupUnitAverager`](../reference/MeanGroupUnitAverager.rst)
+- Mean group estimation that uses *equal weights* ($w_i=1/N$ for all $i$). This scheme targets $\mathbb{E}[\mu(\theta_i)]$ and is implemented as [`MeanGroupUnitAverager`](../reference/MeanGroupUnitAverager.rst)
 - Likelihood-weighted schemes that minimize the Kullback-Leibler divergence to the focus parameter instead of the MSE. 
 
 Custom averaging schemes can be implemented by subclassing from [`BaseUnitAverager`](../reference/BaseUnitAverager.rst) and implementing the desired likelihood function or model. As an example, see the [tutorial](../tutorials/plot_2_custom_basic) on defining custom averaging schemes.

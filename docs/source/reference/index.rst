@@ -15,8 +15,7 @@ The ``unit_averaging`` package has two principal modules:
 - :doc:`unit_averaging.averager <averagers>` that contains averaging strategies.
 - :doc:`unit_averaging.focus_function <focus_functions>` that contains focus function classes.
 
-For convenience, all public classes and functions from both modules are exposed at the package level. 
-This means you can import everything directly from the package without referencing individual modules:
+For convenience, all public classes and functions from both modules are exposed at the package level, and you can import everything directly from the package without referencing individual modules:
 
 .. code-block:: python3
 
