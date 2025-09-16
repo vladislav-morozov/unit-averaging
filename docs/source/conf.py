@@ -27,14 +27,15 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.linkcode",
 ]
-
 templates_path = ["_templates"]
+html_static_path = ["_static"]
 exclude_patterns = []
 
 # Generate autosummary pages automatically
 autosummary_generate = True
 autosummary_imported_members = True
 
+# ------------------
 # Napoleon
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
@@ -50,6 +51,7 @@ napoleon_custom_sections = [
     ("Attributes", "params_style")
 ]  # Treat Attributes like Parameters
 
+# ------------------
 # Autodoc settings
 autodoc_typehints = "description"
 autodoc_default_options = {
@@ -59,6 +61,7 @@ autodoc_default_options = {
     "ignore-module-all": True,
 }
 
+# ------------------
 # MyST
 source_suffix = {
     ".rst": "restructuredtext",
@@ -81,31 +84,9 @@ myst_enable_extensions = [
     "tasklist",
 ]
 
-# GitHub repo configuration
-html_context = {
-    "display_github": True,
-    "github_user": "vladislav-morozov",
-    "github_repo": "unit-averaging",
-    "github_version": "main",  # or 'master', or a tag like 'v1.0'
-}
+# ------------------
+# Furo configuration
 
-# Gallery settings
-sphinx_gallery_conf = {
-    "examples_dirs": "../examples",  # path to your example scripts
-    "filename_pattern": "/plot_",
-    "ignore_pattern": "docs_utils.py",
-    "gallery_dirs": "tutorials",  # path to where to save gallery generated output
-    "within_subsection_order": "FileNameSortKey",
-    "min_reported_time": 60,
-}
-
-
-# Viewcode options
-html_show_sourcelink = False
-html_sourcelink = False
-
-# -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "furo"
 html_theme_options = {
@@ -141,22 +122,9 @@ html_logo = "_static/logo_transp.png"
 pygments_style = "emacs"
 pygments_dark_style = "monokai"
 
-
-# Open Graph configuration
-ogp_site_url = "https://vladislav-morozov.github.io/unit-averaging/"
-
-# MathJax
-mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-
-# Copy button
-copybutton_exclude = ".linenos, .gp"
-
-# Nitpick ignores for build
-nitpick_ignore = [
-    ("py:class", "np.ndarray"),
-    ("py:class", "np.floating"),
-    ("py:class", "abc.ABC"),
-]
+# Viewcode options
+html_show_sourcelink = False
+html_sourcelink = False
 
 
 # Handling the source button
@@ -193,7 +161,43 @@ def linkcode_resolve(domain, info):
     return return_path
 
 
-html_static_path = ["_static"]
+html_context = {
+    "display_github": True,
+    "github_user": "vladislav-morozov",
+    "github_repo": "unit-averaging",
+    "github_version": "main",  # or 'master', or a tag like 'v1.0'
+}
+
+# ------------------
+# Sphinx Gallery settings
+sphinx_gallery_conf = {
+    "examples_dirs": "../examples",  # path to your example scripts
+    "filename_pattern": "/plot_",
+    "ignore_pattern": "docs_utils.py",
+    "gallery_dirs": "tutorials",  # path to where to save gallery generated output
+    "within_subsection_order": "FileNameSortKey",
+    "min_reported_time": 60,
+}
+
+# ------------------
+# Open Graph configuration
+ogp_site_url = "https://vladislav-morozov.github.io/unit-averaging/"
+
+# ------------------
+# MathJax
+mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+
+# ------------------
+# Copy button
+copybutton_exclude = ".linenos, .gp"
+
+# ------------------
+# Nitpick ignores for build
+nitpick_ignore = [
+    ("py:class", "np.ndarray"),
+    ("py:class", "np.floating"),
+    ("py:class", "abc.ABC"),
+]
 
 
 def setup(app):

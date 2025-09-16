@@ -1,6 +1,26 @@
+#############################################
+#  Package: unit_averaging                  #
+#  Author: Vladislav Morozov                #
+#  Description: Efficient ensemble          #
+#               estimation of unit-specific #
+#               parameters                  #
+#  License: MIT                             #
+#  Python: >=3.12                           #
+#############################################
+
+
+###########################
+### Build Configuration ###
+###########################
+
 [build-system]
 requires = ["setuptools", "wheel", "cython"]
 build-backend = "setuptools.build_meta"
+
+
+#####################
+### Project Setup ### 
+#####################
 
 [project]
 requires-python = ">= 3.12"
@@ -13,16 +33,15 @@ dependencies = [
 authors = [ 
   {name = "Vladislav Morozov"}, 
 ] 
-description = "Unit averaging"
+description = "Unit averaging in Python: efficient ensemble estimation of unit-specific parameters"
 license = "MIT"
 readme = "README.md"
 keywords = ["ensemble"]
 classifiers = [
-  # How mature is this project? 
-  #   3 - Alpha
+  # How mature is this project?  
   #   4 - Beta
   #   5 - Production/Stable
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 4 - Beta",
 
   # Indicate who your project is intended for
   "Intended Audience :: Science/Research",
@@ -39,6 +58,11 @@ classifiers = [
 Homepage = "https://github.com/vladislav-morozov/unit-averaging/"
 Documentation = "https://vladislav-morozov.github.io/unit-averaging/"
 
+
+##############
+### Pytest ###
+##############
+
 [tool.pytest.ini_options]
 testpaths = [
   "test", 
@@ -47,7 +71,7 @@ addopts = "--cov=unit_averaging --cov-report=term-missing --cov-branch"
 
 
 ###############
-### pyright ### 
+### Pyright ### 
 ###############
 
 [tool.pyright] 
@@ -59,6 +83,7 @@ reportMissingTypeStubs = false
 
 pythonVersion = "3.12" 
 pythonPlatform = "Linux"  
+
 
 #############
 ### Ruff ### 
@@ -82,7 +107,7 @@ select = [
  
 
 ###########
-### TOX ### 
+### Tox ### 
 ###########
 
 [tool.tox]
@@ -97,8 +122,38 @@ deps = [
 ]
 commands = [["pytest"]]
 
+[tool.tox.env.typecheck] 
+description = "Type check the package"
+base_python = ["python3.13"]
+deps = [
+  "pytest",
+  "pyright",
+  "types-termcolor"
+] 
+commands = [
+  ["pyright"]
+]
+
+[tool.tox.env.format]
+description = "Check code format"
+base_python = ["python3.13"]
+deps = ["ruff"]
+skip_install=true
+commands = [
+  ["ruff", "format", "--check"]
+]
+
+[tool.tox.env.lint]
+description = "Lint code"
+base_python = ["python3.13"]
+deps = ["ruff"]
+skip_install=true
+commands = [
+  ["ruff", "check"]
+]
+
 [tool.tox.env.docs]
-description = "make docs"
+description = "Build docs"
 base_python = ["python3.13"]
 deps = [ 
   "furo",
@@ -121,7 +176,7 @@ commands = [
 ]
 
 [tool.tox.env.devdocs]
-description = "Write docs"
+description = "Develop docs live"
 base_python = ["python3.13"]
 deps = [
   "furo",
@@ -142,3 +197,7 @@ deps = [
 commands = [
   ["sphinx-autobuild", "--port", "8101", "docs/source/", "docs/build/"]
 ]
+
+############################
+### End of configuration ###
+############################
