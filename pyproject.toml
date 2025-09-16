@@ -169,6 +169,7 @@ deps = [
   "sphinx-gallery",
   "sphinx-github-style",
   "sphinx-paramlinks",
+  "sphinx-sitemap",
   "sphinxext-opengraph", 
 ]
 commands = [
@@ -192,6 +193,7 @@ deps = [
   "sphinx-gallery",
   "sphinx-github-style",
   "sphinx-paramlinks",
+  "sphinx-sitemap",
   "sphinxext-opengraph", 
 ]
 commands = [

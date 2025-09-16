@@ -19,13 +19,13 @@ author = "Vladislav Morozov"
 extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.autodoc",
+    "sphinx.ext.linkcode",
     "sphinx.ext.napoleon",
     "sphinxext.opengraph",
     "sphinx_copybutton",
     "sphinx_gallery.gen_gallery",
+    'sphinx_sitemap',
     "myst_parser",
-    "sphinx.ext.autosummary",
-    "sphinx.ext.linkcode",
 ]
 templates_path = ["_templates"]
 html_static_path = ["_static"]
@@ -118,6 +118,7 @@ html_theme_options = {
 
 html_title = "Unit Averaging"
 html_logo = "_static/logo_transp.png"
+html_baseurl = 'https://vladislav-morozov.github.io/unit-averaging/'
 
 pygments_style = "emacs"
 pygments_dark_style = "monokai"
