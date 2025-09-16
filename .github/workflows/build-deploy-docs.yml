@@ -2,7 +2,7 @@ name: Build and Deploy Docs to GitHub Pages
 
 on:
   push:
-    branches: ["ci/workflows"]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
