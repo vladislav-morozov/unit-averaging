@@ -15,7 +15,8 @@ By the end, you should be able to:
 
 .. admonition:: Functionality covered
 
-    ``BaseUnitAverager``: implementing ``_compute_weights()``.
+    :doc:`BaseUnitAverager <../reference/BaseUnitAverager>`:
+    implementing ``_compute_weights()``.
 
 """
 

@@ -136,6 +136,7 @@ html_theme_options = {
 }
 
 html_title = "Unit Averaging"
+html_logo = "_static/logo_transp.png"
 
 pygments_style = "emacs"
 pygments_dark_style = "monokai"
