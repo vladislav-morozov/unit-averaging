@@ -145,5 +145,3 @@ def test_fixed_n_averaging_with_dicts(
     assert np.allclose(ua.weights, expected_weights, rtol=1e-03) and np.allclose(
         ua.estimate, expected_estimate, rtol=1e-03
     )
-
-

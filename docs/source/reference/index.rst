@@ -30,13 +30,13 @@ Averager classes:
 
    * - Class
      - Description
-   * - :class:`BaseUnitAverager`
+   * - :doc:`BaseUnitAverager`
      - Abstract base class. Subclass and implement ``_compute_weights()`` for custom strategies.
-   * - :class:`IndividualUnitAverager`
+   * - :doc:`IndividualUnitAverager`
      - Assigns all weight to the target unit (``weights = [0, ..., 1, ..., 0]``).
-   * - :class:`MeanGroupUnitAverager`
+   * - :doc:`MeanGroupUnitAverager`
      - Equal weights for all units (``weights = [1/N, ..., 1/N]``).
-   * - :class:`OptimalUnitAverager`
+   * - :doc:`OptimalUnitAverager`
      - MSE-optimal weights (agnostic and with prior restrictions).
 
 Focus function classes:
@@ -47,9 +47,9 @@ Focus function classes:
 
    * - Class
      - Description
-   * - :class:`BaseFocusFunction`
+   * - :doc:`BaseFocusFunction`
      - Abstract base class. Subclass and implement ``focus_function()`` and ``gradient()``.
-   * - :class:`InlineFocusFunction`
+   * - :doc:`InlineFocusFunction`
      - Convenience class for creating focus functions from callables.
  
  
