@@ -155,11 +155,17 @@ class IdentityFocusFunction(BaseFocusFunction):
 
     In some cases the individual estimates are scalar and are directly the
     focus parameters. This class makes it easy to work with such scenarios.
-    In contrast to ``BaseFocusFunction`` and ``InlineFocusFunction``, it 
-    requires no arguments.
+    It implements an identity map:
+
+    .. math::
+        \\mu(\\theta_i) = \\theta_i
+
+    In contrast to ``BaseFocusFunction`` and ``InlineFocusFunction``, this
+    class requires no arguments.
 
     Note: ``IdentityFocusFunction`` can only be used with scalar
     individual estimates.
+
 
     Example:
         >>> from unit_averaging import IdentityFocusFunction
