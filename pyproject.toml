@@ -118,7 +118,9 @@ deps = [
   "pytest",
   "pytest-cov"
 ]
-commands = [["pytest"]]
+commands = [
+  ["pytest", "--cov=your_package", "--cov-branch", "--cov-report=xml"]
+]
 
 [tool.tox.env.typecheck] 
 description = "Type check the package"
