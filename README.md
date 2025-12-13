@@ -82,20 +82,15 @@ averager.fit(target_id="unit1")
 
 If you use `unit_averaging` in your research, please cite:
 
-Brownlees, C. T., & Morozov, V. (2024). *Unit Averaging for Heterogeneous Panels*:
+> Brownlees C. and Morozov V. (2025). *Unit Averaging for Heterogeneous Panels*. Journal of Business & Economic Statistics. doi: 10.1080/07350015.2025.2584579.
 
 ```bibtex
-@misc{Brownlees2024UnitAveragingHeterogeneous,
-   title = {Unit Averaging for Heterogeneous Panels},
-   author = {Brownlees, Christian and Morozov, Vladislav},
-   year = {2024},
-   month = may,
-   number = {arXiv:2210.14205},
-   eprint = {2210.14205},
-   primaryclass = {econ},
-   publisher = {arXiv},
-   doi = {10.48550/arXiv.2210.14205},
-   archiveprefix = {arXiv},
+@article{Brownlees2024UnitAveragingHeterogeneous, 
+	author = {Brownlees, Christian and Morozov, Vladislav},
+	title = {{Unit Averaging for Heterogeneous Panels}},
+	journal = {Journal of Business \& Economic Statistics}, 
+	year = {2025}, 
+	doi = {10.1080/07350015.2025.2584579},  
 }
 ```
 
