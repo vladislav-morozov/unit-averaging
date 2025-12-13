@@ -92,28 +92,23 @@ Documentation
 - :doc:`Tutorials <tutorials/index>`: Step-by-step guides
 - :doc:`API Reference <reference/index>`: Detailed class and function documentation
 - :doc:`Theory <theory/theory>`: Mathematical foundations
-- `Original Paper <https://arxiv.org/abs/2210.14205>`__: Complete theoretical treatment
+- `Original Paper <https://doi.org/10.1080/07350015.2025.2584579>`__: Complete theoretical treatment
 
 Citation
 ---------
 
 If you use ``unit_averaging`` in your research, please cite: 
 
-   Brownlees, C. T., & Morozov, V. (2024). *Unit Averaging for Heterogeneous Panels*
+   Brownlees C. and Morozov V. (2025). *Unit Averaging for Heterogeneous Panels*. Journal of Business & Economic Statistics. doi: 10.1080/07350015.2025.2584579.
 
 .. code-block:: bibtex
 
-   @misc{Brownlees2024UnitAveragingHeterogeneous,
-      title = {Unit Averaging for Heterogeneous Panels},
+   @article{Brownlees2024UnitAveragingHeterogeneous, 
       author = {Brownlees, Christian and Morozov, Vladislav},
-      year = {2024},
-      month = may,
-      number = {arXiv:2210.14205},
-      eprint = {2210.14205},
-      primaryclass = {econ},
-      publisher = {arXiv},
-      doi = {10.48550/arXiv.2210.14205},
-      archiveprefix = {arXiv},
+      title = {{Unit Averaging for Heterogeneous Panels}},
+      journal = {Journal of Business \& Economic Statistics}, 
+      year = {2025}, 
+      doi = {10.1080/07350015.2025.2584579},  
    }
 
  

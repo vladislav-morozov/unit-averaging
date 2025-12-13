@@ -120,7 +120,7 @@ There are two main approaches to optimal unit averaging that differ in whether t
  
 The prior information for selecting the unrestricted units may be obtained on the basis of domain knowledge, other studies, or in a data-driven manner.
 
-As [Brownlees and Morozov](https://arxiv.org/abs/2210.14205) show, such optimal weights lead to fairly robust improvements in the MSE, both in simulations and with real data.
+As [Brownlees and Morozov](https://doi.org/10.1080/07350015.2025.2584579) show, such optimal weights lead to fairly robust improvements in the MSE, both in simulations and with real data.
  
 
 
