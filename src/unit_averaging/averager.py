@@ -645,3 +645,34 @@ class OptimalUnitAverager(BaseUnitAverager):
             raise TypeError(
                 "If any input is a dictionary, all inputs must be dictionaries."
             )
+
+
+class SteinUnitAverager(OptimalUnitAverager):
+    """**Unit averaging scheme that shrinks the target estimator to the overall mean.**
+
+    This class implements a unit averaging scheme where
+
+    Args:
+
+    Attributes:
+
+    Example:
+        >>> from unit_averaging import IndividualUnitAverager, InlineFocusFunction
+        >>> 1
+    """
+
+    def __init__(
+        self,
+        focus_function: BaseFocusFunction,
+        ind_estimates: list | np.ndarray | dict[str | int, np.ndarray | list],
+        ind_covar_ests: list | np.ndarray | dict[str | int, np.ndarray | list],
+    ):
+        super().__init__(focus_function, ind_estimates, ind_covar_ests)
+
+    def _compute_weights(self):
+        """Compute unit averaging weights.
+
+        This method assigns all weight to the target unit.
+        """
+        ...
+        # Update the target

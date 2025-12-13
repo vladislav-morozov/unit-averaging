@@ -3,6 +3,7 @@ from unit_averaging.averager import (
     IndividualUnitAverager,
     MeanGroupUnitAverager,
     OptimalUnitAverager,
+    SteinUnitAverager,
 )
 from unit_averaging.focus_function import (
     BaseFocusFunction,
@@ -18,4 +19,5 @@ __all__ = [
     "IndividualUnitAverager",
     "MeanGroupUnitAverager",
     "OptimalUnitAverager",
+    "SteinUnitAverager",
 ]
