@@ -13,7 +13,7 @@ Focus Functions
 
    BaseFocusFunction.rst
    InlineFocusFunction.rst
-
+   IdentityFocusFunction.rst
 
 
 Focus functions define transformations applied to individual unit estimates.
@@ -35,6 +35,8 @@ Available focus functions classes:
      - Abstract base class. Subclass and implement ``focus_function()`` and ``gradient()``.
    * - :class:`InlineFocusFunction`
      - Convenience class for creating focus functions from callables.
+   * - :class:`IdentityFocusFunction`
+     - Convenience class for creating an identity focus function for when the estimates are already the focus parameters.
  
  
 
