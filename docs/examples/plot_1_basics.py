@@ -283,7 +283,7 @@ averager.fit(target_id="Frankfurt")
 #          separate the unit-level estimates from the focus transformation. This
 #          allows one to consider several focus functions on the same dataset.
 #          However, one may also directly supply precomputed target parameters,
-#          and pass an :doc:`IdentityFocusFunction <../reference/IdentityFocusFunction>` 
+#          and pass an :doc:`IdentityFocusFunction <../reference/IdentityFocusFunction>`
 #          if that is more convenient in a given context.
 
 
