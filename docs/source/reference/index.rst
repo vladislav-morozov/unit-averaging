@@ -51,6 +51,9 @@ Focus function classes:
      - Abstract base class. Subclass and implement ``focus_function()`` and ``gradient()``.
    * - :doc:`InlineFocusFunction`
      - Convenience class for creating focus functions from callables.
+   * - :doc:`IdentityFocusFunction`
+     - Convenience class for creating an identity focus function for when the estimates are already the focus parameters.
+ 
  
  
 
