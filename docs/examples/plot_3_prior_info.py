@@ -3,13 +3,14 @@ Using Prior Information as Restrictions
 ========================================
 
 This tutorial demonstrates how to incorporate prior information about unit
-similarities using the large-N regime ``OptimalUnitAveraging``.
+similarities using the unrestricted/restricted unit functionality of
+``OptimalUnitAveraging`` —  the large-N regime.
 
 By the end, you should be able to:
 
-#. Understand the motivation for restricted/unrestricted unit classification
-#. Implement prior information as restrictions in ``OptimalUnitAverager``
-#. Interpret the resulting weight distributions
+#. Understand the motivation for restricted/unrestricted unit classification.
+#. Specify unrestricted/restricted unit restrictions in ``OptimalUnitAverager``.
+#. Interpret the resulting weight distributions.
 
 .. admonition:: Functionality covered
 
@@ -40,38 +41,44 @@ from unit_averaging import IndividualUnitAverager, OptimalUnitAverager
 #
 
 # %%
-# Introduction
-# -------------
+# Some Background
+# ----------------------
 #
-# In the basic ``OptimalUnitAverager`` (see the
-# :doc:`Getting Started <plot_1_basics>` page) the weight of every unit could
-# be determined separately.
+# In our first application of ``OptimalUnitAverager`` in
+# :doc:`Getting Started <plot_1_basics>`, the weight of every unit could
+# be determined separately. This is an agnostic approach that allows the
+# averager to choose which units are important for itself.
 #
-# But this may be too much freedom, particularly, if there are many units.
-# We may think that some units are more important that others, while the
-# others are not necessarily individually useful.
+# However, when dealing with many units, this approach may have two key drawbacks:
 #
-# Optimal unit averaging allows us to make use of this idea. It permits splitting
-# units into categories
+# - It may overfit: May assign non-zero weights to irrelevant units.
+# - It ignores known similarities between units.
 #
-# #. Unrestricted
-# #. Restricted.
+# ``OptimalUnitAverager`` supports an approach that can reduce the dimensionality
+# of the averaging problem by grouping units into two categories:
 #
-# The weights of the restricted units are equal. The algorithm only chooses
-# how much weight overall to give to the average of restricted units. In this
-# sense it's shrinkage.
+# - "*Unrestricted*" units: units whose weights are still chosen freely (and
+#   may be chosen to zero).
+# - "*Restricted*" units: the weights of all the restricted units are equal.
+#   The algorithm only chooses how much weight overall to give to the average
+#   of restricted units.
 #
-# The choice of unrestricted units may reflect prior information.
+# Using restricted units is called the "large-N" regime for theoretical reasons
+# (see the `original paper <https://doi.org/10.1080/07350015.2025.2584579>`__),
+# in contrast to the "fixed-N" regime with no restricted units.
 #
+# In practice, the choice of unrestricted vs. restricted units reflects **prior**
+# **information**: units that may be more important for prediction (more similar,
+# have tighter economic links, etc.) should be left unrestricted. All other
+# units should be restricted.
 #
-# It's important to highlight the following:
-# %%
+# At the same time, it's important to highlight the following point:
 #
 # .. admonition:: Choice of unrestricted units is a tuning parameter
 #
-#   Averager will optimally adapt. Choice is a modeling parameter. Unrestricted
-#   units may also receive a weight of 0.
-
+#   The choice of unrestricted units is not a causal statement about the 
+#   underlying reality. ``OptimalUnitAverager`` will optimally adapt to the
+#   specified structure to the extent possible.
 
 # %%
 # Restricted and Unrestricted Units in Practice
@@ -201,7 +208,7 @@ sum(averager.weights[~np.isin(averager.keys, hessen_regions)]).round(3)
 # Even as a group, the restricted units receive effectively no weight.
 # All the weight is allocated to Hessen.
 #
-# For the regions in Hessen, the weights can vary freely, and we examine them 
+# For the regions in Hessen, the weights can vary freely, and we examine them
 # individually:
 
 print(
