@@ -46,8 +46,9 @@ from unit_averaging import IndividualUnitAverager, OptimalUnitAverager
 #
 # In our first application of ``OptimalUnitAverager`` in
 # :doc:`Getting Started <plot_1_basics>`, the weight of every unit could
-# be determined separately. This is an agnostic approach that allows the
-# averager to choose which units are important for itself.
+# be determined separately. This is a flexible approach that allows the
+# averager to choose which units are important without requiring
+# prior information on unit similarities from the user.
 #
 # However, when dealing with many units, this approach may have two key drawbacks:
 #
@@ -65,7 +66,9 @@ from unit_averaging import IndividualUnitAverager, OptimalUnitAverager
 #
 # Using restricted units is called the "large-N" regime for theoretical reasons
 # (see the `original paper <https://doi.org/10.1080/07350015.2025.2584579>`__),
-# in contrast to the "fixed-N" regime with no restricted units.
+# in contrast to the "fixed-N" regime with no restricted units. The large-N names
+# comes from the fact that the approach is more effective and theoretically
+# justified when the set of restricted units is large.
 #
 # In practice, the choice of unrestricted vs. restricted units reflects **prior**
 # **information**: units that may be more important for prediction (more similar,
@@ -76,7 +79,7 @@ from unit_averaging import IndividualUnitAverager, OptimalUnitAverager
 #
 # .. admonition:: Choice of unrestricted units is a tuning parameter
 #
-#   The choice of unrestricted units is not a causal statement about the 
+#   The choice of unrestricted units is not a causal statement about the
 #   underlying reality. ``OptimalUnitAverager`` will optimally adapt to the
 #   specified structure to the extent possible.
 
@@ -84,6 +87,7 @@ from unit_averaging import IndividualUnitAverager, OptimalUnitAverager
 # Restricted and Unrestricted Units in Practice
 # -----------------------------------------------
 #
+# We now apply this large-N approach in a worked example.
 # We revisit the Frankfurt unemployment forecasting example from
 # :doc:`Getting Started <plot_1_basics>`, now incorporating prior information
 # about regional similarities. Again, the task is to predict the change in
@@ -104,9 +108,9 @@ ind_estimates, ind_covar_ests, forecast_frankfurt_jan_2020 = prepare_frankfurt_e
 # in its state. These become **unrestricted units** while all others are restricted.
 #
 # It is important to stress that this choice means the algorithm is free to choose
-# any weight for regions in Hessen. That includes the possibility of assigning
-# a zero weights. Hence, setting a unit as unrestricted means that it *may* but
-# but *not necessarily will* be included in a greater degree in the average.
+# any weight for regions in Hessen (including zero). This flexibility allows
+# the averager to make use of more relevant unrestricted units and to discard
+# the less relevant ones.
 #
 # Specifically, the regions in Hessen are:
 
@@ -179,6 +183,7 @@ ind_averager = IndividualUnitAverager(
 ind_averager.fit(target_id="Frankfurt")
 print(ind_averager.estimate.round(3))
 
+
 # %%
 #
 # Finally, we can examine the fitted ``weights``. First, we plot them:
@@ -205,8 +210,9 @@ fig, ax = plot_germany(
 sum(averager.weights[~np.isin(averager.keys, hessen_regions)]).round(3)
 
 # %%
-# Even as a group, the restricted units receive effectively no weight.
-# All the weight is allocated to Hessen.
+# Even as a group, the restricted units receive effectively no weight. This means
+# the model relies almost entirely on the unrestricted Hessen regions for
+# forecasting Frankfurt's unemployment.
 #
 # For the regions in Hessen, the weights can vary freely, and we examine them
 # individually:
@@ -226,17 +232,20 @@ print(
 
 # %%
 # The averager assigns almost all weights to Frankfurt itself, and two bordering
-# regions — Offenbach and Bad Homburg. The other regions receive rather small
-# weights.
-
+# regions — Offenbach and Bad Homburg. In other words, even within Hessen, the
+# averager concentrates weight on the metropolitan region of Frankfurt.
+#
+# At the same time, there is some variation in the weights. This suggests
+# that the averaging prediction likely has lower variance than the
+# individual-specific prediction.
 
 # %%
 #
 # .. admonition:: Stein unit averaging
 #
-#   :doc:`SteinUnitAverager <../reference/SteinUnitAverager>` implements a
-#   special kind of large-N optimal averaging where all the non-target units
-#   are restricted (Stein-like shrinkage). There is no need to specify
+#   For cases where you want to restrict all non-target units (Stein-like shrinkage),
+#   :doc:`SteinUnitAverager <../reference/SteinUnitAverager>` offers a convenient
+#   interface. There is no need to specify
 #   unrestricted units when using
 #   :doc:`SteinUnitAverager <../reference/SteinUnitAverager>`.
 #
