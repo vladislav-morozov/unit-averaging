@@ -2,21 +2,19 @@ r"""
 Using Prior Information as Restrictions
 ========================================
 
-This tutorial shows how to use prior information on potentially similar units
-for optimal unit averaging with ``OptimalUnitAveraging`` using its large-N
-regime.
+This tutorial demonstrates how to incorporate prior information about unit
+similarities using the large-N regime ``OptimalUnitAveraging``.
 
 By the end, you should be able to:
 
-#. Understand the difference between restricted and unrestricted units in optimal
-   averaging.
-#. Create and fit an ``OptimalUnitAverager`` with restricted units.
-
+#. Understand the motivation for restricted/unrestricted unit classification
+#. Implement prior information as restrictions in ``OptimalUnitAverager``
+#. Interpret the resulting weight distributions
 
 .. admonition:: Functionality covered
 
     :doc:`OptimalUnitAverager <../reference/OptimalUnitAverager>`:
-    using the ``unrestricted_unit_bool`` argument.
+    using the ``unrestricted_unit_bool`` argument for the large-N regime.
 
 """
 
@@ -46,35 +44,64 @@ from unit_averaging import IndividualUnitAverager, OptimalUnitAverager
 # -------------
 #
 # In the basic ``OptimalUnitAverager`` (see the
-# :doc:`Getting Started <plot_1_basics>` page) every
+# :doc:`Getting Started <plot_1_basics>` page) the weight of every unit could
+# be determined separately.
 #
-# 
-# 
-# The role of prior information
+# But this may be too much freedom, particularly, if there are many units.
+# We may think that some units are more important that others, while the
+# others are not necessarily individually useful.
 #
-# The other units 
-# shrunk
+# Optimal unit averaging allows us to make use of this idea. It permits splitting
+# units into categories
+#
+# #. Unrestricted
+# #. Restricted.
+#
+# The weights of the restricted units are equal. The algorithm only chooses
+# how much weight overall to give to the average of restricted units. In this
+# sense it's shrinkage.
+#
+# The choice of unrestricted units may reflect prior information.
 #
 #
+# It's important to highlight the following:
+# %%
+#
+# .. admonition:: Choice of unrestricted units is a tuning parameter
+#
+#   Averager will optimally adapt. Choice is a modeling parameter. Unrestricted
+#   units may also receive a weight of 0.
+
 
 # %%
 # Restricted and Unrestricted Units in Practice
 # -----------------------------------------------
 #
-# To illustrate , we come back to the example
-# from :doc:`Getting Started <plot_1_basics>`. In short, the practical problem
-# of interest is predicting the change in unemployment in Frankfurt in January
-# 2020 using a panel of 150 German labor market districts, Frankfurt included.
+# We revisit the Frankfurt unemployment forecasting example from
+# :doc:`Getting Started <plot_1_basics>`, now incorporating prior information
+# about regional similarities. Again, the task is to predict the change in
+# unemployment in Frankfurt in January
+# 2020 from a panel of 150 German labor market districts, Frankfurt included.
 #
-# We generate the estimates
+# We load our prepared individual estimates, individual covariance matrices,
+# and the focus function for forecasting the target unemployment rate:
 
 ind_estimates, ind_covar_ests, forecast_frankfurt_jan_2020 = prepare_frankfurt_example()
 
 # %%
-# Specifying Unrestricted Units
+# Specifying Unit Restrictions
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-# Relevant units
 #
+# We assume Hessen regions (Frankfurt's state) are potentially relevant for
+# forecasting Frankfurt's unemployment, with Frankfurt influenced by the regions
+# in its state. These become **unrestricted units** while all others are restricted.
+#
+# It is important to stress that this choice means the algorithm is free to choose
+# any weight for regions in Hessen. That includes the possibility of assigning
+# a zero weights. Hence, setting a unit as unrestricted means that it *may* but
+# but *not necessarily will* be included in a greater degree in the average.
+#
+# Specifically, the regions in Hessen are:
 
 hessen_regions = [
     "Kassel",
@@ -93,14 +120,32 @@ hessen_regions = [
 
 # %%
 #
-# Since our ``ind_estimates`` and ``ind_covar_ests`` are dictionaries indexed by
-# regions. The information on unrestricted units should also be a region
+# Information about whether a unit is unrestricted is boolean, with ``True``
+# meaning that a unit is unrestricted, and ``False`` that it is restricted.
+#
 
 unrestricted_units = {region: (region in hessen_regions) for region in ind_covar_ests}
 
+print(unrestricted_units)
+
+
 # %%
 #
-# Finally, we can create
+# Since our ``ind_estimates`` and ``ind_covar_ests`` are dictionaries indexed by
+# regions, the information on unrestricted units should also be a dictionary
+# indexed by the same regions. Otherwise the averager would not be able to match
+# the information on unrestricted units to the units themselves.
+
+
+# %%
+# Fitting the Averager
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# With the information on unrestricted units specified, we can now create
+# an instance of ``OptimalUnitAverager`` with these unit restrictions.
+#
+# We pass ``unrestricted_units`` to the ``unrestricted_units_bool`` argument
+# of the averager:
 
 
 averager = OptimalUnitAverager(
@@ -111,15 +156,14 @@ averager = OptimalUnitAverager(
 )
 
 # %%
-# Fitting the Averager
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # We can now fit our averager and examine the predicted value:
+
 
 averager.fit(target_id="Frankfurt")
 print(averager.estimate.round(3))
 
 # %%
-# The predicted value is quite close.
+# The predicted value is quite close to the individual-specific estimate:
 
 ind_averager = IndividualUnitAverager(
     focus_function=forecast_frankfurt_jan_2020,
@@ -130,7 +174,7 @@ print(ind_averager.estimate.round(3))
 
 # %%
 #
-# Finally, as before, we can examine the fitted ``weights``:
+# Finally, we can examine the fitted ``weights``. First, we plot them:
 
 weight_df = pd.DataFrame({"aab": averager.keys, "weights": averager.weights})
 # sphinx_gallery_thumbnail_number = 1
@@ -144,7 +188,21 @@ fig, ax = plot_germany(
 
 # %%
 #
-# Weights of the unrestricted units:
+# We can take a deeper look at the weights of the restricted and the unrestricted
+# units by accessing the ``weights`` attribute of the averager.
+#
+# We first look at the total weight received by the set of restricted units.
+# This total is what is chosen by the averager. Then this total is
+# equally divided between the restricted units. In our case, we have:
+
+sum(averager.weights[~np.isin(averager.keys, hessen_regions)]).round(3)
+
+# %%
+# Even as a group, the restricted units receive effectively no weight.
+# All the weight is allocated to Hessen.
+#
+# For the regions in Hessen, the weights can vary freely, and we examine them 
+# individually:
 
 print(
     pd.Series(
@@ -160,18 +218,18 @@ print(
 )
 
 # %%
-#
-#
-
-sum(averager.weights[~np.isin(averager.keys, hessen_regions)]).round(3)
-
-# %%
-# The other units receive basically no weight
+# The averager assigns almost all weights to Frankfurt itself, and two bordering
+# regions — Offenbach and Bad Homburg. The other regions receive rather small
+# weights.
 
 
 # %%
 #
 # .. admonition:: Stein unit averaging
 #
-#   :doc:`SteinUnitAverager <../reference/SteinUnitAverager>`:
-#   shrinkage. Is a variant where every unit.
+#   :doc:`SteinUnitAverager <../reference/SteinUnitAverager>` implements a
+#   special kind of large-N optimal averaging where all the non-target units
+#   are restricted (Stein-like shrinkage). There is no need to specify
+#   unrestricted units when using
+#   :doc:`SteinUnitAverager <../reference/SteinUnitAverager>`.
+#
