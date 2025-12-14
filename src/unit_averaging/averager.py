@@ -488,9 +488,7 @@ class OptimalUnitAverager(BaseUnitAverager):
         try:
             prob.solve()
         except SolverError as e:
-            raise SolverError(
-                "Optimizer could not find a feasible solution"
-            ) from e
+            raise SolverError("Optimizer could not find a feasible solution") from e
 
         # Allocate the weights if possible
         if weights.value is None:
@@ -662,7 +660,7 @@ class SteinUnitAverager(OptimalUnitAverager):
     Attributes:
 
     Example:
-        >>> from unit_averaging import IndividualUnitAverager, InlineFocusFunction
+        >>> from unit_averaging import SteinUnitAverager+, InlineFocusFunction
         >>> 1
     """
 
@@ -674,10 +672,17 @@ class SteinUnitAverager(OptimalUnitAverager):
     ):
         super().__init__(focus_function, ind_estimates, ind_covar_ests)
 
+        # Stein averager has special unrestricted unit scheme that is set during fit()
+        self.unrestricted_units_bool = np.full(self.keys.shape, np.nan)
+
     def _compute_weights(self):
         """Compute unit averaging weights.
 
-        This method assigns all weight to the target unit.
+        This method optimally shrinks target estimates towards the group average.
         """
-        ...
-        # Update the target
+        # Update the unrestricted units to a Stein-like scheme
+        self.unrestricted_units_bool = np.full(self.keys.shape, False)
+        self.unrestricted_units_bool[self._target_coord] = True
+
+        # Fit optimal weights with the above unrestricted scheme
+        super()._compute_weights()
