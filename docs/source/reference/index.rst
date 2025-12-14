@@ -38,6 +38,8 @@ Averager classes:
      - Equal weights for all units (``weights = [1/N, ..., 1/N]``).
    * - :doc:`OptimalUnitAverager`
      - MSE-optimal weights (agnostic and with prior restrictions).
+   * - :doc:`SteinUnitAverager`
+     - MSE-optimal shrinkage towards mean group estimator.
 
 Focus function classes:
 

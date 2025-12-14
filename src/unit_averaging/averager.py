@@ -181,7 +181,7 @@ class IndividualUnitAverager(BaseUnitAverager):
     averaging schemes with no averaging using the same interface.
 
     Args:
-        focus_function (BaseFocusFunction):
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
             Focus function expressing the transformation of interest.
         ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
             Individual unit estimates. Can be a list, numpy array, or dictionary.
@@ -204,7 +204,7 @@ class IndividualUnitAverager(BaseUnitAverager):
         estimate (float):
             The computed unit averaging estimate, which is simply the target
             unit's estimate.
-        focus_function (BaseFocusFunction):
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
             Focus function expressing the transformation of interest.
         target_id (int | str):
             The ID of the target unit. Initialized as None, set by calling ``fit()``.
@@ -245,7 +245,7 @@ class MeanGroupUnitAverager(BaseUnitAverager):
     setting.
 
     Args:
-        focus_function (BaseFocusFunction):
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
             Focus function expressing the transformation of interest.
         ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
             Individual unit estimates. Can be a list, numpy array, or dictionary.
@@ -268,7 +268,7 @@ class MeanGroupUnitAverager(BaseUnitAverager):
         estimate (float):
             The computed unit averaging estimate. Here a simple average of all
             unit estimates.
-        focus_function (BaseFocusFunction):
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
             Focus function expressing the transformation of interest.
         target_id (int | str):
             The ID of the target unit. Initialized as None, set by calling ``fit()``.
@@ -334,7 +334,7 @@ class OptimalUnitAverager(BaseUnitAverager):
 
 
     Args:
-        focus_function (BaseFocusFunction):
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
             Focus function expressing the transformation of interest.
         ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
             Individual unit estimates. Can be a list, numpy array, or dictionary.
@@ -653,11 +653,50 @@ class OptimalUnitAverager(BaseUnitAverager):
 class SteinUnitAverager(OptimalUnitAverager):
     """**Unit averaging scheme that shrinks the target estimator to the overall mean.**
 
-    This class implements a unit averaging scheme where
+    This class implements an MSE-optimal unit averaging scheme which treats
+    the target unit as unrestricted and restricts all other units (in the
+    sense of ``OptimalUnitAverager``). The resulting estimator is an
+    example of a Stein-like shrinkage scheme: the target unit's estimates
+    is optimally shrank towars the average of all other units.
 
     Args:
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
+            Focus function expressing the transformation of interest.
+        ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
+            Individual unit estimates. Can be a list, numpy array, or dictionary.
+            Each unit-specific estimate should be a NumPy array or list.
+            The first dimension of ``ind_estimates`` indexes units (rows or
+            dictionary entries).
+        ind_covar_ests (np.ndarray | list | dict[str | int, np.ndarray | list]):
+            Individual unit covariance estimates. Can be a list, numpy array, or
+            dictionary. Each unit-specific covariance estimate should be a NumPy
+            array or list of lists. The first dimension of ``ind_covar_ests`` indexes
+            units (rows or dictionary entries).
 
     Attributes:
+        ind_estimates (np.ndarray):
+            Array of individual unit estimates.
+        ind_covar_ests (np.ndarray):
+            Array of individual unit covariance estimates.
+        unrestricted_units_bool (np.ndarray):
+            Boolean array indicating which units are unrestricted. Unlike for
+            ``OptimalUnitAverager``, these are automatically set during ``fit()``.
+            Stein average scheme leaves the target unit unrestricted and restricts
+            all other units.
+        keys (np.ndarray):
+            Array of keys corresponding to the units. The individual estimates are
+            converted to numpy arrays internally. If ``ind_estimates`` is a
+            dictionary, the keys are preserved in the ``keys`` attribute. If
+            ``ind_estimates`` is a list or array, ``keys`` defaults to numeric
+            indices (0, 1, 2, ...).
+        weights (np.ndarray):
+            The computed weights for each unit.
+        estimate (float):
+            The computed unit averaging estimate.
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
+            Focus function expressing the transformation of interest.
+        target_id (int | str):
+            The ID of the target unit. Initialized as None, set by calling ``fit()``.
 
     Example:
         >>> from unit_averaging import SteinUnitAverager+, InlineFocusFunction

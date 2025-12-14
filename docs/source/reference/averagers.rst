@@ -14,6 +14,7 @@ Averagers
    IndividualUnitAverager.rst
    MeanGroupUnitAverager.rst
    OptimalUnitAverager.rst
+   SteinUnitAverager.rst
  
 
 This module provides implementations of unit averaging strategies.
@@ -40,6 +41,8 @@ Available averagers:
      - Equal weights for all units (``weights = [1/N, ..., 1/N]``).
    * - :class:`OptimalUnitAverager`
      - MSE-optimal weights (agnostic and with prior restrictions).
+   * - :class:`SteinUnitAverager`
+     - MSE-optimal shrinkage towards mean group estimator.
 
  
  
