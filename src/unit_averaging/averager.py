@@ -483,12 +483,13 @@ class OptimalUnitAverager(BaseUnitAverager):
                 eq_lhs @ weights == eq_rhs,
             ],
         )
-        # TODO: Resolve raise_error warning after https://github.com/cvxpy/cvxpy/issues/2851
-        prob.solve()
-        if weights.value is None:
-            raise TypeError(
-                "Optimizer could not find a feasible solution, returned None."
-            )
+
+        try:
+            prob.solve()
+        except cp.error.SolverError as e:
+            raise cp.error.SolverError(
+                "Optimizer could not find a feasible solution"
+            ) from e
 
         # Allocate the weights
         opt_weights = self._allocate_optimal_weights(

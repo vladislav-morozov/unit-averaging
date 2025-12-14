@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from cvxpy.error import SolverError
 
 from unit_averaging import InlineFocusFunction, OptimalUnitAverager
 
@@ -145,3 +146,30 @@ def test_fixed_n_averaging_with_dicts(
     assert np.allclose(ua.weights, expected_weights, rtol=1e-03) and np.allclose(
         ua.estimate, expected_estimate, rtol=1e-03
     )
+
+
+@pytest.mark.parametrize(
+    "ind_estimates, ind_covar_ests, target_id",
+    [
+        (
+            np.array([np.array([1e9, 1]), np.array([-1e111, 1])]),
+            np.array([np.array([[1, 0], [0, 1]]), np.array([[1, 0], [0, 1]])]),
+            0,
+        )
+    ],
+    ids=[
+        "Unreasonable estimate values",
+    ],
+)
+def test_fixed_n_averaging_failures(
+    first_coord_focus_function,
+    ind_estimates,
+    ind_covar_ests,
+    target_id,
+):
+    ua = OptimalUnitAverager(first_coord_focus_function, ind_estimates, ind_covar_ests)
+
+    with pytest.raises(
+        SolverError, match="Optimizer could not find a feasible solution"
+    ):
+        ua.fit(target_id=target_id)
