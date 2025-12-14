@@ -25,4 +25,4 @@ These tutorials are designed to be completed in order, but feel free to jump to 
 
     - :doc:`Background about unit averaging <../theory/theory>` for a quick reference on the theory of unit averaging.
     - The :doc:`API reference <../reference/index>` for a detailed reference on the classes implemented in this package.
-    - The `original paper <https://arxiv.org/abs/2210.14205>`__ for complete technical details
+    - The `original paper <https://doi.org/10.1080/07350015.2025.2584579>`__ for complete technical details

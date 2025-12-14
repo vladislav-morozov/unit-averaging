@@ -275,7 +275,8 @@ averager.fit(target_id="Frankfurt")
 # .. seealso:: We are using the ``OptimalUnitAverager`` in the conceptually simpler
 #              agnostic ("fixed-N") regime. ``OptimalUnitAverager`` can also make
 #              use of prior information ("large-N") regime. See
-#              :doc:`this page <../theory/theory>` for further info.
+#              :doc:`this tutorial <plot_3_prior_info>` for using the large-N
+#              regime.
 
 # %%
 #
