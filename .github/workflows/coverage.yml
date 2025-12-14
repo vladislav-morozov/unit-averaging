@@ -1,0 +1,24 @@
+name: Monitoring Coverage
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install tox
+        run: pip install tox
+      - name: Test
+        run: tox -e py313 -- --cov-branch --cov-report=xml
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+            token: ${{ secrets.CODECOV_TOKEN }}
