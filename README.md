@@ -2,7 +2,7 @@
 
 **Optimal Estimation for Heterogeneous Data**
  
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.12+](https://img.shields.io/badge/python-3.12|3.13|3.14-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.12+](https://img.shields.io/badge/python-3.12%20|%203.13%20|%203.14-blue.svg)](https://www.python.org/downloads/)
 [![Docs](https://github.com/vladislav-morozov/unit-averaging/actions/workflows/build-deploy-docs.yml/badge.svg)](https://vladislav-morozov.github.io/unit-averaging/) [![codecov](https://codecov.io/gh/vladislav-morozov/unit-averaging/branch/develop/graph/badge.svg?token=E3ONL6JLYX)](https://codecov.io/gh/vladislav-morozov/unit-averaging)
 
  
