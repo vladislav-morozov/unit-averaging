@@ -153,7 +153,7 @@ class BaseUnitAverager(ABC):
         the weights are computed. The computed weights should be stored in the
         `weights` attribute.
         """
-        pass
+        ...
 
     def _convert_inputs_to_array(self, input_data: list | np.ndarray | dict):
         """Convert input data (dict, list, or array) into keys and values arrays."""
