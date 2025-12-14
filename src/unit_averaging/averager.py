@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 
 import cvxpy as cp
 import numpy as np
+from cvxpy.error import SolverError
 
 from unit_averaging.focus_function import BaseFocusFunction
 
@@ -486,17 +487,20 @@ class OptimalUnitAverager(BaseUnitAverager):
 
         try:
             prob.solve()
-        except cp.error.SolverError as e:
-            raise cp.error.SolverError(
+        except SolverError as e:
+            raise SolverError(
                 "Optimizer could not find a feasible solution"
             ) from e
 
-        # Allocate the weights
-        opt_weights = self._allocate_optimal_weights(
-            weights.value,
-            self.unrestricted_units_bool,
-            self.ind_estimates,
-        )
+        # Allocate the weights if possible
+        if weights.value is None:
+            raise ValueError("Optimizer could not find a feasible solution")
+        else:
+            opt_weights = self._allocate_optimal_weights(
+                weights.value,
+                self.unrestricted_units_bool,
+                self.ind_estimates,
+            )
 
         self.weights = opt_weights
 
