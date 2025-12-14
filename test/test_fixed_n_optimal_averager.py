@@ -173,3 +173,37 @@ def test_fixed_n_averaging_failures(
         SolverError, match="Optimizer could not find a feasible solution"
     ):
         ua.fit(target_id=target_id)
+
+
+@pytest.mark.parametrize(
+    "ind_estimates, ind_covar_ests, target_id, expected_weights, expected_estimate",
+    [
+        (
+            np.array([np.array([1.0]), np.array([1])]),
+            np.array([1, 1.0]),
+            0,
+            np.array([0.5, 0.5]),
+            1,
+        ),
+    ],
+    ids=[
+        "Scalar equal units",
+    ],
+)
+def test_optimal_averager_gradient_cleaning(
+    ind_estimates,
+    ind_covar_ests,
+    target_id,
+    expected_weights,
+    expected_estimate,
+):
+    scalar_gradient_focus_function = InlineFocusFunction(
+        focus_function=lambda x: x[0], gradient=lambda x: np.array(1.0)
+    )
+    ua = OptimalUnitAverager(
+        scalar_gradient_focus_function, ind_estimates, ind_covar_ests
+    )
+    ua.fit(target_id=target_id)
+    assert np.allclose(ua.weights, expected_weights, rtol=1e-03) and np.allclose(
+        ua.estimate, expected_estimate, rtol=1e-03
+    )
