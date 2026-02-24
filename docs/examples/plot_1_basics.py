@@ -236,9 +236,9 @@ target_data = (
 
 # Construct focus function
 forecast_frankfurt_jan_2020 = InlineFocusFunction(
-    focus_function=lambda coef: coef[0]
-    + coef[1] * target_data[0]
-    + coef[2] * target_data[1],
+    focus_function=lambda coef: (
+        coef[0] + coef[1] * target_data[0] + coef[2] * target_data[1]
+    ),
     gradient=lambda coef: np.array([1, target_data[0], target_data[1]]),
 )
 
@@ -385,9 +385,9 @@ other_target_data = (
     german_data.loc["2019-11", ["Frankfurt", "Germany_lag"]].to_numpy().squeeze()
 )
 other_focus_function = InlineFocusFunction(
-    focus_function=lambda coef: coef[0]
-    + coef[1] * other_target_data[0]
-    + coef[2] * other_target_data[1],
+    focus_function=lambda coef: (
+        coef[0] + coef[1] * other_target_data[0] + coef[2] * other_target_data[1]
+    ),
     gradient=lambda coef: np.array([1, other_target_data[0], other_target_data[1]]),
 )
 
