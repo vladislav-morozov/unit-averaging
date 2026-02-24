@@ -2,7 +2,7 @@
 
 **Optimal Estimation for Heterogeneous Data**
  
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.12+](https://img.shields.io/badge/python-3.12%20|%203.13%20|%203.14-blue.svg)](https://www.python.org/downloads/)
+[![PyPI](https://img.shields.io/pypi/v/unit-averaging)](https://pypi.org/project/unit-averaging/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.12+](https://img.shields.io/badge/python-3.12%20|%203.13%20|%203.14-blue.svg)](https://www.python.org/downloads/)
 [![Docs](https://github.com/vladislav-morozov/unit-averaging/actions/workflows/build-deploy-docs.yml/badge.svg)](https://vladislav-morozov.github.io/unit-averaging/) [![codecov](https://codecov.io/gh/vladislav-morozov/unit-averaging/branch/develop/graph/badge.svg?token=E3ONL6JLYX)](https://codecov.io/gh/vladislav-morozov/unit-averaging)
 
  
@@ -10,7 +10,8 @@
   <tr>
     <td style="width:70%; vertical-align:top;"> 
       <p>
-        A Python package for estimating unit-specific parameters in heterogeneous data settings (panel data and meta-analysis). Implements unit averaging: an ensemble method that efficiently combines information across multiple units (e.g., countries, firms, or studies) while accounting for their individual differences.
+        A Python package for estimating unit-specific parameters in heterogeneous data settings (panel data and meta-analysis). <br>
+         Implements unit averaging: an ensemble method that efficiently combines information across multiple units (e.g., countries, firms, or studies) while accounting for their individual differences.
       </p>
     </td>
     <td style="width:30%; vertical-align:top;">
@@ -22,11 +23,11 @@
 
 ## Key Features
 
-- **Optimal weighting**: Automatically computes weights that balance bias and variance
-- **Flexible workflow**: Works with panel data, meta-analysis, and other heterogeneous datasets
-- **Versatility**: Can be used on top of various standard estimation packages
-- **Customizable**: Implement your own weighting schemes by subclassing base classes
-- **Theoretically grounded**: Based on statistical theory with proven performance
+- **Optimal weighting**: automatically computes weights that balance bias and variance
+- **Flexible workflow**: works with panel data, meta-analysis, and other heterogeneous datasets
+- **Versatility**: can be used on top of various standard estimation packages
+- **Customizable**: implement your own weighting schemes by subclassing base classes
+- **Theoretically grounded**: based on statistical theory with proven performance
 
 ## Installation
 
@@ -38,10 +39,10 @@ pip install unit_averaging
 
 ## Documentation
 
-- **[Tutorials](https://vladislav-morozov.github.io/unit-averaging/tutorials/)**: Step-by-step guides to get started
-- **[API Reference](https://vladislav-morozov.github.io/unit-averaging/reference/)**: Detailed documentation for all classes/functions
-- **[Theory](https://vladislav-morozov.github.io/unit-averaging/theory/)**: Mathematical foundations of unit averaging
-- **[Original Paper](https://arxiv.org/abs/2210.14205)**: Complete theoretical treatment
+- **[Tutorials](https://vladislav-morozov.github.io/unit-averaging/tutorials/)**: step-by-step guides to get started
+- **[API Reference](https://vladislav-morozov.github.io/unit-averaging/reference/)**: detailed documentation for all classes/functions
+- **[Theory](https://vladislav-morozov.github.io/unit-averaging/theory/)**: mathematical foundations of unit averaging
+- **[Original Paper](https://arxiv.org/abs/2210.14205)**: complete theoretical treatment
 
 
 ## Quick Start
