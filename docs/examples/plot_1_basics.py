@@ -236,9 +236,9 @@ target_data = (
 
 # Construct focus function
 forecast_frankfurt_jan_2020 = InlineFocusFunction(
-    focus_function=lambda coef: coef[0]
-    + coef[1] * target_data[0]
-    + coef[2] * target_data[1],
+    focus_function=lambda coef: (
+        coef[0] + coef[1] * target_data[0] + coef[2] * target_data[1]
+    ),
     gradient=lambda coef: np.array([1, target_data[0], target_data[1]]),
 )
 
@@ -275,7 +275,8 @@ averager.fit(target_id="Frankfurt")
 # .. seealso:: We are using the ``OptimalUnitAverager`` in the conceptually simpler
 #              agnostic ("fixed-N") regime. ``OptimalUnitAverager`` can also make
 #              use of prior information ("large-N") regime. See
-#              :doc:`this page <../theory/theory>` for further info.
+#              :doc:`this tutorial <plot_3_prior_info>` for using the large-N
+#              regime.
 
 # %%
 #
@@ -283,8 +284,8 @@ averager.fit(target_id="Frankfurt")
 #          separate the unit-level estimates from the focus transformation. This
 #          allows one to consider several focus functions on the same dataset.
 #          However, one may also directly supply precomputed target parameters,
-#          and pass an identity focus function if that is more convenient
-#          in a given context.
+#          and pass an :doc:`IdentityFocusFunction <../reference/IdentityFocusFunction>`
+#          if that is more convenient in a given context.
 
 
 # %%
@@ -384,9 +385,9 @@ other_target_data = (
     german_data.loc["2019-11", ["Frankfurt", "Germany_lag"]].to_numpy().squeeze()
 )
 other_focus_function = InlineFocusFunction(
-    focus_function=lambda coef: coef[0]
-    + coef[1] * other_target_data[0]
-    + coef[2] * other_target_data[1],
+    focus_function=lambda coef: (
+        coef[0] + coef[1] * other_target_data[0] + coef[2] * other_target_data[1]
+    ),
     gradient=lambda coef: np.array([1, other_target_data[0], other_target_data[1]]),
 )
 

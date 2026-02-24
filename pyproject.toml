@@ -37,11 +37,8 @@ description = "Unit averaging in Python: efficient ensemble estimation of unit-s
 license = "MIT"
 readme = "README.md"
 keywords = ["ensemble"]
-classifiers = [
-  # How mature is this project?  
-  #   4 - Beta
-  #   5 - Production/Stable
-  "Development Status :: 4 - Beta",
+classifiers = [ 
+  "Development Status :: 5 - Production/Stable",
 
   # Indicate who your project is intended for
   "Intended Audience :: Science/Research",
@@ -52,6 +49,7 @@ classifiers = [
   "Programming Language :: Python :: 3", 
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
 
 [project.urls]
@@ -111,7 +109,7 @@ select = [
 ###########
 
 [tool.tox]
-envlist = ["py313", "py312"]
+envlist = ["py314t", "py313", "py312"]
 
 # Base environments: testing
 [tool.tox.env_run_base]
@@ -120,7 +118,9 @@ deps = [
   "pytest",
   "pytest-cov"
 ]
-commands = [["pytest"]]
+commands = [
+  ["pytest", "--cov-branch", "--cov-report=xml"]
+]
 
 [tool.tox.env.typecheck] 
 description = "Type check the package"

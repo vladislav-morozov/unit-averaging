@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 
 import cvxpy as cp
 import numpy as np
+from cvxpy.error import SolverError
 
 from unit_averaging.focus_function import BaseFocusFunction
 
@@ -153,7 +154,7 @@ class BaseUnitAverager(ABC):
         the weights are computed. The computed weights should be stored in the
         `weights` attribute.
         """
-        pass
+        ...
 
     def _convert_inputs_to_array(self, input_data: list | np.ndarray | dict):
         """Convert input data (dict, list, or array) into keys and values arrays."""
@@ -180,7 +181,7 @@ class IndividualUnitAverager(BaseUnitAverager):
     averaging schemes with no averaging using the same interface.
 
     Args:
-        focus_function (BaseFocusFunction):
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
             Focus function expressing the transformation of interest.
         ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
             Individual unit estimates. Can be a list, numpy array, or dictionary.
@@ -203,7 +204,7 @@ class IndividualUnitAverager(BaseUnitAverager):
         estimate (float):
             The computed unit averaging estimate, which is simply the target
             unit's estimate.
-        focus_function (BaseFocusFunction):
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
             Focus function expressing the transformation of interest.
         target_id (int | str):
             The ID of the target unit. Initialized as None, set by calling ``fit()``.
@@ -244,7 +245,7 @@ class MeanGroupUnitAverager(BaseUnitAverager):
     setting.
 
     Args:
-        focus_function (BaseFocusFunction):
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
             Focus function expressing the transformation of interest.
         ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
             Individual unit estimates. Can be a list, numpy array, or dictionary.
@@ -267,7 +268,7 @@ class MeanGroupUnitAverager(BaseUnitAverager):
         estimate (float):
             The computed unit averaging estimate. Here a simple average of all
             unit estimates.
-        focus_function (BaseFocusFunction):
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
             Focus function expressing the transformation of interest.
         target_id (int | str):
             The ID of the target unit. Initialized as None, set by calling ``fit()``.
@@ -333,7 +334,7 @@ class OptimalUnitAverager(BaseUnitAverager):
 
 
     Args:
-        focus_function (BaseFocusFunction):
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
             Focus function expressing the transformation of interest.
         ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
             Individual unit estimates. Can be a list, numpy array, or dictionary.
@@ -483,19 +484,21 @@ class OptimalUnitAverager(BaseUnitAverager):
                 eq_lhs @ weights == eq_rhs,
             ],
         )
-        # TODO: Resolve raise_error warning after https://github.com/cvxpy/cvxpy/issues/2851
-        prob.solve()
-        if weights.value is None:
-            raise TypeError(
-                "Optimizer could not find a feasible solution, returned None."
-            )
 
-        # Allocate the weights
-        opt_weights = self._allocate_optimal_weights(
-            weights.value,
-            self.unrestricted_units_bool,
-            self.ind_estimates,
-        )
+        try:
+            prob.solve()
+        except SolverError as e:
+            raise SolverError("Optimizer could not find a feasible solution") from e
+
+        # Allocate the weights if possible
+        if weights.value is None:
+            raise ValueError("Optimizer could not find a feasible solution")
+        else:
+            opt_weights = self._allocate_optimal_weights(
+                weights.value,
+                self.unrestricted_units_bool,
+                self.ind_estimates,
+            )
 
         self.weights = opt_weights
 
@@ -645,3 +648,80 @@ class OptimalUnitAverager(BaseUnitAverager):
             raise TypeError(
                 "If any input is a dictionary, all inputs must be dictionaries."
             )
+
+
+class SteinUnitAverager(OptimalUnitAverager):
+    """**Unit averaging scheme that shrinks the target estimator to the overall mean.**
+
+    This class implements an MSE-optimal unit averaging scheme which treats
+    the target unit as unrestricted and restricts all other units (in the
+    sense of ``OptimalUnitAverager``). The resulting estimator is an
+    example of a Stein-like shrinkage scheme: the target unit's estimates
+    is optimally shrank towars the average of all other units.
+
+    Args:
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
+            Focus function expressing the transformation of interest.
+        ind_estimates (np.ndarray | list | dict[str | int, np.ndarray | list]):
+            Individual unit estimates. Can be a list, numpy array, or dictionary.
+            Each unit-specific estimate should be a NumPy array or list.
+            The first dimension of ``ind_estimates`` indexes units (rows or
+            dictionary entries).
+        ind_covar_ests (np.ndarray | list | dict[str | int, np.ndarray | list]):
+            Individual unit covariance estimates. Can be a list, numpy array, or
+            dictionary. Each unit-specific covariance estimate should be a NumPy
+            array or list of lists. The first dimension of ``ind_covar_ests`` indexes
+            units (rows or dictionary entries).
+
+    Attributes:
+        ind_estimates (np.ndarray):
+            Array of individual unit estimates.
+        ind_covar_ests (np.ndarray):
+            Array of individual unit covariance estimates.
+        unrestricted_units_bool (np.ndarray):
+            Boolean array indicating which units are unrestricted. Unlike for
+            ``OptimalUnitAverager``, these are automatically set during ``fit()``.
+            Stein average scheme leaves the target unit unrestricted and restricts
+            all other units.
+        keys (np.ndarray):
+            Array of keys corresponding to the units. The individual estimates are
+            converted to numpy arrays internally. If ``ind_estimates`` is a
+            dictionary, the keys are preserved in the ``keys`` attribute. If
+            ``ind_estimates`` is a list or array, ``keys`` defaults to numeric
+            indices (0, 1, 2, ...).
+        weights (np.ndarray):
+            The computed weights for each unit.
+        estimate (float):
+            The computed unit averaging estimate.
+        focus_function (:class:`~unit_averaging.focus_function.BaseFocusFunction`):
+            Focus function expressing the transformation of interest.
+        target_id (int | str):
+            The ID of the target unit. Initialized as None, set by calling ``fit()``.
+
+    Example:
+        >>> from unit_averaging import SteinUnitAverager+, InlineFocusFunction
+        >>> 1
+    """
+
+    def __init__(
+        self,
+        focus_function: BaseFocusFunction,
+        ind_estimates: list | np.ndarray | dict[str | int, np.ndarray | list],
+        ind_covar_ests: list | np.ndarray | dict[str | int, np.ndarray | list],
+    ):
+        super().__init__(focus_function, ind_estimates, ind_covar_ests)
+
+        # Stein averager has special unrestricted unit scheme that is set during fit()
+        self.unrestricted_units_bool = np.full(self.keys.shape, np.nan)
+
+    def _compute_weights(self):
+        """Compute unit averaging weights.
+
+        This method optimally shrinks target estimates towards the group average.
+        """
+        # Update the unrestricted units to a Stein-like scheme
+        self.unrestricted_units_bool = np.full(self.keys.shape, False)
+        self.unrestricted_units_bool[self._target_coord] = True
+
+        # Fit optimal weights with the above unrestricted scheme
+        super()._compute_weights()

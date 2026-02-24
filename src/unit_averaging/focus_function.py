@@ -59,7 +59,7 @@ class BaseFocusFunction(ABC):
             float | np.floating[Any]:
                 Scalar result of applying the focus function to the input estimate.
         """
-        pass
+        ...
 
     @abstractmethod
     def gradient(
@@ -82,7 +82,7 @@ class BaseFocusFunction(ABC):
                 the input estimate. The shape of the array should match the shape
                 of the input estimate.
         """
-        pass
+        ...
 
 
 class InlineFocusFunction(BaseFocusFunction):
@@ -148,3 +148,56 @@ class InlineFocusFunction(BaseFocusFunction):
         ind_estimate: float | np.floating[Any] | np.ndarray,
     ) -> np.ndarray:
         return self._gradient(ind_estimate)
+
+
+class IdentityFocusFunction(BaseFocusFunction):
+    """Convenience class for creating an identity focus function.
+
+    In some cases the individual estimates are scalar and are directly the
+    focus parameters. This class makes it easy to work with such scenarios.
+    It implements an identity map:
+
+    .. math::
+        \\mu(\\theta_i) = \\theta_i
+
+    In contrast to ``BaseFocusFunction`` and ``InlineFocusFunction``, this
+    class requires no arguments.
+
+    Note: ``IdentityFocusFunction`` can only be used with scalar
+    individual estimates.
+
+
+    Example:
+        >>> from unit_averaging import IdentityFocusFunction
+        >>> import numpy as np
+        >>> # Estimate
+        >>> identity_focus = IdentityFocusFunction()
+        >>> result = identity_focus.focus_function(np.array([1.0]))
+        >>> print(result)  # Output: 2.0
+        >>> grad = identity_focus.gradient(np.array([43.0]))
+        >>> print(grad)  # Output: [1.0]
+    """
+
+    def __init__(
+        self,
+    ): ...
+
+    def focus_function(
+        self,
+        ind_estimate: float | np.floating[Any] | np.ndarray,
+    ) -> float | np.floating[Any]:
+        ind_estimate = np.squeeze(np.array(ind_estimate))
+        if ind_estimate.ndim == 0:
+            return ind_estimate.item()
+        else:
+            raise ValueError("Inputs to IdentityFocusFunction must be scalar")
+
+    def gradient(
+        self,
+        ind_estimate: float | np.floating[Any] | np.ndarray,
+    ) -> np.ndarray:
+        ind_estimate = np.squeeze(np.array(ind_estimate))
+        if ind_estimate.ndim == 0:
+            return np.array([1.0])
+        else:
+            raise ValueError("Inputs to IdentityFocusFunction must be scalar")
