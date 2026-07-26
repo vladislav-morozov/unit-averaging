@@ -89,7 +89,7 @@ jobs:
           if not version_match:
               raise ValueError("Could not find version in pyproject.toml")
           current_version = version_match.group(1)
-          new_version = f"{current_version}.dev{sha}"
+          new_version = f"{current_version}+dev.{sha}"
           new_content = re.sub(
               r'version\s*=\s*[\'"][^\'"]*[\'"]',
               f'version = "{new_version}"',
