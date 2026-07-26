@@ -54,26 +54,26 @@ from unit_averaging import OptimalUnitAverager, InlineFocusFunction
 
 # Example: Forecasting with a linear focus function
 x_value = 1.0  # Your covariate (e.g., lagged value)
-estimates = {   # Dict of unit-specific coefficient estimates
+estimates = {  # Dict of unit-specific coefficient estimates
     "unit1": np.array([0.5, 0.3]),
-    "unit2": np.array([0.7, 0.1])
+    "unit2": np.array([0.7, 0.1]),
 }
-covariances = { # Dict of unit-specific covariance matrices
+covariances = {  # Dict of unit-specific covariance matrices
     "unit1": np.array([[0.1, 0.0], [0.0, 0.1]]),
-    "unit2": np.array([[0.1, 0.0], [0.0, 0.1]])
+    "unit2": np.array([[0.1, 0.0], [0.0, 0.1]]),
 }
 
 # Define focus function: e.g., μ(θ) = θ₀ + θ₁ * x
 focus = InlineFocusFunction(
     focus_function=lambda coef: coef[0] + coef[1] * x_value,
-    gradient=lambda coef: np.array([1, x_value])
+    gradient=lambda coef: np.array([1, x_value]),
 )
 
 # Create and fit averager
 averager = OptimalUnitAverager(
     focus_function=focus,
     ind_estimates=estimates,
-    ind_covar_ests=covariances
+    ind_covar_ests=covariances,
 )
 averager.fit(target_id="unit1")
 ```
