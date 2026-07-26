@@ -3,7 +3,7 @@
 **Optimal Estimation for Heterogeneous Data**
  
 [![PyPI](https://img.shields.io/pypi/v/unit-averaging)](https://pypi.org/project/unit-averaging/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.12+](https://img.shields.io/badge/python-3.12%20|%203.13%20|%203.14-blue.svg)](https://www.python.org/downloads/)
-[![Docs](https://github.com/vladislav-morozov/unit-averaging/actions/workflows/build-deploy-docs.yml/badge.svg)](https://vladislav-morozov.github.io/unit-averaging/) [![codecov](https://codecov.io/gh/vladislav-morozov/unit-averaging/branch/develop/graph/badge.svg?token=E3ONL6JLYX)](https://codecov.io/gh/vladislav-morozov/unit-averaging)
+[![Docs](https://github.com/vladislav-morozov/unit-averaging/actions/workflows/build-deploy-docs.yml/badge.svg)](https://vladislav-morozov.eu/unit-averaging/) [![codecov](https://codecov.io/gh/vladislav-morozov/unit-averaging/branch/develop/graph/badge.svg?token=E3ONL6JLYX)](https://codecov.io/gh/vladislav-morozov/unit-averaging)
 
  
 <table>
@@ -39,9 +39,9 @@ pip install unit_averaging
 
 ## Documentation
 
-- **[Tutorials](https://vladislav-morozov.github.io/unit-averaging/tutorials/)**: step-by-step guides to get started
-- **[API Reference](https://vladislav-morozov.github.io/unit-averaging/reference/)**: detailed documentation for all classes/functions
-- **[Theory](https://vladislav-morozov.github.io/unit-averaging/theory/theory.html)**: mathematical foundations of unit averaging
+- **[Tutorials](https://vladislav-morozov.eu/unit-averaging/tutorials/)**: step-by-step guides to get started
+- **[API Reference](https://vladislav-morozov.eu/unit-averaging/reference/)**: detailed documentation for all classes/functions
+- **[Theory](https://vladislav-morozov.eu/unit-averaging/theory/theory.html)**: mathematical foundations of unit averaging
 - **[Original Paper](https://arxiv.org/abs/2210.14205)**: complete theoretical treatment
 
 
