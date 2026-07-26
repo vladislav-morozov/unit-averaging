@@ -1,7 +1,7 @@
 Tutorials
 =========
 
-Welcome to the ``unit_averaging`` tutorials. These step-by-step guides will help you get started with the package's core functionality and extend it for your specific needs.
+Welcome to the step-by-step guides for ``unit_averaging``. These guides will help you get started with the package's core functionality and extend it for your specific needs.
 
 Getting Started
 ---------------
