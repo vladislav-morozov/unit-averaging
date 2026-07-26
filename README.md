@@ -41,7 +41,7 @@ pip install unit_averaging
 
 - **[Tutorials](https://vladislav-morozov.github.io/unit-averaging/tutorials/)**: step-by-step guides to get started
 - **[API Reference](https://vladislav-morozov.github.io/unit-averaging/reference/)**: detailed documentation for all classes/functions
-- **[Theory](https://vladislav-morozov.github.io/unit-averaging/theory/)**: mathematical foundations of unit averaging
+- **[Theory](https://vladislav-morozov.github.io/unit-averaging/theory/theory.html)**: mathematical foundations of unit averaging
 - **[Original Paper](https://arxiv.org/abs/2210.14205)**: complete theoretical treatment
 
 
