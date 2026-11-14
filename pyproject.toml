@@ -27,7 +27,7 @@ requires-python = ">= 3.12"
 name = "unit_averaging"
 version = "1.1.2"
 dependencies = [
-    "cvxpy >= 1.0.0, !=1.9.0, !=1.9.1, !=1.9.2",
+    "cvxpy >= 1.0.0",
     "numpy >= 2.0.0",
 ]
 authors = [ 
@@ -109,7 +109,7 @@ select = [
 ###########
 
 [tool.tox]
-envlist = ["py314t", "py313", "py312"]
+envlist = ["py314", "py313", "py312"]
 
 # Base environments: testing
 [tool.tox.env_run_base]
