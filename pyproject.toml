@@ -50,6 +50,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
 ]
 
 [project.urls]
@@ -109,7 +110,7 @@ select = [
 ###########
 
 [tool.tox]
-envlist = ["py314", "py313", "py312"]
+envlist = ["py315", "py314", "py313", "py312"]
 
 # Base environments: testing
 [tool.tox.env_run_base]
